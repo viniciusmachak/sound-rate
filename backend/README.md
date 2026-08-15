@@ -1,84 +1,194 @@
-# SoundRate API
+# SoundRate Backend
 
-A RESTful API for the SoundRate application, a web site for discovering, rating, and reviewing music. This project was created for portfolio purposes.
+This module contains the Spring Boot API for SoundRate.
 
-## ✨ Features
+## What The Backend Does
 
-- **User Authentication:** Secure user registration, login, and JWT-based authentication.
-- **Account Management:** Profile, avatar, and password updates. Full "Forgot Password" flow with email integration.
-- **Ratings & Reviews:** A comprehensive rating system for albums and tracks (0.5 to 5 stars), with the ability to write detailed reviews.
-- **Social Features:** Ability to follow other users and like albums and reviews.
-- **Dashboards:** Endpoints for data aggregation, such as the highest-rated albums and most active users.
-- **External API Integration:** Fetches album, artist, and track data from the official Deezer API.
-- **Documentation:** Fully documented API using Swagger/OpenAPI.
+The API is responsible for:
 
-## 🛠️ Tech Stack
+- authenticating users with JWTs
+- managing user profiles, avatars, and passwords
+- storing ratings, reviews, likes, follows, and listen-later entries
+- integrating with Deezer for album and artist metadata
+- sending account-related emails
 
-- **Backend:** Java 17, Spring Boot 3
-- **Security:** Spring Security, JWT (JSON Web Tokens)
-- **Database:** Spring Data JPA, Hibernate, PostgreSQL
-- **Email:** Spring Mail + SendGrid
-- **Documentation:** Springdoc OpenAPI (Swagger)
-- **Containerization:** Docker & Docker Compose
+## Stack
 
-## 🚀 Getting Started
+- Java 21
+- Spring Boot 3.5
+- Spring Security
+- Spring Data JPA / Hibernate
+- PostgreSQL
+- SendGrid
+- Cloudinary
+- Springdoc OpenAPI
 
-### Prerequisites
-- Java JDK 17 or higher
-- Maven 3.8+
-- Docker and Docker Compose
+## Profiles
 
-### Installation Steps
+The backend uses profile-specific configuration:
 
-1.  **Clone the repository:**
-    ```bash
-    git clone https://github.com/viniciusmcabral/sound-rate.git
-    cd sound-rate
-    ```
+- `local`: local development, Swagger enabled, schema auto-update enabled
+- `docker`: container runtime profile
+- `test`: test profile using H2
 
-2.  **Create the environment file (`.env`):**
-    In the project's root directory, create a file named `.env`. It must contain all the necessary environment variables. Use the example below as a template.
-    
-    **.env.example**
-    ```env
-    # Variables for the Postgres container
-    POSTGRES_DB=sound_rate_db
-    POSTGRES_USER=sound_rate_user
-    POSTGRES_PASSWORD=your_password
+Default profile:
 
-    # Secret for JWT generation
-    JWT_SECRET=your_secret_jwt_key
+- `local`
 
-    # Connection URL for Cloudinary image uploads
-    CLOUDINARY_URL=cloudinary://...
+## Configuration Files
 
-    # API Key for SendGrid email delivery
-    SENDGRID_API_KEY=SG.your_sendgrid_api_key.xxxxxxxx
-    ```
+- `src/main/resources/application.properties`
+  Base configuration shared by all environments
+- `src/main/resources/application-local.properties`
+  Local development overrides
+- `src/main/resources/application-docker.properties`
+  Docker runtime overrides
+- `src/test/resources/application-test.properties`
+  Test-only configuration
 
-3.  **Run with Docker Compose:**
-    This command will build the backend and database images and start the containers.
-    ```bash
-    docker-compose up --build -d
-    ```
-    The API will be available at `http://localhost:8080/api/v1`.
+## Required Environment Variables
 
-## 📖 API Documentation (Swagger)
+The backend expects these values to be available from the root `.env` file or the environment:
 
-The complete and interactive API documentation is available via the Swagger UI. With the application running, access the following URL in your browser:
+```env
+POSTGRES_DB=sound_rate_db
+POSTGRES_USER=sound_rate_user
+POSTGRES_PASSWORD=change-me
 
-[**http://localhost:8080/swagger-ui/index.html**](http://localhost:8080/swagger-ui/index.html)
+JWT_SECRET=replace-with-a-long-random-secret
+CLOUDINARY_URL=cloudinary://<key>:<secret>@<cloud-name>
+SENDGRID_API_KEY=SG.xxxxx
+```
 
-## 🗺️ API Endpoints Overview
+## Local Development
 
-The API is organized around the following main resources:
+### 1. Start PostgreSQL
 
-- `/auth`: Registration, login, and password management.
-- `/users`: User profiles, followers, and self-account management.
-- `/albums`: Album details and data aggregations.
-- `/artists`: Artist details.
-- `/ratings`: Creating and deleting ratings.
-- `/reviews`: Creating, updating, and deleting reviews.
-- `/search`: Global search across the platform.
+From the repository root:
 
-For a detailed description of each route, please refer to the `documentation.txt` file or the Swagger documentation.
+```bash
+docker compose up db
+```
+
+The local backend profile expects PostgreSQL on:
+
+- host: `localhost`
+- port: `5433`
+
+### 2. Run the API
+
+```bash
+cd backend
+sh mvnw spring-boot:run
+```
+
+The API will start on:
+
+- `http://localhost:8080`
+
+Swagger will be available at:
+
+- `http://localhost:8080/swagger-ui/index.html`
+
+## Docker Runtime
+
+From the repository root:
+
+```bash
+docker compose up --build
+```
+
+In Docker:
+
+- the backend runs with the `docker` profile
+- the backend connects to the database at `db:5432`
+
+## Common API Areas
+
+The main route groups are:
+
+- `/api/v1/auth`
+  Register, login, forgot password, reset password
+- `/api/v1/users`
+  Public profiles, followers/following, current-user account updates
+- `/api/v1/albums`
+  Album details, album reviews, dashboard queries, album likes
+- `/api/v1/artists`
+  Artist details and artist albums
+- `/api/v1/ratings`
+  Album and track ratings for the authenticated user
+- `/api/v1/reviews`
+  Review creation, updates, deletion, and review likes
+- `/api/v1/listen-later`
+  Authenticated user listen-later list
+- `/api/v1/search`
+  Search endpoints
+
+## Security Model
+
+- public read endpoints are exposed for user profiles, albums, artists, and search
+- write operations require a valid Bearer token
+- ownership checks are enforced for user-owned resources such as reviews and account updates
+- unauthenticated protected requests return `401`
+- unauthorized ownership violations return `403`
+
+## External Integrations
+
+### Deezer
+
+The backend fetches album and artist metadata from the Deezer API through `DeezerService`.
+
+### Cloudinary
+
+Avatar uploads are sent to Cloudinary through `StorageService`.
+
+### SendGrid
+
+The backend sends:
+
+- welcome emails
+- password reset emails
+- account deletion emails
+
+## Testing
+
+Run the backend test suite with:
+
+```bash
+cd backend
+sh mvnw test
+```
+
+The suite currently covers:
+
+- service-layer mutations
+- protected endpoint auth behavior
+- auth flows
+- validation and ownership rules
+- error response sanitization
+
+## Useful Commands
+
+Run the app:
+
+```bash
+sh mvnw spring-boot:run
+```
+
+Run tests:
+
+```bash
+sh mvnw test
+```
+
+Package the jar:
+
+```bash
+sh mvnw package
+```
+
+Build the backend Docker image from the module directory:
+
+```bash
+docker build -t soundrate-backend .
+```

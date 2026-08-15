@@ -1,175 +1,461 @@
-================================
-API ROUTES OVERVIEW - SOUNDRATE
-================================
+=========================================
+SOUNDRATE BACKEND API QUICK REFERENCE
+=========================================
 
-Legend:
-- [AUTH]: Authentication required (JWT Bearer Token)
-- [PUBLIC]: Public access
+Base path:
+  /api/v1
 
---- Auth Controller (/auth) ---
+Authentication:
+  Protected endpoints require:
+    Authorization: Bearer <jwt>
 
-POST   /auth/register
-       Description: Registers a new user.
-       Access: [PUBLIC]
+Conventions:
+  [PUBLIC]  No authentication required
+  [AUTH]    Valid JWT required
+  [OWNER]   Valid JWT required and caller must own the target resource
 
-POST   /auth/login
-       Description: Authenticates a user and returns a JWT.
-       Access: [PUBLIC]
-
-POST   /auth/forgot-password
-       Description: Initiates the password reset process by sending an email to the user.
-       Access: [PUBLIC]
-
-POST   /auth/reset-password
-       Description: Finalizes the password reset process, setting a new password based on the token.
-       Access: [PUBLIC]
+Pagination:
+  Endpoints returning pages accept standard Spring pagination params:
+    ?page=<number>
+    ?size=<number>
+    ?sort=<field>,<asc|desc>
 
 
---- User Controller (/users) ---
+========================
+AUTH
+========================
 
-GET    /users/{username}
-       Description: Gets the public profile details for a user.
-       Access: [PUBLIC]
+POST /api/v1/auth/register                         [PUBLIC]
+  Purpose:
+    Create a new user account and return a JWT.
+  JSON body:
+    {
+      "username": "string, 3-50 chars",
+      "email": "valid email",
+      "password": "string, min 6 chars"
+    }
+  Success:
+    201 Created
+    Returns:
+      {
+        "token": "<jwt>",
+        "user": {
+          "id": number,
+          "username": string,
+          "avatarUrl": string
+        }
+      }
+  Common errors:
+    400 validation error
+    409 username or email already in use
 
-GET    /users/{username}/ratings
-       Description: Lists the albums rated by a user (paginated).
-       Access: [PUBLIC]
+POST /api/v1/auth/login                            [PUBLIC]
+  Purpose:
+    Authenticate with username or email plus password.
+  JSON body:
+    {
+      "username": "username or email",
+      "password": "string"
+    }
+  Success:
+    200 OK
+    Returns auth payload with JWT and user summary.
+  Common errors:
+    401 invalid credentials or disabled account
 
-GET    /users/{username}/likes
-       Description: Lists the albums liked by a user (paginated).
-       Access: [PUBLIC]
+POST /api/v1/auth/forgot-password                  [PUBLIC]
+  Purpose:
+    Start password-reset flow.
+  JSON body:
+    {
+      "email": "valid email"
+    }
+  Success:
+    200 OK
+  Notes:
+    Response does not reveal whether the email exists.
 
-PUT    /users/me/profile
-       Description: Updates the profile information of the authenticated user.
-       Access: [AUTH]
-
-PUT    /users/me/password
-       Description: Updates the password of the authenticated user.
-       Access: [AUTH]
-
-PUT    /users/me/avatar
-       Description: Uploads a new avatar for the authenticated user.
-       Access: [AUTH]
-
-DELETE /users/me/avatar
-       Description: Removes the custom avatar of the authenticated user.
-       Access: [AUTH]
-
-DELETE /users/me
-       Description: Deletes (soft delete) the account of the authenticated user.
-       Access: [AUTH]
-
-
---- Follow Controller (/users) ---
-
-POST   /users/{username}/follow
-       Description: The authenticated user follows the user specified by {username}.
-       Access: [AUTH]
-
-DELETE /users/{username}/follow
-       Description: The authenticated user unfollows the user specified by {username}.
-       Access: [AUTH]
-
-GET    /users/{username}/following
-       Description: Lists the users that {username} is following (paginated).
-       Access: [PUBLIC]
-
-GET    /users/{username}/followers
-       Description: Lists the followers of {username} (paginated).
-       Access: [PUBLIC]
-
-
---- Rating Controller (/ratings) ---
-
-POST   /ratings
-       Description: Creates or updates a rating for an album or track. If the rating is 'null', the rating is removed.
-       Access: [AUTH]
-
-DELETE /ratings
-       Description: Removes a rating for an album or track.
-       Access: [AUTH]
-
-GET    /ratings
-       Description: (Not implemented/specified, could be used in the future to fetch all of a user's ratings).
-       Access: [AUTH]
-
-
---- Review Controller (/reviews) ---
-
-POST   /reviews
-       Description: Creates a new review for an album.
-       Access: [AUTH]
-
-PUT    /reviews/{id}
-       Description: Updates an existing review.
-       Access: [AUTH]
-
-DELETE /reviews/{id}
-       Description: Deletes an existing review.
-       Access: [AUTH]
+POST /api/v1/auth/reset-password                   [PUBLIC]
+  Purpose:
+    Finish password reset using a reset token.
+  JSON body:
+    {
+      "token": "reset token",
+      "newPassword": "string, min 6 chars"
+    }
+  Success:
+    200 OK
+  Common errors:
+    400 invalid or expired token
 
 
---- Listen Later Controller (/listen-later) ---
+========================
+USERS
+========================
 
-GET    /listen-later
-       Description: Lists the albums in the authenticated user's "Listen Later" list (paginated).
-       Access: [AUTH]
+GET /api/v1/users/{username}                       [PUBLIC]
+  Purpose:
+    Fetch a public user profile summary and counts.
+  Path params:
+    username  not blank
+  Success:
+    200 OK
+    Returns profile data, review/rating counts, follower counts, and follow state.
 
-POST   /listen-later/{albumId}
-       Description: Adds an album to the "Listen Later" list.
-       Access: [AUTH]
+GET /api/v1/users/{username}/ratings               [PUBLIC]
+  Purpose:
+    List albums rated by the user.
+  Path params:
+    username  not blank
+  Query params:
+    page, size, sort
+  Success:
+    200 OK
+    Returns paginated rated-album entries.
 
-DELETE /listen-later/{albumId}
-       Description: Removes an album from the "Listen Later" list.
-       Access: [AUTH]
+GET /api/v1/users/{username}/likes                 [PUBLIC]
+  Purpose:
+    List albums liked by the user.
+  Path params:
+    username  not blank
+  Query params:
+    page, size, sort
+  Success:
+    200 OK
+    Returns paginated album data.
+
+DELETE /api/v1/users/me                            [AUTH]
+  Purpose:
+    Soft-delete the authenticated account.
+  Success:
+    204 No Content
+
+PUT /api/v1/users/me/profile                       [AUTH]
+  Purpose:
+    Update the authenticated user's profile data.
+  JSON body:
+    {
+      "email": "valid email"
+    }
+  Success:
+    200 OK
+    Returns updated user summary.
+  Common errors:
+    400 validation error
+    409 email already used by another account
+
+PUT /api/v1/users/me/password                      [AUTH]
+  Purpose:
+    Change the authenticated user's password.
+  JSON body:
+    {
+      "currentPassword": "string",
+      "newPassword": "string, min 6 chars"
+    }
+  Success:
+    204 No Content
+  Common errors:
+    400 validation error or wrong current password
+
+PUT /api/v1/users/me/avatar                        [AUTH]
+  Purpose:
+    Upload a new avatar image.
+  Content type:
+    multipart/form-data
+  Form fields:
+    file   required, non-empty file
+  Success:
+    200 OK
+    Returns updated user summary.
+  Common errors:
+    400 missing or empty file
+
+DELETE /api/v1/users/me/avatar                     [AUTH]
+  Purpose:
+    Reset avatar to the generated default.
+  Success:
+    200 OK
+    Returns updated user summary.
 
 
---- Album Like Controller (/albums) ---
+========================
+FOLLOWS
+========================
 
-POST   /albums/{albumId}/like
-       Description: The authenticated user likes an album.
-       Access: [AUTH]
+POST /api/v1/users/{username}/follow               [AUTH]
+  Purpose:
+    Follow the target user.
+  Path params:
+    username  target username
+  Success:
+    200 OK
+  Common errors:
+    400 cannot follow yourself
+    404 target user not found
 
-DELETE /albums/{albumId}/like
-       Description: The authenticated user unlikes an album.
-       Access: [AUTH]
+DELETE /api/v1/users/{username}/follow             [AUTH]
+  Purpose:
+    Unfollow the target user.
+  Path params:
+    username  target username
+  Success:
+    204 No Content
+  Common errors:
+    404 target user not found
 
+GET /api/v1/users/{username}/followers             [PUBLIC]
+  Purpose:
+    List followers of a user.
+  Query params:
+    page, size, sort
+  Success:
+    200 OK
 
---- Review Like Controller (/reviews) ---
-
-POST   /reviews/{reviewId}/like
-       Description: The authenticated user likes a review.
-       Access: [AUTH]
-
-DELETE /reviews/{reviewId}/like
-       Description: The authenticated user unlikes a review.
-       Access: [AUTH]
-
-
---- Album Controller (/albums) ---
-
-GET    /albums/highest-rated
-       Description: Returns a list of the highest-rated albums by the community.
-       Access: [PUBLIC]
-
-GET    /albums/{id}
-       Description: Gets all details for a specific album.
-       Access: [PUBLIC]
-
-GET    /albums/{albumId}/reviews
-       Description: Lists the reviews for a specific album (paginated).
-       Access: [PUBLIC]
-
-
---- Artist Controller (/artists) ---
-
-GET    /artists/{artistId}
-       Description: Gets the details for an artist and a paginated list of their albums.
-       Access: [PUBLIC]
+GET /api/v1/users/{username}/following             [PUBLIC]
+  Purpose:
+    List users followed by a user.
+  Query params:
+    page, size, sort
+  Success:
+    200 OK
 
 
---- Search Controller (/search) ---
+========================
+ALBUMS
+========================
 
-GET    /search
-       Description: Performs a global search for albums, artists, and users.
-       Access: [PUBLIC]
+GET /api/v1/albums/highest-rated                   [PUBLIC]
+  Purpose:
+    Return highest-rated community albums for the dashboard.
+  Success:
+    200 OK
+
+GET /api/v1/albums/{id}                            [PUBLIC]
+  Purpose:
+    Fetch detailed album data.
+  Path params:
+    id  album id
+  Success:
+    200 OK
+  Common errors:
+    404 if upstream data cannot be resolved
+
+GET /api/v1/albums/{albumId}/reviews               [PUBLIC]
+  Purpose:
+    List reviews for an album.
+  Query params:
+    page, size, sort
+  Success:
+    200 OK
+    Returns paginated review DTOs including likes count and current-user like state.
+
+POST /api/v1/albums/{albumId}/like                 [AUTH]
+  Purpose:
+    Like an album for the authenticated user.
+  Success:
+    200 OK
+
+DELETE /api/v1/albums/{albumId}/like               [AUTH]
+  Purpose:
+    Remove the authenticated user's album like.
+  Success:
+    204 No Content
+
+
+========================
+ARTISTS
+========================
+
+GET /api/v1/artists/{artistId}                     [PUBLIC]
+  Purpose:
+    Fetch artist details and a paginated album list.
+  Query params:
+    page, size, sort
+  Success:
+    200 OK
+
+
+========================
+RATINGS
+========================
+
+POST /api/v1/ratings                               [AUTH]
+  Purpose:
+    Create or update an album or track rating.
+  JSON body:
+    {
+      "albumId": "required",
+      "trackId": "optional",
+      "rating": "0.5 to 5.0"
+    }
+  Behavior:
+    If trackId is present, the request updates a track rating and recalculates the
+    user's album rating from track ratings.
+    If trackId is absent, the request updates the album rating directly and clears
+    track ratings for that album.
+  Success:
+    200 OK
+  Common errors:
+    400 validation error
+
+GET /api/v1/ratings                                [AUTH]
+  Purpose:
+    Return the authenticated user's recent album and track ratings.
+  Success:
+    200 OK
+    Returns:
+      {
+        "albumRatings": [...],
+        "trackRatings": [...]
+      }
+
+DELETE /api/v1/ratings                             [AUTH]
+  Purpose:
+    Delete an album or track rating.
+  Query params:
+    albumId   optional
+    trackId   optional
+  Rules:
+    At least one of albumId or trackId must be provided.
+    If albumId is provided without trackId, album rating, review, and track ratings
+    for that album are removed for the authenticated user.
+  Success:
+    204 No Content
+  Common errors:
+    400 when neither albumId nor trackId is provided
+
+
+========================
+REVIEWS
+========================
+
+POST /api/v1/reviews                               [AUTH]
+  Purpose:
+    Create a review for an album.
+  JSON body:
+    {
+      "albumId": "required",
+      "text": "10 to 10000 chars",
+      "rating": "0.5 to 5.0"
+    }
+  Success:
+    201 Created
+    Returns created review DTO.
+  Common errors:
+    400 validation error
+    409 user already reviewed the album
+
+PUT /api/v1/reviews/{id}                           [AUTH][OWNER]
+  Purpose:
+    Update an existing review owned by the authenticated user.
+  Path params:
+    id  positive review id
+  JSON body:
+    Same as review creation
+  Success:
+    200 OK
+  Common errors:
+    400 validation error
+    403 caller is not the review author
+    404 review not found
+
+DELETE /api/v1/reviews/{id}                        [AUTH][OWNER]
+  Purpose:
+    Delete a review owned by the authenticated user.
+  Path params:
+    id  positive review id
+  Success:
+    204 No Content
+  Common errors:
+    403 caller is not the review author
+    404 review not found
+
+POST /api/v1/reviews/{reviewId}/like               [AUTH]
+  Purpose:
+    Like a review.
+  Path params:
+    reviewId  positive review id
+  Success:
+    200 OK
+  Common errors:
+    404 review not found
+
+DELETE /api/v1/reviews/{reviewId}/like             [AUTH]
+  Purpose:
+    Remove the authenticated user's like from a review.
+  Path params:
+    reviewId  positive review id
+  Success:
+    204 No Content
+  Common errors:
+    404 review not found
+
+
+========================
+LISTEN LATER
+========================
+
+GET /api/v1/listen-later                           [AUTH]
+  Purpose:
+    List the authenticated user's listen-later albums.
+  Query params:
+    page, size, sort
+  Success:
+    200 OK
+    Returns paginated album data.
+
+POST /api/v1/listen-later/{albumId}                [AUTH]
+  Purpose:
+    Add an album to the authenticated user's listen-later list.
+  Success:
+    200 OK
+
+DELETE /api/v1/listen-later/{albumId}              [AUTH]
+  Purpose:
+    Remove an album from the authenticated user's listen-later list.
+  Success:
+    204 No Content
+
+
+========================
+SEARCH
+========================
+
+GET /api/v1/search?query=<text>                    [PUBLIC]
+  Purpose:
+    Search across albums, artists, and users.
+  Query params:
+    query   required, not blank
+  Success:
+    200 OK
+    Returns a list of mixed search result DTOs.
+
+
+========================
+ERROR RESPONSE SHAPE
+========================
+
+Typical error response:
+  {
+    "timestamp": "<ISO-8601 instant>",
+    "status": 400,
+    "error": "Bad Request",
+    "message": "Human-readable summary",
+    "path": "/api/v1/..."
+  }
+
+Validation errors may return:
+  {
+    "timestamp": "<ISO-8601 instant>",
+    "status": 400,
+    "error": "Validation Error",
+    "path": "/api/v1/...",
+    "errors": {
+      "fieldName": "validation message"
+    }
+  }
+
+Notes:
+  - Protected endpoints return 401 when no valid JWT is provided.
+  - Ownership violations return 403.
+  - Internal errors are intentionally sanitized and do not expose stack traces.
