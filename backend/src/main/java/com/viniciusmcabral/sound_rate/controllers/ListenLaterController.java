@@ -33,7 +33,7 @@ public class ListenLaterController {
 
 	@GetMapping
 	public Page<DeezerAlbumDTO> getListenLaterList(
-			@PageableDefault(size = 20, sort = "addedAt", direction = Sort.Direction.DESC) Pageable pageable) {
+			@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 		return listenLaterService.getListenLaterList(pageable);
 	}
 

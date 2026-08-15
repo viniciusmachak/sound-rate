@@ -87,6 +87,7 @@ public class RatingService {
 		}
 	}
 
+	@Transactional(readOnly = true)
 	public Map<String, Object> getUserRatings() {
 		UserModel currentUser = authenticatedUserService.requireCurrentUser();
 		Pageable pageRequest = PageRequest.of(0, 20, Sort.by("id").descending());

@@ -161,6 +161,10 @@ public class UserService {
 
 	@Transactional
 	public UserDTO updateAvatar(UserModel currentUser, MultipartFile file) {
+		if (file == null || file.isEmpty()) {
+			throw new IllegalArgumentException("Avatar file cannot be empty.");
+		}
+
 		String newAvatarUrl = storageService.uploadFile(file);
 		currentUser.setAvatarUrl(newAvatarUrl);
 
