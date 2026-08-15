@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.validation.annotation.Validated;
 
 import com.viniciusmcabral.sound_rate.dtos.deezer.DeezerAlbumDTO;
 import com.viniciusmcabral.sound_rate.dtos.request.UpdatePasswordDTO;
@@ -22,12 +23,14 @@ import com.viniciusmcabral.sound_rate.dtos.request.UpdateProfileDTO;
 import com.viniciusmcabral.sound_rate.dtos.response.UserDTO;
 import com.viniciusmcabral.sound_rate.dtos.response.UserProfileDTO;
 import com.viniciusmcabral.sound_rate.dtos.response.UserRatingDTO;
-import com.viniciusmcabral.sound_rate.models.User;
+import com.viniciusmcabral.sound_rate.models.UserModel;
 import com.viniciusmcabral.sound_rate.services.UserService;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 
 @RestController
+@Validated
 @RequestMapping("/api/v1/users")
 public class UserController {
 
@@ -38,23 +41,20 @@ public class UserController {
 	}
 
 	@GetMapping("/{username}")
-	public ResponseEntity<UserProfileDTO> getUserProfile(@PathVariable String username) {
-		UserProfileDTO userProfile = userService.getUserProfile(username);
-		return ResponseEntity.ok(userProfile);
+	public UserProfileDTO getUserProfile(@PathVariable @NotBlank String username) {
+		return userService.getUserProfile(username);
 	}
 
 	@GetMapping("/{username}/likes")
-	public ResponseEntity<Page<DeezerAlbumDTO>> getLikedAlbums(@PathVariable String username,
+	public Page<DeezerAlbumDTO> getLikedAlbums(@PathVariable @NotBlank String username,
 			@PageableDefault(size = 20) Pageable pageable) {
-		Page<DeezerAlbumDTO> likedAlbumsPage = userService.getLikedAlbumsPage(username, pageable);
-		return ResponseEntity.ok(likedAlbumsPage);
+		return userService.getLikedAlbumsPage(username, pageable);
 	}
 
 	@GetMapping("/{username}/ratings")
-	public ResponseEntity<Page<UserRatingDTO>> getRatedAlbums(@PathVariable String username,
+	public Page<UserRatingDTO> getRatedAlbums(@PathVariable @NotBlank String username,
 			@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-		Page<UserRatingDTO> ratedAlbumsPage = userService.getRatedAlbumsPage(username, pageable);
-		return ResponseEntity.ok(ratedAlbumsPage);
+		return userService.getRatedAlbumsPage(username, pageable);
 	}
 
 	@DeleteMapping("/me")
@@ -64,28 +64,28 @@ public class UserController {
 	}
 
 	@PutMapping("/me/profile")
-	public ResponseEntity<UserDTO> updateProfile(@AuthenticationPrincipal User currentUser,
+	public ResponseEntity<UserDTO> updateProfile(@AuthenticationPrincipal UserModel currentUser,
 			@RequestBody @Valid UpdateProfileDTO data) {
 		UserDTO updatedUser = userService.updateProfile(currentUser, data);
 		return ResponseEntity.ok(updatedUser);
 	}
 
 	@PutMapping("/me/password")
-	public ResponseEntity<Void> updatePassword(@AuthenticationPrincipal User currentUser,
+	public ResponseEntity<Void> updatePassword(@AuthenticationPrincipal UserModel currentUser,
 			@RequestBody @Valid UpdatePasswordDTO data) {
 		userService.updatePassword(currentUser, data);
 		return ResponseEntity.noContent().build();
 	}
 
 	@PutMapping("/me/avatar")
-	public ResponseEntity<UserDTO> updateAvatar(@AuthenticationPrincipal User currentUser,
+	public ResponseEntity<UserDTO> updateAvatar(@AuthenticationPrincipal UserModel currentUser,
 			@RequestParam("file") MultipartFile file) {
 		UserDTO updatedUser = userService.updateAvatar(currentUser, file);
 		return ResponseEntity.ok(updatedUser);
 	}
 
 	@DeleteMapping("/me/avatar")
-	public ResponseEntity<UserDTO> resetAvatar(@AuthenticationPrincipal User currentUser) {
+	public ResponseEntity<UserDTO> resetAvatar(@AuthenticationPrincipal UserModel currentUser) {
 		UserDTO updatedUser = userService.resetAvatar(currentUser);
 		return ResponseEntity.ok(updatedUser);
 	}

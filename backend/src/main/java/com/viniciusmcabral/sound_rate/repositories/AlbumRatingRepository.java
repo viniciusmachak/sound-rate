@@ -8,26 +8,26 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 
-import com.viniciusmcabral.sound_rate.models.AlbumRating;
-import com.viniciusmcabral.sound_rate.models.User;
+import com.viniciusmcabral.sound_rate.models.AlbumRatingModel;
+import com.viniciusmcabral.sound_rate.models.UserModel;
 
-public interface AlbumRatingRepository extends JpaRepository<AlbumRating, Long> {
+public interface AlbumRatingRepository extends JpaRepository<AlbumRatingModel, Long> {
 
-	Optional<AlbumRating> findByUserAndAlbumId(User user, String albumId);
+	Optional<AlbumRatingModel> findByUserAndAlbumId(UserModel user, String albumId);
 
-	void deleteByUserAndAlbumId(User user, String albumId);
+	void deleteByUserAndAlbumId(UserModel user, String albumId);
 
-	List<AlbumRating> findAllByUser(User user, Pageable pageable);
+	List<AlbumRatingModel> findAllByUser(UserModel user, Pageable pageable);
 
 	@Query("SELECT AVG(ar.rating) FROM AlbumRating ar WHERE ar.albumId = :albumId")
 	Optional<Double> findCommunityAverageRating(String albumId);
 
-	long countByUser(User user);
+	long countByUser(UserModel user);
 
 	@Query("SELECT r.albumId FROM AlbumRating r WHERE r.user = :user ORDER BY r.id DESC")
-	List<String> findAllAlbumIdsByUser(User user);
+	List<String> findAllAlbumIdsByUser(UserModel user);
 
-	Page<AlbumRating> findByUser(User user, Pageable pageable);
+	Page<AlbumRatingModel> findByUser(UserModel user, Pageable pageable);
 
 	long countByAlbumId(String albumId);
 

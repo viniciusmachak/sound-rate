@@ -1,5 +1,7 @@
 package com.viniciusmcabral.sound_rate.services;
 
+import java.util.NoSuchElementException;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -19,9 +21,8 @@ public class ArtistService {
 
 	public ArtistPageDTO getArtistPageDetails(String artistId, Pageable pageable) {
 		DeezerArtistDetailsDTO artistDetails = deezerService.getArtistDetails(artistId);
-
 		if (artistDetails == null) {
-			return null;
+			throw new NoSuchElementException("Artist not found on Deezer with ID: " + artistId);
 		}
 
 		Page<DeezerAlbumDTO> albums = deezerService.getArtistAlbums(artistId, pageable);

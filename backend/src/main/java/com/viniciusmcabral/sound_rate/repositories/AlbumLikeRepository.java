@@ -7,17 +7,17 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import com.viniciusmcabral.sound_rate.models.AlbumLike;
-import com.viniciusmcabral.sound_rate.models.User;
+import com.viniciusmcabral.sound_rate.models.AlbumLikeModel;
+import com.viniciusmcabral.sound_rate.models.UserModel;
 
 @Repository
-public interface AlbumLikeRepository extends JpaRepository<AlbumLike, Long> {
+public interface AlbumLikeRepository extends JpaRepository<AlbumLikeModel, Long> {
 
-	Optional<AlbumLike> findByUserAndAlbumId(User user, String albumId);
+	Optional<AlbumLikeModel> findByUserAndAlbumId(UserModel user, String albumId);
 
-	void deleteByUserAndAlbumId(User user, String albumId);
+	void deleteByUserAndAlbumId(UserModel user, String albumId);
 
 	long countByAlbumId(String albumId);
 
-	Page<AlbumLike> findByUser(User user, Pageable pageable);
+	Page<AlbumLikeModel> findByUser(UserModel user, Pageable pageable);
 }

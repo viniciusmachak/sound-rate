@@ -32,54 +32,27 @@ public class EmailService {
 	@Value("${app.sendgrid.from-email}")
 	private String fromEmail;
 
+	private void logEmailResponse(String emailType, String to, Response response) {
+		if (response.getStatusCode() >= 200 && response.getStatusCode() < 300) {
+			logger.info("{} email sent to '{}' with status {}.", emailType, to, response.getStatusCode());
+			return;
+		}
+
+		logger.warn("{} email to '{}' returned status {}.", emailType, to, response.getStatusCode());
+	}
+
 	@Async
 	public void sendWelcomeEmail(String to, String username) {
 		Context context = new Context();
 		context.setVariable("username", username);
-		String htmlContent = templateEngine.process("welcome-email", context);
-
-		Email from = new Email(fromEmail, "SoundRate");
-		Email toEmail = new Email(to);
-		String subject = "Welcome to SoundRate!";
-		Content content = new Content("text/html", htmlContent);
-		Mail mail = new Mail(from, subject, toEmail, content);
-
-		Request request = new Request();
-
-		try {
-			request.setMethod(Method.POST);
-			request.setEndpoint("mail/send");
-			request.setBody(mail.build());
-			sendGridClient.api(request);
-			logger.info("Welcome email sent to {}.", to);
-		} catch (IOException ex) {
-			logger.error("Error sending welcome email to {}: {}", to, ex.getMessage());
-		}
+		sendEmail("Welcome", to, "Welcome to SoundRate!", "welcome-email", context);
 	}
 
 	@Async
 	public void sendAccountDeletionEmail(String to, String username) {
 		Context context = new Context();
 		context.setVariable("username", username);
-		String htmlContent = templateEngine.process("deletion-email", context);
-
-		Email from = new Email(fromEmail, "SoundRate");
-		Email toEmail = new Email(to);
-		String subject = "Your SoundRate Account Has Been Deleted";
-		Content content = new Content("text/html", htmlContent);
-		Mail mail = new Mail(from, subject, toEmail, content);
-
-		Request request = new Request();
-
-		try {
-			request.setMethod(Method.POST);
-			request.setEndpoint("mail/send");
-			request.setBody(mail.build());
-			sendGridClient.api(request);
-			logger.info("Account deletion email sent to {}.", to);
-		} catch (IOException ex) {
-			logger.error("Error sending account deletion email to {}: {}", to, ex.getMessage());
-		}
+		sendEmail("Account deletion", to, "Your SoundRate Account Has Been Deleted", "deletion-email", context);
 	}
 
 	@Async
@@ -87,27 +60,22 @@ public class EmailService {
 		Context context = new Context();
 		context.setVariable("username", username);
 		context.setVariable("resetLink", resetLink);
-		String htmlContent = templateEngine.process("password-reset-email", context);
+		sendEmail("Password reset", to, "SoundRate - Password Reset Request", "password-reset-email", context);
+	}
 
-		Email from = new Email(fromEmail, "SoundRate");
-		Email toEmail = new Email(to);
-		String subject = "SoundRate - Password Reset Request";
-		Content content = new Content("text/html", htmlContent);
-		Mail mail = new Mail(from, subject, toEmail, content);
-
+	private void sendEmail(String emailType, String to, String subject, String templateName, Context context) {
+		String htmlContent = templateEngine.process(templateName, context);
+		Mail mail = new Mail(new Email(fromEmail, "SoundRate"), subject, new Email(to),
+				new Content("text/html", htmlContent));
 		Request request = new Request();
 
 		try {
 			request.setMethod(Method.POST);
 			request.setEndpoint("mail/send");
 			request.setBody(mail.build());
-
-			Response response = sendGridClient.api(request);
-
-			logger.info("Email sent to {}. Status Code: {}", to, response.getStatusCode());
-
-		} catch (IOException ex) {
-			logger.error("Error sending email to {}: {}", to, ex.getMessage());
+			logEmailResponse(emailType, to, sendGridClient.api(request));
+		} catch (IOException exception) {
+			logger.error("Failed to send {} email to '{}': {}.", emailType.toLowerCase(), to, exception.getMessage());
 		}
 	}
 }

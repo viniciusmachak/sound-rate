@@ -4,11 +4,12 @@ import java.util.List;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.ResponseEntity;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
 
 import com.viniciusmcabral.sound_rate.dtos.response.AlbumDashboardDTO;
 import com.viniciusmcabral.sound_rate.dtos.response.AlbumDetailsDTO;
@@ -16,7 +17,10 @@ import com.viniciusmcabral.sound_rate.dtos.response.AlbumReviewDTO;
 import com.viniciusmcabral.sound_rate.services.AlbumService;
 import com.viniciusmcabral.sound_rate.services.ReviewService;
 
+import jakarta.validation.constraints.NotBlank;
+
 @RestController
+@Validated
 @RequestMapping("/api/v1/albums")
 public class AlbumController {
 
@@ -29,20 +33,18 @@ public class AlbumController {
 	}
 
 	@GetMapping("/{id}")
-	public ResponseEntity<AlbumDetailsDTO> getAlbumById(@PathVariable String id) {
-		AlbumDetailsDTO albumDetails = albumService.getAlbumDetails(id);
-		return ResponseEntity.ok(albumDetails);
+	public AlbumDetailsDTO getAlbumById(@PathVariable("id") @NotBlank String albumId) {
+		return albumService.getAlbumDetails(albumId);
 	}
 
 	@GetMapping("/{albumId}/reviews")
-	public ResponseEntity<Page<AlbumReviewDTO>> getReviewsForAlbum(@PathVariable String albumId, Pageable pageable) {
-		Page<AlbumReviewDTO> reviews = reviewService.getReviewsForAlbum(albumId, pageable);
-		return ResponseEntity.ok(reviews);
+	public Page<AlbumReviewDTO> getReviewsForAlbum(@PathVariable @NotBlank String albumId,
+			@PageableDefault(size = 20) Pageable pageable) {
+		return reviewService.getReviewsForAlbum(albumId, pageable);
 	}
 
 	@GetMapping("/highest-rated")
-	public ResponseEntity<List<AlbumDashboardDTO>> getHighestRatedAlbums() {
-		List<AlbumDashboardDTO> albums = albumService.getHighestRatedAlbums();
-		return ResponseEntity.ok(albums);
+	public List<AlbumDashboardDTO> getHighestRatedAlbums() {
+		return albumService.getHighestRatedAlbums();
 	}
 }

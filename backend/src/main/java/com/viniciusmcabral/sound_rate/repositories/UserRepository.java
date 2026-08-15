@@ -9,22 +9,22 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.viniciusmcabral.sound_rate.models.User;
+import com.viniciusmcabral.sound_rate.models.UserModel;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> {
+public interface 	UserRepository extends JpaRepository<UserModel, Long> {
 
-	Optional<User> findByUsernameAndActiveTrue(String username);
+	Optional<UserModel> findByUsernameAndActiveTrue(String username);
 
-	Optional<User> findByEmailAndActiveTrue(String email);
+	Optional<UserModel> findByEmailAndActiveTrue(String email);
 
 	@Query("SELECT u FROM User u WHERE (u.username = :login OR u.email = :login) AND u.active = true")
-	Optional<User> findByLoginAndActiveTrue(@Param("login") String login);
+	Optional<UserModel> findByLoginAndActiveTrue(@Param("login") String login);
 
-	Optional<User> findByUsername(String username);
+	Optional<UserModel> findByUsername(String username);
 
-	Optional<User> findByEmail(String email);
+	Optional<UserModel> findByEmail(String email);
 	
 	@Query("SELECT u FROM User u WHERE u.active = true AND lower(u.username) LIKE lower(concat('%', :query, '%'))")
-    Page<User> searchByUsername(String query, Pageable pageable);
+    Page<UserModel> searchByUsername(String query, Pageable pageable);
 }

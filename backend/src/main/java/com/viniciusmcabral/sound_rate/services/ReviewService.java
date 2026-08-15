@@ -1,18 +1,24 @@
 package com.viniciusmcabral.sound_rate.services;
 
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
+import java.util.Set;
+import java.util.function.Function;
+import java.util.stream.Collectors;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
 import com.viniciusmcabral.sound_rate.dtos.request.ReviewRequestDTO;
 import com.viniciusmcabral.sound_rate.dtos.response.AlbumReviewDTO;
 import com.viniciusmcabral.sound_rate.dtos.response.UserDTO;
-import com.viniciusmcabral.sound_rate.models.AlbumReview;
-import com.viniciusmcabral.sound_rate.models.User;
+import com.viniciusmcabral.sound_rate.models.AlbumReviewModel;
+import com.viniciusmcabral.sound_rate.models.UserModel;
 import com.viniciusmcabral.sound_rate.repositories.AlbumReviewRepository;
 import com.viniciusmcabral.sound_rate.repositories.ReviewLikeRepository;
 
@@ -21,30 +27,33 @@ public class ReviewService {
 
 	private final AlbumReviewRepository albumReviewRepository;
 	private final ReviewLikeRepository reviewLikeRepository;
+	private final AuthenticatedUserService authenticatedUserService;
 
-	public ReviewService(AlbumReviewRepository albumReviewRepository, ReviewLikeRepository reviewLikeRepository) {
+	public ReviewService(AlbumReviewRepository albumReviewRepository, ReviewLikeRepository reviewLikeRepository,
+			AuthenticatedUserService authenticatedUserService) {
 		this.albumReviewRepository = albumReviewRepository;
 		this.reviewLikeRepository = reviewLikeRepository;
+		this.authenticatedUserService = authenticatedUserService;
 	}
 
 	@Transactional
 	public AlbumReviewDTO createReview(ReviewRequestDTO reviewDTO) {
-		User currentUser = getCurrentUser();
+		UserModel currentUser = authenticatedUserService.requireCurrentUser();
 
 		albumReviewRepository.findByUserAndAlbumId(currentUser, reviewDTO.albumId()).ifPresent(review -> {
 			throw new IllegalStateException("User has already reviewed this album.");
 		});
 		
-		AlbumReview newReview = new AlbumReview(reviewDTO.albumId(), reviewDTO.text(), currentUser, reviewDTO.rating());
-		AlbumReview savedReview = albumReviewRepository.save(newReview);
+		AlbumReviewModel newReview = new AlbumReviewModel(reviewDTO.albumId(), reviewDTO.text(), currentUser, reviewDTO.rating());
+		AlbumReviewModel savedReview = albumReviewRepository.save(newReview);
 		
-		return convertToDto(savedReview);
+		return buildReviewMapper(List.of(savedReview)).apply(savedReview);
 	}
 
 	@Transactional
 	public AlbumReviewDTO updateReview(Long reviewId, ReviewRequestDTO reviewDTO) {
-		User currentUser = getCurrentUser();
-		AlbumReview existingReview = albumReviewRepository.findById(reviewId)
+		UserModel currentUser = authenticatedUserService.requireCurrentUser();
+		AlbumReviewModel existingReview = albumReviewRepository.findById(reviewId)
 				.orElseThrow(() -> new NoSuchElementException("Review not found with id: " + reviewId));
 
 		if (!existingReview.getUser().getId().equals(currentUser.getId()))
@@ -52,15 +61,15 @@ public class ReviewService {
 
 		existingReview.setText(reviewDTO.text());
 		existingReview.setRating(reviewDTO.rating());
-		AlbumReview updatedReview = albumReviewRepository.save(existingReview);
+		AlbumReviewModel updatedReview = albumReviewRepository.save(existingReview);
 
-		return convertToDto(updatedReview);
+		return buildReviewMapper(List.of(updatedReview)).apply(updatedReview);
 	}
 
 	@Transactional
 	public void deleteReview(Long reviewId) {
-		User currentUser = getCurrentUser();
-		AlbumReview reviewToDelete = albumReviewRepository.findById(reviewId)
+		UserModel currentUser = authenticatedUserService.requireCurrentUser();
+		AlbumReviewModel reviewToDelete = albumReviewRepository.findById(reviewId)
 				.orElseThrow(() -> new NoSuchElementException("Review not found with id: " + reviewId));
 
 		if (!reviewToDelete.getUser().getId().equals(currentUser.getId()))
@@ -70,39 +79,27 @@ public class ReviewService {
 	}
 
 	public Page<AlbumReviewDTO> getReviewsForAlbum(String albumId, Pageable pageable) {
-		Page<AlbumReview> reviewPage = albumReviewRepository.findActiveReviewsByAlbumId(albumId, pageable);
-		return reviewPage.map(this::convertToDto);
+		Page<AlbumReviewModel> reviewPage = albumReviewRepository.findActiveReviewsByAlbumId(albumId, pageable);
+		return reviewPage.map(buildReviewMapper(reviewPage.getContent()));
 	}
 
-	private User getCurrentUser() {
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+	private Function<AlbumReviewModel, AlbumReviewDTO> buildReviewMapper(List<AlbumReviewModel> reviews) {
+		UserModel currentUser = authenticatedUserService.getCurrentUserOrNull();
+		List<Long> reviewIds = reviews.stream().map(AlbumReviewModel::getId).toList();
+		Map<Long, Long> likesCountByReviewId = reviewIds.isEmpty() ? Collections.emptyMap()
+				: reviewLikeRepository.countByAlbumReviewIds(reviewIds).stream().collect(Collectors.toMap(
+						ReviewLikeRepository.ReviewLikeCountProjection::getReviewId,
+						ReviewLikeRepository.ReviewLikeCountProjection::getLikesCount));
+		Set<Long> likedReviewIds = (currentUser == null || reviewIds.isEmpty()) ? Collections.emptySet()
+				: reviewLikeRepository.findLikedReviewIdsByUserAndAlbumReviewIds(currentUser, reviewIds).stream()
+						.collect(Collectors.toSet());
 
-		if (principal instanceof User)
-			return (User) principal;
-
-		throw new IllegalStateException("Could not retrieve authenticated user.");
-	}
-
-	private User getCurrentUserOrNull() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-		if (authentication == null || !authentication.isAuthenticated()
-				|| "anonymousUser".equals(authentication.getPrincipal()))
-			return null;
-
-		return (User) authentication.getPrincipal();
-	}
-
-	private AlbumReviewDTO convertToDto(AlbumReview review) {
-		User currentUser = getCurrentUserOrNull();
-		long likesCount = reviewLikeRepository.countByAlbumReview(review);
-		boolean isLiked = (currentUser != null)
-				&& reviewLikeRepository.findByUserAndAlbumReview(currentUser, review).isPresent();
-
-		UserDTO author = new UserDTO(review.getUser().getId(), review.getUser().getUsername(),
-				review.getUser().getAvatarUrl());
-
-		return new AlbumReviewDTO(review.getId(), review.getText(), review.getRating(), review.getCreatedAt(), author,
-				likesCount, isLiked);
+		return review -> {
+			UserDTO author = new UserDTO(review.getUser().getId(), review.getUser().getUsername(),
+					review.getUser().getAvatarUrl());
+			return new AlbumReviewDTO(review.getId(), review.getText(), review.getRating(), review.getCreatedAt(),
+					review.getUpdatedAt(), author, likesCountByReviewId.getOrDefault(review.getId(), 0L),
+					likedReviewIds.contains(review.getId()));
+		};
 	}
 }

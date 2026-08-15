@@ -11,35 +11,41 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.validation.annotation.Validated;
 
 import com.viniciusmcabral.sound_rate.dtos.deezer.DeezerAlbumDTO;
 import com.viniciusmcabral.sound_rate.services.ListenLaterService;
 
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
+import jakarta.validation.constraints.NotBlank;
+
 @RestController
+@Validated
 @RequestMapping("/api/v1/listen-later")
+@SecurityRequirement(name = "bearerAuth")
 public class ListenLaterController {
 
-    private final ListenLaterService listenLaterService;
+	private final ListenLaterService listenLaterService;
 
-    public ListenLaterController(ListenLaterService listenLaterService) {
-        this.listenLaterService = listenLaterService;
-    }
+	public ListenLaterController(ListenLaterService listenLaterService) {
+		this.listenLaterService = listenLaterService;
+	}
 
-    @GetMapping
-    public ResponseEntity<Page<DeezerAlbumDTO>> getListenLaterList(
-            @PageableDefault(size = 20, sort = "addedAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(listenLaterService.getListenLaterList(pageable));
-    }
+	@GetMapping
+	public Page<DeezerAlbumDTO> getListenLaterList(
+			@PageableDefault(size = 20, sort = "addedAt", direction = Sort.Direction.DESC) Pageable pageable) {
+		return listenLaterService.getListenLaterList(pageable);
+	}
 
-    @PostMapping("/{albumId}")
-    public ResponseEntity<Void> addAlbumToList(@PathVariable String albumId) {
-        listenLaterService.addAlbum(albumId);
-        return ResponseEntity.ok().build();
-    }
+	@PostMapping("/{albumId}")
+	public ResponseEntity<Void> addAlbumToList(@PathVariable @NotBlank String albumId) {
+		listenLaterService.addAlbum(albumId);
+		return ResponseEntity.ok().build();
+	}
 
-    @DeleteMapping("/{albumId}")
-    public ResponseEntity<Void> removeAlbumFromList(@PathVariable String albumId) {
-        listenLaterService.removeAlbum(albumId);
-        return ResponseEntity.noContent().build();
-    }
+	@DeleteMapping("/{albumId}")
+	public ResponseEntity<Void> removeAlbumFromList(@PathVariable @NotBlank String albumId) {
+		listenLaterService.removeAlbum(albumId);
+		return ResponseEntity.noContent().build();
+	}
 }

@@ -4,6 +4,8 @@ import java.time.LocalDateTime;
 import java.util.Optional;
 import java.util.UUID;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -14,13 +16,15 @@ import org.springframework.transaction.annotation.Transactional;
 import com.viniciusmcabral.sound_rate.dtos.request.RegisterRequestDTO;
 import com.viniciusmcabral.sound_rate.dtos.response.AuthResponseDTO;
 import com.viniciusmcabral.sound_rate.dtos.response.UserDTO;
-import com.viniciusmcabral.sound_rate.models.PasswordResetToken;
-import com.viniciusmcabral.sound_rate.models.User;
+import com.viniciusmcabral.sound_rate.models.PasswordResetTokenModel;
+import com.viniciusmcabral.sound_rate.models.UserModel;
 import com.viniciusmcabral.sound_rate.repositories.PasswordResetTokenRepository;
 import com.viniciusmcabral.sound_rate.repositories.UserRepository;
 
 @Service
 public class AuthService implements UserDetailsService {
+
+	private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
 	private final UserRepository userRepository;
 	private final PasswordEncoder passwordEncoder;
@@ -45,18 +49,23 @@ public class AuthService implements UserDetailsService {
 
 	@Transactional
 	public AuthResponseDTO registerUser(RegisterRequestDTO data) {
-		if (userRepository.findByUsername(data.username()).isPresent())
+		if (userRepository.findByUsername(data.username()).isPresent()) {
+			logger.warn("Registration rejected: username '{}' already exists.", data.username());
 			throw new IllegalStateException("Username already exists");
+		}
 
-		if (userRepository.findByEmail(data.email()).isPresent())
+		if (userRepository.findByEmail(data.email()).isPresent()) {
+			logger.warn("Registration rejected: email '{}' already in use.", data.email());
 			throw new IllegalStateException("Email already in use");
+		}
 
-		User newUser = new User(data.username(), data.email(), passwordEncoder.encode(data.password()));
+		UserModel newUser = new UserModel(data.username(), data.email(), passwordEncoder.encode(data.password()));
 
 		String avatarUrl = "https://api.dicebear.com/8.x/initials/svg?seed=" + newUser.getUsername();
 		newUser.setAvatarUrl(avatarUrl);
 
 		userRepository.save(newUser);
+		logger.info("User '{}' registered successfully.", newUser.getUsername());
 		emailService.sendWelcomeEmail(newUser.getEmail(), newUser.getUsername());
 
 		String token = tokenService.generateToken(newUser);
@@ -67,21 +76,23 @@ public class AuthService implements UserDetailsService {
 
 	@Transactional
 	public void requestPasswordReset(String userEmail) {
-		Optional<User> userOpt = userRepository.findByEmail(userEmail);
+		Optional<UserModel> userOpt = userRepository.findByEmail(userEmail);
 
 		if (userOpt.isEmpty()) {
+			logger.info("Password reset requested for non-existent email '{}'.", userEmail);
 			return;
 		}
 
-		User user = userOpt.get();
+		UserModel user = userOpt.get();
 		tokenRepository.deleteByUser(user);
 
 		String tokenString = UUID.randomUUID().toString();
-		PasswordResetToken passwordResetToken = new PasswordResetToken();
+		PasswordResetTokenModel passwordResetToken = new PasswordResetTokenModel();
 		passwordResetToken.setToken(tokenString);
 		passwordResetToken.setUser(user);
 		passwordResetToken.setExpiryDate(LocalDateTime.now().plusHours(1));
 		tokenRepository.save(passwordResetToken);
+		logger.info("Issued password reset token for user '{}'.", user.getUsername());
 
 		String resetLink = "http://localhost:4200/reset-password?token=" + tokenString;
 		emailService.sendPasswordResetEmail(user.getEmail(), user.getUsername(), resetLink);
@@ -89,19 +100,21 @@ public class AuthService implements UserDetailsService {
 
 	@Transactional
 	public void performPasswordReset(String token, String newPassword) {
-		PasswordResetToken resetToken = tokenRepository.findByToken(token)
+		PasswordResetTokenModel resetToken = tokenRepository.findByToken(token)
 				.orElseThrow(() -> new IllegalArgumentException("Invalid password reset token."));
 
 		if (resetToken.getExpiryDate().isBefore(LocalDateTime.now())) {
 			tokenRepository.delete(resetToken);
+			logger.warn("Rejected expired password reset token for user '{}'.", resetToken.getUser().getUsername());
 			throw new IllegalArgumentException("Password reset token has expired.");
 		}
 
-		User user = resetToken.getUser();
+		UserModel user = resetToken.getUser();
 		String encodedPassword = passwordEncoder.encode(newPassword);
 
 		user.setPassword(encodedPassword);
 		userRepository.save(user);
 		tokenRepository.delete(resetToken);
+		logger.info("Completed password reset for user '{}'.", user.getUsername());
 	}
 }

@@ -35,7 +35,8 @@ public class SecurityFilter extends OncePerRequestFilter {
 			throws ServletException, IOException {
 
 		String tokenJWT = recoverToken(request);
-		logger.info("[SecurityFilter] Request URI: {} | Present Token: {}", request.getRequestURI(), tokenJWT != null);
+		logger.debug("Processing request '{}' with bearer token present: {}.", request.getRequestURI(),
+				tokenJWT != null);
 
 		if (tokenJWT != null) {
 			try {
@@ -46,12 +47,12 @@ public class SecurityFilter extends OncePerRequestFilter {
 					var authentication = new UsernamePasswordAuthenticationToken(user.get(), null,
 							user.get().getAuthorities());
 					SecurityContextHolder.getContext().setAuthentication(authentication);
-					logger.info("[SecurityFilter] User '{}' successfully authenticated.", subject);
+					logger.debug("Authenticated user '{}'.", subject);
 				} else {
-					logger.warn("[SecurityFilter] Valid token, but user '{}' not found.", subject);
+					logger.warn("Token subject '{}' could not be matched to an active user.", subject);
 				}
 			} catch (JWTVerificationException exception) {
-				logger.warn("[SecurityFilter] Invalid JWT token: {}", exception.getMessage());
+				logger.warn("Rejected invalid JWT token: {}.", exception.getMessage());
 			}
 		}
 

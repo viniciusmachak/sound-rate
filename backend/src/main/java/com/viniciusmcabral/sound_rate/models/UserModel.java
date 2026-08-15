@@ -1,67 +1,46 @@
 package com.viniciusmcabral.sound_rate.models;
 
-import java.time.LocalDateTime;
+import java.io.Serial;
+import java.io.Serializable;
 import java.util.Collection;
 import java.util.Collections;
-
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotBlank;
 
-@Entity
+@Entity(name = "User")
 @Table(name = "users")
-public class User implements UserDetails {
+public class UserModel extends AuditableEntityModel implements UserDetails, Serializable {
 
-	@Id
-	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	private Long id;
+	@Serial
+	private static final long serialVersionUID = 1L;
 
-	@NotBlank(message = "Username can't be blank")
 	@Column(unique = true, nullable = false, length = 50)
 	private String username;
 
-	@Email(message = "Email should be valid")
-	@NotBlank(message = "Email can't be blank")
 	@Column(unique = true, nullable = false)
 	private String email;
 
-	@NotBlank(message = "Password can't be blank")
 	@Column(nullable = false)
 	private String password;
 
+	@Column(name = "avatar_url")
 	private String avatarUrl;
 
 	@Column(nullable = false)
 	private boolean active = true;
 
-	@Column(updatable = false, nullable = false)
-	private LocalDateTime createdAt;
-
-	public User() {
+	protected UserModel() {
 	}
 
-	public User(String username, String email, String password) {
+	public UserModel(String username, String email, String password) {
 		this.username = username;
 		this.email = email;
 		this.password = password;
-	}
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
 	}
 
 	public String getAvatarUrl() {
@@ -90,19 +69,6 @@ public class User implements UserDetails {
 
 	public void setPassword(String password) {
 		this.password = password;
-	}
-
-	public LocalDateTime getCreatedAt() {
-		return createdAt;
-	}
-
-	public void setCreatedAt(LocalDateTime createdAt) {
-		this.createdAt = createdAt;
-	}
-
-	@PrePersist
-	protected void onCreate() {
-		createdAt = LocalDateTime.now();
 	}
 
 	@Override
@@ -139,25 +105,9 @@ public class User implements UserDetails {
 	public boolean isEnabled() {
 		return this.active;
 	}
-
-	@Override
-	public boolean equals(Object o) {
-		if (this == o)
-			return true;
-		if (o == null || getClass() != o.getClass())
-			return false;
-		User user = (User) o;
-		return id != null && id.equals(user.id);
-	}
-
-	@Override
-	public int hashCode() {
-		return getClass().hashCode();
-	}
-
 	@Override
 	public String toString() {
-		return "User{" + "id=" + id + ", username='" + username + '\'' + ", email='" + email + '\'' + ", createdAt="
-				+ createdAt + '}';
+		return "UserModel{id=" + getId() + ", username='" + username + "', active=" + active + ", createdAt=" + getCreatedAt()
+				+ "}";
 	}
 }

@@ -5,15 +5,15 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
-import com.viniciusmcabral.sound_rate.models.ListenLater;
-import com.viniciusmcabral.sound_rate.models.User;
+import com.viniciusmcabral.sound_rate.models.ListenLaterModel;
+import com.viniciusmcabral.sound_rate.models.UserModel;
 
 @Repository
-public interface ListenLaterRepository extends JpaRepository<ListenLater, Long> {
+public interface ListenLaterRepository extends JpaRepository<ListenLaterModel, Long> {
 
-	Optional<ListenLater> findByUserAndAlbumId(User user, String albumId);
+	Optional<ListenLaterModel> findByUserAndAlbumId(UserModel user, String albumId);
 
-	void deleteByUserAndAlbumId(User user, String albumId);
+	void deleteByUserAndAlbumId(UserModel user, String albumId);
 
-	Page<ListenLater> findByUser(User user, Pageable pageable);
+	Page<ListenLaterModel> findByUser(UserModel user, Pageable pageable);
 }

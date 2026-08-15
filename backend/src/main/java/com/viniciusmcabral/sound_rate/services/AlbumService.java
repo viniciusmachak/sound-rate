@@ -2,15 +2,16 @@ package com.viniciusmcabral.sound_rate.services;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
+import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,10 +21,10 @@ import com.viniciusmcabral.sound_rate.dtos.response.AlbumDetailsDTO;
 import com.viniciusmcabral.sound_rate.dtos.response.AlbumReviewDTO;
 import com.viniciusmcabral.sound_rate.dtos.response.TrackRatingDTO;
 import com.viniciusmcabral.sound_rate.dtos.response.UserDTO;
-import com.viniciusmcabral.sound_rate.models.AlbumRating;
-import com.viniciusmcabral.sound_rate.models.AlbumReview;
-import com.viniciusmcabral.sound_rate.models.TrackRating;
-import com.viniciusmcabral.sound_rate.models.User;
+import com.viniciusmcabral.sound_rate.models.AlbumRatingModel;
+import com.viniciusmcabral.sound_rate.models.AlbumReviewModel;
+import com.viniciusmcabral.sound_rate.models.TrackRatingModel;
+import com.viniciusmcabral.sound_rate.models.UserModel;
 import com.viniciusmcabral.sound_rate.repositories.AlbumLikeRepository;
 import com.viniciusmcabral.sound_rate.repositories.AlbumRatingRepository;
 import com.viniciusmcabral.sound_rate.repositories.AlbumReviewRepository;
@@ -41,11 +42,12 @@ public class AlbumService {
 	private final ReviewLikeRepository reviewLikeRepository;
 	private final ListenLaterRepository listenLaterRepository;
 	private final TrackRatingRepository trackRatingRepository;
+	private final AuthenticatedUserService authenticatedUserService;
 
 	public AlbumService(DeezerService deezerService, AlbumRatingRepository albumRatingRepository,
 			AlbumReviewRepository albumReviewRepository, AlbumLikeRepository albumLikeRepository,
 			ReviewLikeRepository reviewLikeRepository, ListenLaterRepository listenLaterRepository,
-			TrackRatingRepository trackRatingRepository) {
+			TrackRatingRepository trackRatingRepository, AuthenticatedUserService authenticatedUserService) {
 		this.deezerService = deezerService;
 		this.albumRatingRepository = albumRatingRepository;
 		this.albumReviewRepository = albumReviewRepository;
@@ -53,6 +55,7 @@ public class AlbumService {
 		this.reviewLikeRepository = reviewLikeRepository;
 		this.listenLaterRepository = listenLaterRepository;
 		this.trackRatingRepository = trackRatingRepository;
+		this.authenticatedUserService = authenticatedUserService;
 	}
 
 	@Transactional(readOnly = true)
@@ -65,10 +68,12 @@ public class AlbumService {
 		long ratingsCount = albumRatingRepository.countByAlbumId(albumId);
 
 		Pageable firstPageOfReviews = PageRequest.of(0, 10, Sort.by("createdAt").descending());
-		List<AlbumReviewDTO> userReviews = albumReviewRepository.findActiveReviewsByAlbumId(albumId, firstPageOfReviews)
-				.getContent().stream().map(this::convertReviewToDto).collect(Collectors.toList());
+		List<AlbumReviewModel> reviewModels = albumReviewRepository.findActiveReviewsByAlbumId(albumId, firstPageOfReviews)
+				.getContent();
+		Function<AlbumReviewModel, AlbumReviewDTO> reviewMapper = buildReviewMapper(reviewModels);
+		List<AlbumReviewDTO> userReviews = reviewModels.stream().map(reviewMapper).collect(Collectors.toList());
 
-		User currentUser = getCurrentUserOrNull();
+		UserModel currentUser = authenticatedUserService.getCurrentUserOrNull();
 
 		Double currentUserRating = null;
 		AlbumReviewDTO currentUserReview = null;
@@ -108,28 +113,28 @@ public class AlbumService {
 	}
 
 	private Double findCurrentUserRating(String albumId) {
-		User currentUser = getCurrentUserOrNull();
+		UserModel currentUser = authenticatedUserService.getCurrentUserOrNull();
 		if (currentUser == null) {
 			return null;
 		}
 
-		Optional<AlbumRating> directAlbumRating = albumRatingRepository.findByUserAndAlbumId(currentUser, albumId);
+		Optional<AlbumRatingModel> directAlbumRating = albumRatingRepository.findByUserAndAlbumId(currentUser, albumId);
 
 		if (directAlbumRating.isPresent()) {
 			return directAlbumRating.get().getRating();
 		}
 
-		List<TrackRating> trackRatings = trackRatingRepository.findByUserAndAlbumId(currentUser, albumId);
+		List<TrackRatingModel> trackRatings = trackRatingRepository.findByUserAndAlbumId(currentUser, albumId);
 
 		if (!trackRatings.isEmpty()) {
-			return trackRatings.stream().mapToDouble(TrackRating::getRating).average().orElse(0.0);
+			return trackRatings.stream().mapToDouble(TrackRatingModel::getRating).average().orElse(0.0);
 		}
 
 		return null;
 	}
 
 	private boolean isAlbumLikedByCurrentUser(String albumId) {
-		User currentUser = getCurrentUserOrNull();
+		UserModel currentUser = authenticatedUserService.getCurrentUserOrNull();
 
 		if (currentUser == null)
 			return false;
@@ -138,45 +143,40 @@ public class AlbumService {
 	}
 
 	private AlbumReviewDTO findCurrentUserReview(String albumId) {
-		User currentUser = getCurrentUserOrNull();
+		UserModel currentUser = authenticatedUserService.getCurrentUserOrNull();
 
 		if (currentUser == null)
 			return null;
-		return albumReviewRepository.findByUserAndAlbumId(currentUser, albumId).map(this::convertReviewToDto)
-				.orElse(null);
+		return albumReviewRepository.findByUserAndAlbumId(currentUser, albumId)
+				.map(review -> buildReviewMapper(List.of(review)).apply(review)).orElse(null);
 	}
 
 	private boolean isAlbumOnListenLaterList(String albumId) {
-		User currentUser = getCurrentUserOrNull();
+		UserModel currentUser = authenticatedUserService.getCurrentUserOrNull();
 
 		if (currentUser == null)
 			return false;
 		return listenLaterRepository.findByUserAndAlbumId(currentUser, albumId).isPresent();
 	}
 
-	private AlbumReviewDTO convertReviewToDto(AlbumReview review) {
-		User currentUser = getCurrentUserOrNull();
+	private Function<AlbumReviewModel, AlbumReviewDTO> buildReviewMapper(List<AlbumReviewModel> reviews) {
+		UserModel currentUser = authenticatedUserService.getCurrentUserOrNull();
+		List<Long> reviewIds = reviews.stream().map(AlbumReviewModel::getId).toList();
+		Map<Long, Long> likesCountByReviewId = reviewIds.isEmpty() ? Collections.emptyMap()
+				: reviewLikeRepository.countByAlbumReviewIds(reviewIds).stream().collect(Collectors.toMap(
+						ReviewLikeRepository.ReviewLikeCountProjection::getReviewId,
+						ReviewLikeRepository.ReviewLikeCountProjection::getLikesCount));
+		Set<Long> likedReviewIds = (currentUser == null || reviewIds.isEmpty()) ? Collections.emptySet()
+				: reviewLikeRepository.findLikedReviewIdsByUserAndAlbumReviewIds(currentUser, reviewIds).stream()
+						.collect(Collectors.toSet());
 
-		long likesCount = reviewLikeRepository.countByAlbumReview(review);
-		boolean isLiked = (currentUser != null)
-				&& reviewLikeRepository.findByUserAndAlbumReview(currentUser, review).isPresent();
-
-		return new AlbumReviewDTO(review.getId(), review.getText(), review.getRating(), review.getCreatedAt(),
+		return review -> new AlbumReviewDTO(review.getId(), review.getText(), review.getRating(), review.getCreatedAt(),
+				review.getUpdatedAt(),
 				new UserDTO(review.getUser().getId(), review.getUser().getUsername(), review.getUser().getAvatarUrl()),
-				likesCount, isLiked);
+				likesCountByReviewId.getOrDefault(review.getId(), 0L), likedReviewIds.contains(review.getId()));
 	}
 
-	private User getCurrentUserOrNull() {
-		Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-
-		if (authentication == null || !authentication.isAuthenticated()
-				|| "anonymousUser".equals(authentication.getPrincipal()))
-			return null;
-
-		return (User) authentication.getPrincipal();
-	}
-
-	private TrackRatingDTO convertTrackRatingToDto(TrackRating rating) {
-		return new TrackRatingDTO(rating.getId(), rating.getRating(), rating.getTrackId(), null);
+	private TrackRatingDTO convertTrackRatingToDto(TrackRatingModel rating) {
+		return new TrackRatingDTO(rating.getId(), rating.getRating(), rating.getTrackId());
 	}
 }

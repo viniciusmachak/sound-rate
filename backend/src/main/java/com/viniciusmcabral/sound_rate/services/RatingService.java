@@ -7,7 +7,6 @@ import java.util.stream.Collectors;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -15,9 +14,9 @@ import com.viniciusmcabral.sound_rate.dtos.request.RatingRequestDTO;
 import com.viniciusmcabral.sound_rate.dtos.response.AlbumRatingDTO;
 import com.viniciusmcabral.sound_rate.dtos.response.TrackRatingDTO;
 import com.viniciusmcabral.sound_rate.dtos.response.UserDTO;
-import com.viniciusmcabral.sound_rate.models.AlbumRating;
-import com.viniciusmcabral.sound_rate.models.TrackRating;
-import com.viniciusmcabral.sound_rate.models.User;
+import com.viniciusmcabral.sound_rate.models.AlbumRatingModel;
+import com.viniciusmcabral.sound_rate.models.TrackRatingModel;
+import com.viniciusmcabral.sound_rate.models.UserModel;
 import com.viniciusmcabral.sound_rate.repositories.AlbumRatingRepository;
 import com.viniciusmcabral.sound_rate.repositories.AlbumReviewRepository;
 import com.viniciusmcabral.sound_rate.repositories.TrackRatingRepository;
@@ -28,17 +27,19 @@ public class RatingService {
 	private final AlbumRatingRepository albumRatingRepository;
 	private final TrackRatingRepository trackRatingRepository;
 	private final AlbumReviewRepository albumReviewRepository;
+	private final AuthenticatedUserService authenticatedUserService;
 
 	public RatingService(AlbumRatingRepository albumRatingRepository, TrackRatingRepository trackRatingRepository,
-			AlbumReviewRepository albumReviewRepository) {
+			AlbumReviewRepository albumReviewRepository, AuthenticatedUserService authenticatedUserService) {
 		this.albumRatingRepository = albumRatingRepository;
 		this.trackRatingRepository = trackRatingRepository;
 		this.albumReviewRepository = albumReviewRepository;
+		this.authenticatedUserService = authenticatedUserService;
 	}
 
 	@Transactional
 	public void rateAlbumOrTrack(RatingRequestDTO ratingDTO) {
-		User currentUser = getCurrentUser();
+		UserModel currentUser = authenticatedUserService.requireCurrentUser();
 
 		if (ratingDTO.trackId() != null && !ratingDTO.trackId().isBlank()) {
 			rateTrack(ratingDTO, currentUser);
@@ -49,9 +50,9 @@ public class RatingService {
 		}
 	}
 
-	private void rateAlbum(RatingRequestDTO ratingDTO, User user) {
-		AlbumRating rating = albumRatingRepository.findByUserAndAlbumId(user, ratingDTO.albumId())
-				.orElse(new AlbumRating(ratingDTO.albumId(), ratingDTO.rating(), user));
+	private void rateAlbum(RatingRequestDTO ratingDTO, UserModel user) {
+		AlbumRatingModel rating = albumRatingRepository.findByUserAndAlbumId(user, ratingDTO.albumId())
+				.orElse(new AlbumRatingModel(ratingDTO.albumId(), ratingDTO.rating(), user));
 
 		rating.setRating(ratingDTO.rating());
 		albumRatingRepository.save(rating);
@@ -62,9 +63,9 @@ public class RatingService {
 		});
 	}
 
-	private void updateUserAlbumRatingFromTracks(String albumId, User user) {
-		List<TrackRating> trackRatings = trackRatingRepository.findByUserAndAlbumId(user, albumId);
-		double average = trackRatings.stream().mapToDouble(TrackRating::getRating).average().orElse(0.0);
+	private void updateUserAlbumRatingFromTracks(String albumId, UserModel user) {
+		List<TrackRatingModel> trackRatings = trackRatingRepository.findByUserAndAlbumId(user, albumId);
+		double average = trackRatings.stream().mapToDouble(TrackRatingModel::getRating).average().orElse(0.0);
 
 		RatingRequestDTO albumRatingDTO = new RatingRequestDTO(albumId, null, average);
 
@@ -73,7 +74,7 @@ public class RatingService {
 
 	@Transactional
 	public void deleteRating(String albumId, String trackId) {
-		User currentUser = getCurrentUser();
+		UserModel currentUser = authenticatedUserService.requireCurrentUser();
 
 		if (trackId != null && !trackId.isBlank()) {
 			trackRatingRepository.deleteByUserAndTrackId(currentUser, trackId);
@@ -87,7 +88,7 @@ public class RatingService {
 	}
 
 	public Map<String, Object> getUserRatings() {
-		User currentUser = getCurrentUser();
+		UserModel currentUser = authenticatedUserService.requireCurrentUser();
 		Pageable pageRequest = PageRequest.of(0, 20, Sort.by("id").descending());
 
 		List<AlbumRatingDTO> albumRatings = albumRatingRepository.findAllByUser(currentUser, pageRequest).stream()
@@ -98,34 +99,23 @@ public class RatingService {
 		return Map.of("albumRatings", albumRatings, "trackRatings", trackRatings);
 	}
 
-	private User getCurrentUser() {
-		Object principal = SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-
-		if (principal instanceof User)
-			return (User) principal;
-
-		throw new IllegalStateException("Couldn't retrieve authenticated user.");
-	}
-
-	private AlbumRatingDTO convertToAlbumRatingDTO(AlbumRating rating) {
+	private AlbumRatingDTO convertToAlbumRatingDTO(AlbumRatingModel rating) {
 		UserDTO author = new UserDTO(rating.getUser().getId(), rating.getUser().getUsername(),
 				rating.getUser().getAvatarUrl());
 		return new AlbumRatingDTO(rating.getId(), rating.getRating(), author);
 	}
 
-	private TrackRatingDTO convertToTrackRatingDTO(TrackRating rating) {
-		UserDTO author = new UserDTO(rating.getUser().getId(), rating.getUser().getUsername(),
-				rating.getUser().getAvatarUrl());
-		return new TrackRatingDTO(rating.getId(), rating.getRating(), rating.getTrackId(), author);
+	private TrackRatingDTO convertToTrackRatingDTO(TrackRatingModel rating) {
+		return new TrackRatingDTO(rating.getId(), rating.getRating(), rating.getTrackId());
 	}
 
-	private void rateTrack(RatingRequestDTO ratingDTO, User user) {
+	private void rateTrack(RatingRequestDTO ratingDTO, UserModel user) {
 		trackRatingRepository.findByUserAndAlbumIdAndTrackId(user, ratingDTO.albumId(), ratingDTO.trackId())
 				.ifPresentOrElse(existingRating -> {
 					existingRating.setRating(ratingDTO.rating());
 					trackRatingRepository.save(existingRating);
 				}, () -> {
-					TrackRating newRating = new TrackRating(ratingDTO.albumId(), ratingDTO.trackId(),
+					TrackRatingModel newRating = new TrackRatingModel(ratingDTO.albumId(), ratingDTO.trackId(),
 							ratingDTO.rating(), user);
 					trackRatingRepository.save(newRating);
 				});
