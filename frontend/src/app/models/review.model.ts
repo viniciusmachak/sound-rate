@@ -10,10 +10,10 @@ export interface AlbumReview {
   id: number;
   text: string;
   createdAt: string;
+  updatedAt: string;
   rating: number;
   author: User;
   likesCount: number;
   isLikedByCurrentUser: boolean;
 }
-
 

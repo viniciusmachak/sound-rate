@@ -16,5 +16,4 @@ export interface TrackRating {
   id: number;
   rating: number;
   trackId: string;
-  author: User;
 }
