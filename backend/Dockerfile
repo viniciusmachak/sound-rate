@@ -1,17 +1,18 @@
-FROM maven:3.9-eclipse-temurin-17 AS build
+FROM maven:3.9-eclipse-temurin-21 AS build
 
 WORKDIR /app
 
 COPY pom.xml .
+COPY mvnw .
 COPY .mvn/ .mvn/
 
-RUN mvn dependency:go-offline
+RUN chmod +x mvnw && ./mvnw -B dependency:go-offline
 
 COPY src/ ./src/
 
-RUN mvn package -DskipTests
+RUN ./mvnw -B package -DskipTests
 
-FROM eclipse-temurin:17-jre-alpine
+FROM eclipse-temurin:21-jre-alpine
 
 WORKDIR /app
 
