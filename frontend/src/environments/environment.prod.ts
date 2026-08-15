@@ -1,4 +1,4 @@
 export const environment = {
     production: true,
-    apiUrl: 'https://sound-rate.onrender.com/api/v1'
+    apiUrl: '/api/v1'
 };

@@ -19,7 +19,6 @@ services:
       start_period: 10s
 
   backend:
-    profiles: ["fullstack"]
     container_name: soundrate_api
     restart: always
     build:
@@ -42,7 +41,6 @@ services:
       SENDGRID_API_KEY: ${SENDGRID_API_KEY}
 
   frontend:
-    profiles: ["fullstack"]
     container_name: soundrate_frontend
     restart: always
     build:
