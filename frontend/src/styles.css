@@ -19,24 +19,13 @@ body {
   color: var(--primary-text);
 }
 
-app-root {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-}
-
 .image-dialog-panel .mat-mdc-dialog-container .mdc-dialog__surface {
   background: transparent !important;
   box-shadow: none !important;
   border-radius: 4px;
 }
 
-.user-list-dialog {
-  .mat-mdc-dialog-container .mdc-dialog__surface {
-    background-color: var(--background-dark);
-  }
-}
-
+.user-list-dialog,
 .review-dialog-container {
   .mat-mdc-dialog-container .mdc-dialog__surface {
     background-color: var(--background-dark);
@@ -48,7 +37,6 @@ mat-paginator {
 }
 
 .custom-paginator {
-
   .mat-mdc-paginator-container {
     background-color: var(--background-dark);
     color: var(--secondary-text);

@@ -3,9 +3,7 @@
   <p class="page-subtitle">Albums you saved to explore</p>
 
   @if (isLoading) {
-    <div class="loading-container">
-      <mat-spinner diameter="50"></mat-spinner>
-    </div>
+    <app-skeleton-loader variant="cards" [count]="8" />
   }
 
   @if (!isLoading) {

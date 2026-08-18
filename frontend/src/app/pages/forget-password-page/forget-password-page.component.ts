@@ -22,7 +22,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatIconModule
 ],
   templateUrl: './forget-password-page.component.html',
-  styleUrl: './forget-password-page.component.css'
+  styleUrls: ['../password-flow.shared.css', './forget-password-page.component.css']
 })
 export class ForgetPasswordPageComponent implements OnInit {
   forgotPasswordForm!: FormGroup;

@@ -35,7 +35,5 @@
     }
   </div>
 } @else {
-  <div class="loading-container">
-    <mat-spinner diameter="50"></mat-spinner>
-  </div>
+  <app-skeleton-loader variant="profile" [count]="6" />
 }

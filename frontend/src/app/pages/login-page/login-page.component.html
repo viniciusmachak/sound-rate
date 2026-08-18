@@ -25,18 +25,16 @@
           <div class="error-message">{{ errorMessage }}</div>
         }
 
-        <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid"
+        <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid || isLoading"
           class="full-width login-button">
-          Enter
+          @if (isLoading) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            <span>Enter</span>
+          }
         </button>
         <a routerLink="/forgot-password">Forgot your password?</a>
       </form>
     </mat-card-content>
   </mat-card>
 </div>
-
-<ng-template #loading>
-  <div class="loading-container">
-    <mat-spinner diameter="50"></mat-spinner>
-  </div>
-</ng-template>

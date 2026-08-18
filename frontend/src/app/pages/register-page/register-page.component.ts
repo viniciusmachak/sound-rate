@@ -9,6 +9,7 @@ import { MatButtonModule } from '@angular/material/button';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIcon } from '@angular/material/icon';
+import { finalize } from 'rxjs/operators';
 @Component({
   selector: 'app-register-page',
   standalone: true,
@@ -22,13 +23,14 @@ import { MatIcon } from '@angular/material/icon';
     MatIcon
 ],
   templateUrl: './register-page.component.html',
-  styleUrl: './register-page.component.css'
+  styleUrls: ['../auth-page.shared.css', './register-page.component.css']
 })
 
 export class RegisterPageComponent {
   registerForm: FormGroup;
   errorMessage: string | null = null;
   hide = true;
+  isLoading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -47,9 +49,12 @@ export class RegisterPageComponent {
       return;
     }
 
+    this.isLoading = true;
     this.errorMessage = null;
 
-    this.authService.register(this.registerForm.value).subscribe({
+    this.authService.register(this.registerForm.value).pipe(
+      finalize(() => this.isLoading = false)
+    ).subscribe({
       next: () => {
         console.log('Registration successful!');
       },

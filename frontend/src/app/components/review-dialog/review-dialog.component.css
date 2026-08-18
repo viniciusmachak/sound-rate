@@ -1,7 +1,7 @@
 :host {
-  display: block; 
-  background-color: var(--backgroun-dark);
-  color: var(--primary-text); 
+  display: block;
+  background-color: var(--background-dark);
+  color: var(--primary-text);
 }
 
 [mat-dialog-title] {
@@ -10,7 +10,7 @@
 }
 
 [mat-dialog-content] {
-  padding-top: 20px; 
+  padding-top: 20px;
 }
 
 .review-textarea {
@@ -32,5 +32,5 @@
 }
 
 [mat-dialog-actions] {
-  padding: 8px 24px; 
+  padding: 8px 24px;
 }

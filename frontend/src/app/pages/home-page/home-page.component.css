@@ -129,8 +129,7 @@
         margin-bottom: 1.5rem;
     }
 
-    .results-grid,
-    .album-grid {
+    .results-grid {
         grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
         gap: 16px;
     }
@@ -153,8 +152,7 @@
         transform: scale(0.8);
     }
 
-    .results-grid,
-    .album-grid {
+    .results-grid {
         grid-template-columns: repeat(2, 1fr);
     }
 }

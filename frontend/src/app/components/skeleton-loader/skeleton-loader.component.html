@@ -1,0 +1,65 @@
+<div class="skeleton-loader" role="status" aria-live="polite" aria-busy="true">
+  <span class="visually-hidden">Loading content...</span>
+
+  @switch (variant) {
+    @case ('detail') {
+      <div class="detail-header">
+        <div class="skeleton-block detail-cover"></div>
+        <div class="detail-copy">
+          <div class="skeleton-block line title-line"></div>
+          <div class="skeleton-block line medium-line"></div>
+          <div class="skeleton-block line short-line"></div>
+          <div class="skeleton-block action-placeholder"></div>
+        </div>
+      </div>
+      <div class="skeleton-list">
+        @for (item of items; track item) {
+          <div class="skeleton-list-row">
+            <div class="skeleton-block row-image"></div>
+            <div class="row-copy">
+              <div class="skeleton-block line medium-line"></div>
+              <div class="skeleton-block line short-line"></div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @case ('profile') {
+      <div class="profile-header-placeholder">
+        <div class="skeleton-block profile-avatar"></div>
+        <div class="profile-copy">
+          <div class="skeleton-block line title-line"></div>
+          <div class="skeleton-block line medium-line"></div>
+        </div>
+      </div>
+      <div class="card-grid">
+        @for (item of items; track item) {
+          <div class="skeleton-block card-placeholder"></div>
+        }
+      </div>
+    }
+
+    @case ('list') {
+      <div class="skeleton-list">
+        @for (item of items; track item) {
+          <div class="skeleton-list-row">
+            <div class="skeleton-block row-image round"></div>
+            <div class="row-copy">
+              <div class="skeleton-block line medium-line"></div>
+              <div class="skeleton-block line short-line"></div>
+            </div>
+          </div>
+        }
+      </div>
+    }
+
+    @default {
+      <div class="card-grid">
+        @for (item of items; track item) {
+          <div class="skeleton-block card-placeholder"></div>
+        }
+      </div>
+    }
+  }
+</div>

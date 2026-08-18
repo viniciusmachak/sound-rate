@@ -48,9 +48,7 @@
       <mat-tab label="Ratings">
         <div class="tab-content">
           @if (isLoadingRatings) {
-            <div class="loading-container">
-              <mat-spinner diameter="40"></mat-spinner>
-            </div>
+            <app-skeleton-loader variant="cards" [count]="6" />
           }
           @if (!isLoadingRatings) {
             <div>
@@ -85,9 +83,7 @@
       <mat-tab label="Likes">
         <div class="tab-content">
           @if (isLoadingLikedAlbums) {
-            <div class="loading-container">
-              <mat-spinner diameter="40"></mat-spinner>
-            </div>
+            <app-skeleton-loader variant="cards" [count]="6" />
           }
           @if (!isLoadingLikedAlbums) {
             <div>
@@ -125,9 +121,7 @@
         <mat-tab label="Listen Later">
           <div class="tab-content">
             @if (isLoadingListenLater) {
-              <div class="loading-container">
-                <mat-spinner diameter="40"></mat-spinner>
-              </div>
+              <app-skeleton-loader variant="cards" [count]="6" />
             }
             @if (!isLoadingListenLater) {
               <div>
@@ -163,7 +157,5 @@
     </mat-tab-group>
   </div>
 } @else {
-  <div class="loading-container">
-    <mat-spinner diameter="50"></mat-spinner>
-  </div>
+  <app-skeleton-loader variant="profile" [count]="6" />
 }

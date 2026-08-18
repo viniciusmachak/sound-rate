@@ -15,19 +15,19 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatButtonModule } from '@angular/material/button';
 import { AlbumCardComponent } from '../../components/album-card/album-card.component';
 import { StarRatingComponent } from '../../components/star-rating/star-rating.component';
 import { UserListComponent } from '../../components/user-list/user-list.component';
+import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-user-profile-page',
   standalone: true,
   imports: [
     CommonModule, RouterLink, MatCardModule, MatTabsModule, MatIconModule,
-    AlbumCardComponent, StarRatingComponent, MatProgressSpinnerModule, MatButtonModule,
-    MatPaginatorModule, MatDialogModule
+    AlbumCardComponent, StarRatingComponent, MatButtonModule,
+    MatPaginatorModule, MatDialogModule, SkeletonLoaderComponent
   ],
   templateUrl: './user-profile-page.component.html',
   styleUrl: './user-profile-page.component.css'

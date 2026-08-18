@@ -6,8 +6,8 @@ import { BehaviorSubject } from 'rxjs';
 import { CommonModule } from '@angular/common';
 import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { RouterLink } from '@angular/router';
+import { SkeletonLoaderComponent } from '../skeleton-loader/skeleton-loader.component';
 
 export interface UserListDialogData {
   username: string;
@@ -17,7 +17,14 @@ export interface UserListDialogData {
 @Component({
   selector: 'app-user-list',
   standalone: true,
-  imports: [CommonModule, MatListModule, MatButtonModule, MatProgressSpinnerModule, RouterLink, MatDialogModule],
+  imports: [
+    CommonModule,
+    MatListModule,
+    MatButtonModule,
+    RouterLink,
+    MatDialogModule,
+    SkeletonLoaderComponent
+  ],
   templateUrl: './user-list.component.html',
   styleUrl: './user-list.component.css'
 })

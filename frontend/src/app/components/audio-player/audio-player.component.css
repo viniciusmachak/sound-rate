@@ -67,7 +67,7 @@
 
 .track-timer {
     font-size: 0.85rem;
-    color: var(--secondary-color);
+    color: var(--secondary-text);
     font-weight: 500;
 }
 
@@ -89,4 +89,3 @@
         width: 42px;
     }
 }
-

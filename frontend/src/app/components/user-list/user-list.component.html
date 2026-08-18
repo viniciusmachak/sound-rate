@@ -2,9 +2,7 @@
 
 <mat-dialog-content>
   @if (isLoading && (users$ | async)?.length === 0) {
-    <div class="loading-container">
-      <mat-spinner diameter="40"></mat-spinner>
-    </div>
+    <app-skeleton-loader variant="list" [count]="5" />
   }
 
   @if ((users$ | async); as users) {
@@ -19,6 +17,10 @@
         </mat-list-item>
       }
     </mat-list>
+
+    @if (isLoading && users.length > 0) {
+      <app-skeleton-loader variant="list" [count]="2" />
+    }
   }
 
   @if (hasMore && !isLoading) {

@@ -15,12 +15,12 @@ import { MatListModule } from '@angular/material/list';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { StarRatingComponent } from '../../components/star-rating/star-rating.component';
 import { ReviewDialogComponent } from '../../components/review-dialog/review-dialog.component';
 import { ReviewListComponent } from '../../components/review-list/review-list.component';
 import { FormatDurationPipe } from '../../pipes/format-duration.pipe';
 import { RatingRequest } from '../../models/rating.model';
+import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-album-details-page',
@@ -28,8 +28,8 @@ import { RatingRequest } from '../../models/rating.model';
   imports: [
     CommonModule, RouterLink, MatCardModule, MatTabsModule, MatIconModule, MatListModule,
     StarRatingComponent, MatSnackBarModule, MatButtonModule, MatDialogModule,
-    ReviewListComponent, MatProgressSpinnerModule, FormatDurationPipe,
-    DecimalPipe, SlicePipe
+    ReviewListComponent, FormatDurationPipe,
+    DecimalPipe, SlicePipe, SkeletonLoaderComponent
   ],
   templateUrl: './album-details-page.component.html',
   styleUrl: './album-details-page.component.css',

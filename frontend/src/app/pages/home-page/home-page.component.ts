@@ -14,6 +14,7 @@ import { AlbumCardComponent } from '../../components/album-card/album-card.compo
 import { ArtistCardComponent } from '../../components/artist-card/artist-card.component';
 import { UserCardComponent } from '../../components/user-card/user-card.component';
 import { AlbumDashboard } from '../../models/album-details.model';
+import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skeleton-loader.component';
 
 interface SearchState {
   isLoading: boolean;
@@ -28,7 +29,7 @@ interface SearchState {
   imports: [
     CommonModule, ReactiveFormsModule, MatFormFieldModule, MatInputModule,
     MatIconModule, AlbumCardComponent, ArtistCardComponent, UserCardComponent,
-    MatProgressSpinnerModule, MatButtonToggleModule,
+    MatProgressSpinnerModule, MatButtonToggleModule, SkeletonLoaderComponent,
   ],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.css'

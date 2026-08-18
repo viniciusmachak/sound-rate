@@ -30,17 +30,15 @@
           <div class="error-message">{{ errorMessage }}</div>
         }
 
-        <button mat-raised-button color="primary" type="submit" [disabled]="registerForm.invalid"
+        <button mat-raised-button color="primary" type="submit" [disabled]="registerForm.invalid || isLoading"
           class="full-width register-button">
-          Register
+          @if (isLoading) {
+            <mat-spinner diameter="20"></mat-spinner>
+          } @else {
+            <span>Register</span>
+          }
         </button>
       </form>
     </mat-card-content>
   </mat-card>
 </div>
-
-<ng-template #loading>
-  <div class="loading-container">
-    <mat-spinner diameter="50"></mat-spinner>
-  </div>
-</ng-template>

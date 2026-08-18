@@ -1,105 +1,22 @@
-@keyframes fadeIn {
-    from {
-        opacity: 0;
-        transform: translateY(20px);
-    }
-
-    to {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.login-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    min-height: calc(100vh - 120px);
-}
-
-.login-card {
-    width: 100%;
-    max-width: 400px;
-    padding: 1rem;
-    background-color: var(--surface-dark);
-    border: 1px solid rgba(255, 255, 255, 0.1);
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
-    animation: fadeIn 0.5s ease-out;
-
-    mat-card-header {
-        text-align: center;
-        padding-bottom: 1.5rem;
-    }
-
-    mat-card-title {
-        font-size: 1.8rem;
-        font-weight: 300;
-        letter-spacing: -0.5px;
-    }
-
-    mat-card-actions {
-        display: flex;
-        justify-content: center;
-        padding-bottom: 1rem;
-    }
-}
-
-.full-width {
-    width: 100%;
-}
-
-.error-message {
-    color: #f44336;
-    margin-bottom: 16px;
-    text-align: center;
-    font-size: 0.9rem;
-}
-
-.login-button {
-    height: 48px;
-    font-size: 1rem;
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    margin-top: 10px;
-}
-
-.loading-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 5rem;
-}
-
 a[routerLink="/forgot-password"] {
-    display: block;
-    text-align: center;
-    margin-top: 1.5rem;
-    color: var(--accent-color);
-    text-decoration: none;
-    font-size: 0.9rem;
-    font-weight: 500;
-    transition: opacity 0.2s ease;
-    cursor: pointer;
+  display: block;
+  text-align: center;
+  margin-top: 1.5rem;
+  color: var(--accent-color);
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  transition: opacity 0.2s ease;
+  cursor: pointer;
 
-    &:hover {
-        text-decoration: underline;
-        opacity: 0.9;
-    }
+  &:hover {
+    text-decoration: underline;
+    opacity: 0.9;
+  }
 }
 
 @media (max-width: 480px) {
-    .login-container {
-        padding: 1rem;
-        min-height: auto;
-        align-items: flex-start;
-        padding-top: 3rem;
-    }
-
-    .login-card {
-        padding: 1rem 1.5rem;
-    }
-
-    mat-card-title {
-        font-size: 1.6rem;
-    }
+  .login-container {
+    padding-top: 3rem;
+  }
 }

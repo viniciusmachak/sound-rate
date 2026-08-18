@@ -19,12 +19,22 @@
         </button>
 
         @if (selectedFile) {
-          <button mat-raised-button color="primary" (click)="onUploadAvatar()">
-            Save New Picture
+          <button mat-raised-button color="primary" (click)="onUploadAvatar()" [disabled]="isUploadingAvatar">
+            @if (isUploadingAvatar) {
+              <mat-spinner diameter="18"></mat-spinner>
+            } @else {
+              <span>Save New Picture</span>
+            }
           </button>
         }
 
-        <button mat-button type="button" (click)="onResetAvatar()">Reset to Default</button>
+        <button mat-button type="button" (click)="onResetAvatar()" [disabled]="isResettingAvatar">
+          @if (isResettingAvatar) {
+            <mat-spinner diameter="18"></mat-spinner>
+          } @else {
+            <span>Reset to Default</span>
+          }
+        </button>
       </div>
     </mat-card-content>
   </mat-card>
@@ -39,8 +49,14 @@
           <mat-label>Email</mat-label>
           <input matInput formControlName="email" type="email">
         </mat-form-field>
-        <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid">Save
-        Changes</button>
+        <button mat-raised-button color="primary" type="submit"
+          [disabled]="profileForm.invalid || isUpdatingProfile">
+          @if (isUpdatingProfile) {
+            <mat-spinner diameter="18"></mat-spinner>
+          } @else {
+            <span>Save Changes</span>
+          }
+        </button>
       </form>
     </mat-card-content>
   </mat-card>
@@ -66,8 +82,14 @@
             <mat-error>Passwords do not match.</mat-error>
           }
         </mat-form-field>
-        <button mat-raised-button color="primary" type="submit" [disabled]="passwordForm.invalid">Change
-        Password</button>
+        <button mat-raised-button color="primary" type="submit"
+          [disabled]="passwordForm.invalid || isUpdatingPassword">
+          @if (isUpdatingPassword) {
+            <mat-spinner diameter="18"></mat-spinner>
+          } @else {
+            <span>Change Password</span>
+          }
+        </button>
       </form>
     </mat-card-content>
   </mat-card>
@@ -78,9 +100,13 @@
     </mat-card-header>
     <mat-card-content>
       <p>Deleting your account is a permanent action and will remove all your data.</p>
-      <button mat-raised-button color="warn" (click)="deleteAccount()">
-        <mat-icon>delete_forever</mat-icon>
-        Delete My Account
+      <button mat-raised-button color="warn" (click)="deleteAccount()" [disabled]="isDeletingAccount">
+        @if (isDeletingAccount) {
+          <mat-spinner diameter="18"></mat-spinner>
+        } @else {
+          <mat-icon>delete_forever</mat-icon>
+          <span>Delete My Account</span>
+        }
       </button>
     </mat-card-content>
   </mat-card>

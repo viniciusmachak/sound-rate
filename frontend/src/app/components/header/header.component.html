@@ -1,0 +1,147 @@
+<mat-toolbar class="navbar">
+  <div class="nav-container">
+    <button mat-icon-button class="menu-button" (click)="toggleSidebar()"
+      aria-label="Open navigation menu" [attr.aria-expanded]="isSidebarOpen">
+      <mat-icon>menu</mat-icon>
+    </button>
+
+    <a routerLink="/" class="app-title">SoundRate</a>
+
+    <div class="search-container">
+      <mat-icon class="search-icon">search</mat-icon>
+      <input class="search-input" type="search" placeholder="Search SoundRate"
+        aria-label="Search albums, artists or users" autocomplete="off"
+        [formControl]="searchControl" (focus)="isSearchFocused = true" (blur)="closeSearch()"
+        (keydown.escape)="isSearchFocused = false">
+
+      @if (isSearchFocused) {
+        @if (searchState$ | async; as state) {
+          @if (state.query.length >= 3) {
+            <div class="search-results">
+              @if (state.isLoading) {
+                <div class="search-feedback">
+                  <mat-spinner diameter="24"></mat-spinner>
+                  <span>Searching...</span>
+                </div>
+              } @else if (state.results.length > 0) {
+                @for (result of state.results; track $index) {
+                  <button type="button" class="search-result" (click)="selectResult(result)">
+                    <img [src]="resultImage(result)" [alt]="resultTitle(result)">
+                    <span class="result-copy">
+                      <strong>{{ resultTitle(result) }}</strong>
+                      <small>{{ resultSubtitle(result) }}</small>
+                    </span>
+                    <span class="result-type">{{ result.type }}</span>
+                  </button>
+                }
+              } @else {
+                <div class="search-feedback">
+                  <mat-icon>{{ state.error ? 'error_outline' : 'search_off' }}</mat-icon>
+                  <span>{{ state.error ? 'Search unavailable' : 'No results found' }}</span>
+                </div>
+              }
+            </div>
+          }
+        }
+      }
+    </div>
+
+    <div class="nav-actions">
+      @if (currentUser$ | async; as user) {
+        <a mat-icon-button class="profile-link" [routerLink]="['/user', user.username]"
+          [attr.aria-label]="'Open ' + user.username + ' profile'">
+          <img [src]="user.avatarUrl" alt="Avatar of {{ user.username }}" class="toolbar-avatar">
+        </a>
+        <a mat-icon-button routerLink="/settings" class="nav-icon-link" aria-label="Settings">
+          <mat-icon>settings</mat-icon>
+        </a>
+        <button mat-button class="logout-button" (click)="logout()">
+          <mat-icon>logout</mat-icon>
+          <span class="logout-label">Logout</span>
+        </button>
+      } @else {
+        <a mat-button class="nav-link" routerLink="/login">Login</a>
+        <a mat-flat-button class="nav-link register-btn" routerLink="/register">Register</a>
+      }
+    </div>
+  </div>
+</mat-toolbar>
+
+@if (isSidebarOpen) {
+  <button type="button" class="sidebar-backdrop" aria-label="Close navigation menu"
+    (click)="closeSidebar()"></button>
+
+  <aside class="sidebar" aria-label="Main navigation">
+    <div class="sidebar-header">
+      <a routerLink="/" class="sidebar-brand" (click)="closeSidebar()">SoundRate</a>
+      <button mat-icon-button type="button" aria-label="Close navigation menu" (click)="closeSidebar()">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <nav class="sidebar-navigation">
+      <a class="sidebar-link" routerLink="/" (click)="closeSidebar()">
+        <mat-icon>home</mat-icon>
+        <span>Home</span>
+      </a>
+
+      @if (currentUser$ | async; as user) {
+        <a class="sidebar-link" [routerLink]="['/user', user.username]" (click)="closeSidebar()">
+          <img [src]="user.avatarUrl" alt="" class="sidebar-profile-image">
+          <span>Profile</span>
+        </a>
+
+        <section class="recent-ratings" aria-labelledby="recent-ratings-title">
+          <h2 id="recent-ratings-title">Recently rated</h2>
+          @if (recentRatingsState$ | async; as state) {
+            @if (state.isLoading) {
+              <div class="recent-ratings-loading">
+                <mat-spinner diameter="28"></mat-spinner>
+                <span>Loading ratings...</span>
+              </div>
+            } @else if (state.ratings.length > 0) {
+              <div class="recent-rating-list">
+                @for (rating of state.ratings; track rating.album.id) {
+                  <a class="recent-rating" [routerLink]="['/album', rating.album.id]" (click)="closeSidebar()">
+                    <img [src]="rating.album.cover_medium" [alt]="rating.album.title">
+                    <span class="recent-rating-copy">
+                      <strong>{{ rating.album.title }}</strong>
+                      <span class="recent-rating-stars"
+                        [attr.aria-label]="'Rating: ' + rating.rating + ' out of 5'">
+                        @for (star of ratingStars; track star) {
+                          <mat-icon aria-hidden="true">
+                            {{ rating.rating >= star ? 'star' : rating.rating >= star - 0.5 ? 'star_half' : 'star_border' }}
+                          </mat-icon>
+                        }
+                      </span>
+                    </span>
+                  </a>
+                }
+              </div>
+            } @else {
+              <p class="empty-ratings">
+                {{ state.error ? 'Unable to load ratings.' : 'No rated albums yet.' }}
+              </p>
+            }
+          }
+        </section>
+
+        <a class="sidebar-link" routerLink="/listen-later" (click)="closeSidebar()">
+          <mat-icon>bookmark</mat-icon>
+          <span>Listen Later</span>
+        </a>
+
+        <a class="sidebar-link" routerLink="/settings" (click)="closeSidebar()">
+          <mat-icon>settings</mat-icon>
+          <span>Settings</span>
+        </a>
+      } @else {
+        <div class="sidebar-auth">
+          <p>Sign in to see your profile, ratings and Listen Later list.</p>
+          <a mat-stroked-button routerLink="/login" (click)="closeSidebar()">Login</a>
+          <a mat-flat-button class="register-btn" routerLink="/register" (click)="closeSidebar()">Register</a>
+        </div>
+      }
+    </nav>
+  </aside>
+}

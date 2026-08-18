@@ -12,6 +12,8 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { finalize } from 'rxjs/operators';
 
 export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const password = control.get('newPassword');
@@ -28,7 +30,8 @@ export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): V
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatSnackBarModule
+    MatSnackBarModule,
+    MatProgressSpinnerModule
 ],
   templateUrl: './settings-page.component.html',
   styleUrl: './settings-page.component.css'
@@ -40,6 +43,11 @@ export class SettingsPageComponent implements OnInit {
   selectedFile: File | null = null;
   imagePreview: string | ArrayBuffer | null = null;
   currentUser!: User | null;
+  isUpdatingProfile = false;
+  isUpdatingPassword = false;
+  isUploadingAvatar = false;
+  isResettingAvatar = false;
+  isDeletingAccount = false;
 
   constructor(
     private fb: FormBuilder,
@@ -71,7 +79,10 @@ export class SettingsPageComponent implements OnInit {
   onUpdateProfile(): void {
     if (this.profileForm.invalid) return;
 
-    this.apiService.updateProfile(this.profileForm.value).subscribe({
+    this.isUpdatingProfile = true;
+    this.apiService.updateProfile(this.profileForm.value).pipe(
+      finalize(() => this.isUpdatingProfile = false)
+    ).subscribe({
       next: (updatedUser) => {
         this.currentUser = updatedUser;
         this.authService.updateCurrentUser(updatedUser);
@@ -85,7 +96,10 @@ export class SettingsPageComponent implements OnInit {
     if (this.passwordForm.invalid) return;
 
     const { currentPassword, newPassword } = this.passwordForm.value;
-    this.apiService.updatePassword({ currentPassword, newPassword }).subscribe({
+    this.isUpdatingPassword = true;
+    this.apiService.updatePassword({ currentPassword, newPassword }).pipe(
+      finalize(() => this.isUpdatingPassword = false)
+    ).subscribe({
       next: () => {
         this.snackBar.open('Password changed successfully!', 'Close', { duration: 3000 });
         this.passwordForm.reset();
@@ -105,7 +119,10 @@ export class SettingsPageComponent implements OnInit {
     });
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.apiService.deleteCurrentUser().subscribe({
+        this.isDeletingAccount = true;
+        this.apiService.deleteCurrentUser().pipe(
+          finalize(() => this.isDeletingAccount = false)
+        ).subscribe({
           next: () => {
             this.snackBar.open('Account deleted successfully. We will miss you!', 'Close', { duration: 5000 });
             this.authService.logout();
@@ -133,7 +150,10 @@ export class SettingsPageComponent implements OnInit {
       return;
     }
 
-    this.apiService.updateAvatar(this.selectedFile).subscribe({
+    this.isUploadingAvatar = true;
+    this.apiService.updateAvatar(this.selectedFile).pipe(
+      finalize(() => this.isUploadingAvatar = false)
+    ).subscribe({
       next: (updatedUser) => {
         this.snackBar.open('Profile picture updated successfully!', 'Close', { duration: 3000 });
         this.currentUser = updatedUser;
@@ -146,7 +166,10 @@ export class SettingsPageComponent implements OnInit {
   }
 
   onResetAvatar(): void {
-    this.apiService.resetAvatar().subscribe({
+    this.isResettingAvatar = true;
+    this.apiService.resetAvatar().pipe(
+      finalize(() => this.isResettingAvatar = false)
+    ).subscribe({
       next: (updatedUser) => {
         this.snackBar.open('Profile picture reset to default.', 'Close', { duration: 3000 });
         this.currentUser = updatedUser;

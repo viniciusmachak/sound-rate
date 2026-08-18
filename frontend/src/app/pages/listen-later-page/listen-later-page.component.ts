@@ -6,13 +6,18 @@ import { BehaviorSubject } from 'rxjs';
 import { PageEvent } from '@angular/material/paginator';
 import { CommonModule } from '@angular/common';
 import { MatPaginatorModule } from '@angular/material/paginator';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { AlbumCardComponent } from '../../components/album-card/album-card.component';
+import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skeleton-loader.component';
 
 @Component({
   selector: 'app-listen-later-page',
   standalone: true,
-  imports: [CommonModule, MatPaginatorModule, MatProgressSpinnerModule, AlbumCardComponent],
+  imports: [
+    CommonModule,
+    MatPaginatorModule,
+    AlbumCardComponent,
+    SkeletonLoaderComponent
+  ],
   templateUrl: './listen-later-page.component.html',
 })
 export class ListenLaterPageComponent implements OnInit {

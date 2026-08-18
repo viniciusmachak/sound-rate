@@ -9,7 +9,7 @@ import { MatCardModule } from '@angular/material/card';
   standalone: true,
   imports: [RouterLink, MatCardModule],
   templateUrl: './artist-card.component.html',
-  styleUrl: './artist-card.component.css'
+  styleUrl: '../entity-card.shared.css'
 })
 export class ArtistCardComponent {
   @Input() artist!: DeezerArtist;

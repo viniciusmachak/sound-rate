@@ -10,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIcon } from '@angular/material/icon';
+import { finalize } from 'rxjs/operators';
 
 @Component({
   selector: 'app-login-page',
@@ -25,12 +26,13 @@ import { MatIcon } from '@angular/material/icon';
     MatIcon
 ],
   templateUrl: './login-page.component.html',
-  styleUrl: './login-page.component.css'
+  styleUrls: ['../auth-page.shared.css', './login-page.component.css']
 })
 export class LoginPageComponent {
   loginForm: FormGroup;
   errorMessage: string | null = null;
   hide = true;
+  isLoading = false;
 
   constructor(
     private fb: FormBuilder,
@@ -49,8 +51,11 @@ export class LoginPageComponent {
       return;
     }
 
+    this.isLoading = true;
     this.errorMessage = null;
-    this.authService.login(this.loginForm.value).subscribe({
+    this.authService.login(this.loginForm.value).pipe(
+      finalize(() => this.isLoading = false)
+    ).subscribe({
       next: () => {
         console.log('Successful login!');
       },

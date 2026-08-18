@@ -3,12 +3,12 @@ import { ActivatedRoute } from '@angular/router';
 import { BehaviorSubject, distinctUntilChanged, map, Observable, shareReplay, switchMap } from 'rxjs';
 import { ApiService } from '../../services/api.service';
 import { CommonModule } from '@angular/common';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { AlbumCardComponent } from '../../components/album-card/album-card.component';
 import { MatIconModule } from '@angular/material/icon';
 import { PageEvent } from '@angular/material/paginator';
 import { ArtistPage } from '../../models/artist-page.model';
+import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skeleton-loader.component';
 
 interface Pageable {
   page: number;
@@ -18,7 +18,13 @@ interface Pageable {
 @Component({
   selector: 'app-artist-details-page',
   standalone: true,
-  imports: [CommonModule, MatProgressSpinnerModule, AlbumCardComponent, MatIconModule, MatPaginatorModule],
+  imports: [
+    CommonModule,
+    AlbumCardComponent,
+    MatIconModule,
+    MatPaginatorModule,
+    SkeletonLoaderComponent
+  ],
   templateUrl: './artist-details-page.component.html',
   styleUrl: './artist-details-page.component.css'
 })

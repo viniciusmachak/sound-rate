@@ -139,7 +139,5 @@
   </mat-tab-group>
 </div>
 } @else {
-  <div class="loading-container">
-    <mat-spinner diameter="50"></mat-spinner>
-  </div>
+  <app-skeleton-loader variant="detail" [count]="6" />
 }
