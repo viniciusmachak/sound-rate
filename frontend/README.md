@@ -1,56 +1,209 @@
 # SoundRate Frontend
 
-This is the Angular frontend for the SoundRate application, a web site for discovering, rating, and reviewing music.
+This module contains the Angular single-page application for SoundRate.
 
-## ✨ Features
+## What The Frontend Does
 
-- **User Authentication:** Login, Register, and Forgot/Reset Password pages.
-- **Dynamic Content:** Homepage with dashboards for highest-rated albums and most active users.
-- **Global Search:** A reactive search bar to find albums, artists, and users.
-- **Detailed Pages:** Dedicated pages for Album Details, Artist Profiles, and User Profiles.
-- **Interactive Components:** Reusable components for star ratings, data grids, and dialogs.
-- **Account Management:** A settings page for users to update their profile, password, and avatar.
-- **Full Application State Management:** A global `AuthService` using RxJS to manage user authentication state in real-time.
+The application is responsible for:
 
-## 🛠️ Tech Stack
+- authenticating users and maintaining client-side session state
+- searching for users, albums, and artists
+- displaying album, artist, and user profile pages
+- managing ratings, reviews, likes, follows, and listen-later entries
+- providing account settings, avatar upload, and password management flows
+- playing Deezer track previews through the shared audio player
 
-- **Framework:** Angular
-- **Language:** TypeScript
-- **Styling:** SCSS with Angular Material
-- **Reactivity:** RxJS
-- **Containerization:** Docker & Nginx
+## Stack
 
-## 🚀 Getting Started
+- Angular 21 LTS
+- TypeScript 5.9
+- Angular Material and CDK
+- RxJS
+- SCSS
+- Karma and Jasmine
+- Nginx for container delivery
+- Node.js 24.19 LTS and npm 11.17 for development and builds
 
-### Prerequisites
-- Node.js (LTS version recommended)
-- npm (Node Package Manager)
-- Angular CLI (`npm install -g @angular/cli`)
+## Application Structure
 
-### Installation & Running Locally
+The main frontend areas are:
 
-1.  **Navigate to the frontend directory:**
-    ```bash
-    cd frontend
-    ```
+- `src/app/pages`
+  Route-level pages such as home, album details, artist details, user profiles, authentication, settings, and listen later
+- `src/app/components`
+  Reusable cards, lists, dialogs, ratings, layout, and audio player components
+- `src/app/services`
+  API access, authentication state, and audio playback
+- `src/app/models`
+  TypeScript models for API requests and responses
+- `src/app/guards`
+  Route protection for authenticated pages
+- `src/app/interceptors`
+  JWT attachment and authentication error handling
+- `src/app/pipes`
+  Shared presentation transformations
 
-2.  **Install dependencies:**
-    ```bash
-    npm install
-    ```
+The application uses standalone Angular components and is bootstrapped from `src/main.ts`.
 
-3.  **Run the backend:**
-    For the frontend to work correctly, the backend API must be running. Ensure the backend is running (e.g., via Docker Compose) so that the proxy can connect to it.
+## Configuration Files
 
-4.  **Start the development server:**
-    ```bash
-    ng serve
-    ```
-    The application will be available at `http://localhost:4200`. The development server uses the `proxy.conf.json` file to automatically redirect API requests from `/api/v1` to the backend at `http://localhost:8080`.
+- `angular.json`
+  Angular build, development server, assets, styles, budgets, and test configuration
+- `src/environments/environment.ts`
+  Local development settings
+- `src/environments/environment.prod.ts`
+  Production settings selected during production builds
+- `proxy.conf.json`
+  Development proxy from `/api` to the backend at `http://localhost:8080`
+- `nginx.conf`
+  Container routing, API proxying, and SPA fallback configuration
+- `.nvmrc`
+  Node.js version used for local development
 
-## Build & Test Commands
+Both Angular environments use `/api/v1` as the API base URL.
 
-### Build for Production
-To create a production-ready build in the `dist/` folder, run:
+## Local Development
+
+### 1. Start The Backend
+
+From the repository root, start the database and backend:
+
 ```bash
-ng build --configuration production
+docker compose up db backend
+```
+
+Alternatively, follow the local development instructions in `../backend/README.md`.
+
+The frontend expects the API on:
+
+- `http://localhost:8080`
+
+### 2. Install Dependencies
+
+```bash
+cd frontend
+nvm use
+npm ci
+```
+
+The supported toolchain is:
+
+- Node.js `>=24.0.0 <25.0.0`
+- npm `>=11.17.0 <12.0.0`
+
+### 3. Run The Application
+
+```bash
+npm start
+```
+
+The Angular development server will start on:
+
+- `http://localhost:4200`
+
+Development requests under `/api` are proxied to the backend by `proxy.conf.json`.
+
+## Docker Runtime
+
+From the repository root:
+
+```bash
+docker compose up --build
+```
+
+In Docker:
+
+- Angular is built with Node.js 24.19
+- the production files are served by Nginx
+- Nginx proxies `/api/v1` to `backend:8080`
+- unknown frontend routes fall back to `index.html`
+- the frontend is exposed at `http://localhost:4200`
+
+## Application Routes
+
+The main routes are:
+
+- `/`
+  Home dashboard and global search
+- `/login`
+  User login
+- `/register`
+  User registration
+- `/forgot-password`
+  Password reset request
+- `/reset-password`
+  Password reset completion
+- `/user/:username`
+  Public user profile
+- `/album/:id`
+  Album details, ratings, tracks, and reviews
+- `/artist/:id`
+  Artist details and albums
+- `/settings`
+  Authenticated account settings
+- `/listen-later`
+  Authenticated listen-later list
+
+## Authentication Model
+
+- successful login and registration store the JWT and current user in `localStorage`
+- `AuthService` exposes the current user as an RxJS observable
+- the JWT interceptor adds the Bearer token to outgoing HTTP requests
+- `401` and `403` API responses clear the local session and redirect to `/login`
+- the auth guard protects `/settings` and `/listen-later`
+
+Backend authorization remains authoritative; frontend route guards only control client-side navigation.
+
+## API Integration
+
+`ApiService` communicates with the backend through the `/api/v1` base path. In local development, Angular proxies these requests to `localhost:8080`. In Docker, Nginx proxies them to the Compose `backend` service.
+
+Album and artist metadata displayed by the frontend is supplied by the backend's Deezer integration. Avatar and account-email operations are also initiated through backend endpoints rather than direct browser integrations.
+
+## Testing
+
+Run the configured Karma test runner with:
+
+```bash
+npm test
+```
+
+Run it once in headless Chrome with:
+
+```bash
+npm test -- --watch=false --browsers=ChromeHeadless
+```
+
+Karma and Jasmine are configured, but the frontend currently has no `*.spec.ts` test files.
+
+## Useful Commands
+
+Run the development server:
+
+```bash
+npm start
+```
+
+Create a production build:
+
+```bash
+npm run build
+```
+
+Create a development build and rebuild on changes:
+
+```bash
+npm run watch
+```
+
+Run tests:
+
+```bash
+npm test
+```
+
+Build the frontend Docker image from the module directory:
+
+```bash
+docker build -t soundrate-frontend .
+```

@@ -20,8 +20,8 @@ This repository is a monorepo with two application folders:
 - Springdoc OpenAPI
 
 ### Frontend
-- Angular
-- TypeScript
+- Angular 21 LTS
+- TypeScript 5.9
 - Angular Material
 - RxJS
 - Nginx for container delivery
@@ -57,7 +57,7 @@ This repository is a monorepo with two application folders:
 ## Prerequisites
 
 - Java 21
-- Node.js and npm
+- Node.js 24.19 LTS with npm 11.17
 - Docker and Docker Compose
 
 ## Environment Variables
