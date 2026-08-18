@@ -1,14 +1,18 @@
 <h1 mat-dialog-title>Your Review</h1>
 <div mat-dialog-content [formGroup]="form">
-    <mat-form-field appearance="outline" class="review-textarea">
-        <mat-label>Write your opinion about the album</mat-label>
-        <textarea matInput formControlName="text" rows="10"></textarea>
-        <mat-error *ngIf="form.get('text')?.hasError('required')">Text is required</mat-error>
-        <mat-error *ngIf="form.get('text')?.hasError('minlength')">The review must be at least 10 characters
-            long</mat-error>
-    </mat-form-field>
+  <mat-form-field appearance="outline" class="review-textarea">
+    <mat-label>Write your opinion about the album</mat-label>
+    <textarea matInput formControlName="text" rows="10"></textarea>
+    @if (form.get('text')?.hasError('required')) {
+      <mat-error>Text is required</mat-error>
+    }
+    @if (form.get('text')?.hasError('minlength')) {
+      <mat-error>The review must be at least 10 characters
+      long</mat-error>
+    }
+  </mat-form-field>
 </div>
 <div mat-dialog-actions align="end">
-    <button mat-button (click)="onCancel()">Cancel</button>
-    <button mat-raised-button color="primary" (click)="onSave()" [disabled]="form.invalid">Save</button>
+  <button mat-button (click)="onCancel()">Cancel</button>
+  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="form.invalid">Save</button>
 </div>

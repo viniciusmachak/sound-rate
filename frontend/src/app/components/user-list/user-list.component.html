@@ -1,25 +1,33 @@
 <h2 mat-dialog-title>{{ title }}</h2>
 
 <mat-dialog-content>
-    <div *ngIf="isLoading && (users$ | async)?.length === 0" class="loading-container">
-        <mat-spinner diameter="40"></mat-spinner>
+  @if (isLoading && (users$ | async)?.length === 0) {
+    <div class="loading-container">
+      <mat-spinner diameter="40"></mat-spinner>
     </div>
+  }
 
-    <mat-list *ngIf="(users$ | async) as users">
-        <mat-list-item *ngFor="let user of users">
-            <img matListItemAvatar [src]="user.avatarUrl" alt="Avatar of {{ user.username }}" class="user-avatar">
-            <div matListItemTitle>
-                <a [routerLink]="['/user', user.username]" mat-dialog-close class="username-link">{{ user.username
-                    }}</a>
-            </div>
+  @if ((users$ | async); as users) {
+    <mat-list>
+      @for (user of users; track user) {
+        <mat-list-item>
+          <img matListItemAvatar [src]="user.avatarUrl" alt="Avatar of {{ user.username }}" class="user-avatar">
+          <div matListItemTitle>
+            <a [routerLink]="['/user', user.username]" mat-dialog-close class="username-link">{{ user.username
+            }}</a>
+          </div>
         </mat-list-item>
+      }
     </mat-list>
+  }
 
-    <div class="load-more-container" *ngIf="hasMore && !isLoading">
-        <button mat-stroked-button (click)="loadUsers()">Load More</button>
+  @if (hasMore && !isLoading) {
+    <div class="load-more-container">
+      <button mat-stroked-button (click)="loadUsers()">Load More</button>
     </div>
+  }
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">
-    <button mat-button mat-dialog-close color="primary">Close</button>
+  <button mat-button mat-dialog-close color="primary">Close</button>
 </mat-dialog-actions>

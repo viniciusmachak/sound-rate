@@ -8,13 +8,12 @@
 Thumbs.db
 
 
-# Angular build
-/node_modules
-/dist
-/out-tsc
-/bazel-out
-
-/.angular/cache
+# Frontend dependencies and Angular build output
+node_modules/
+dist/
+out-tsc/
+bazel-out/
+.angular/
 
 npm-debug.log
 yarn-error.log

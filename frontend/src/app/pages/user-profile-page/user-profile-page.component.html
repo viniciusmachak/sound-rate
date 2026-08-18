@@ -1,144 +1,169 @@
-<div class="profile-container" *ngIf="userProfile$ | async as profile; else loading">
-
-  <header class="profile-header">
-    <img [src]="profile.user.avatarUrl" alt="Avatar of {{ profile.user.username }}" class="profile-avatar">
-    <div class="profile-info">
-      <h1>{{ profile.user.username }}</h1>
-      <div class="profile-actions" *ngIf="authService.isAuthenticated()">
-        <a *ngIf="isOwnProfile" mat-stroked-button routerLink="/settings">
-          <mat-icon>edit</mat-icon>
-          Edit Profile
-        </a>
-        <button *ngIf="!isOwnProfile" mat-raised-button [color]="profile.isFollowedByCurrentUser ? 'primary' : 'accent'"
-          (click)="toggleFollow()">
-          {{ profile.isFollowedByCurrentUser ? 'Following' : 'Follow' }}
-        </button>
+@if (userProfile$ | async; as profile) {
+  <div class="profile-container">
+    <header class="profile-header">
+      <img [src]="profile.user.avatarUrl" alt="Avatar of {{ profile.user.username }}" class="profile-avatar">
+      <div class="profile-info">
+        <h1>{{ profile.user.username }}</h1>
+        @if (authService.isAuthenticated()) {
+          <div class="profile-actions">
+            @if (isOwnProfile) {
+              <a mat-stroked-button routerLink="/settings">
+                <mat-icon>edit</mat-icon>
+                Edit Profile
+              </a>
+            }
+            @if (!isOwnProfile) {
+              <button mat-raised-button [color]="profile.isFollowedByCurrentUser ? 'primary' : 'accent'"
+                (click)="toggleFollow()">
+                {{ profile.isFollowedByCurrentUser ? 'Following' : 'Follow' }}
+              </button>
+            }
+          </div>
+        }
       </div>
-    </div>
-
-    <div class="profile-stats">
-
-      <div class="stat-item clickable" (click)="openFollowListDialog('followers')">
-        <span class="stat-value">{{ profile.followersCount }}</span>
-        <span class="stat-label">Followers</span>
-      </div>
-
-      <div class="stat-item clickable" (click)="openFollowListDialog('following')">
-        <span class="stat-value">{{ profile.followingCount }}</span>
-        <span class="stat-label">Following</span>
-      </div>
-
-      <div class="stat-item">
-        <span class="stat-value">{{ profile.totalAlbumRatings }}</span>
-        <span class="stat-label">Albums rated</span>
-      </div>
-
-      <div class="stat-item">
-        <span class="stat-value">{{ profile.totalTrackRatings }}</span>
-        <span class="stat-label">Tracks rated</span>
-      </div>
-
-      <div class="stat-item">
-        <span class="stat-value">{{ profile.totalReviews }}</span>
-        <span class="stat-label">Reviews</span>
-      </div>
-    </div>
-  </header>
-
-  <mat-tab-group animationDuration="0ms">
-
-    <mat-tab label="Ratings">
-      <div class="tab-content">
-        <div *ngIf="isLoadingRatings" class="loading-container">
-          <mat-spinner diameter="40"></mat-spinner>
+      <div class="profile-stats">
+        <div class="stat-item clickable" (click)="openFollowListDialog('followers')">
+          <span class="stat-value">{{ profile.followersCount }}</span>
+          <span class="stat-label">Followers</span>
         </div>
-
-        <div *ngIf="!isLoadingRatings">
-          <div class="ratings-grid" *ngIf="(ratings$ | async) as ratings">
-            <div *ngFor="let rating of ratings" class="rating-item">
-              <app-album-card [album]="rating.album"></app-album-card>
-              <div class="rating-info">
-                <app-star-rating [rating]="rating.rating" [readonly]="true"></app-star-rating>
-                <button mat-icon-button [disabled]="!rating.reviewText" (click)="showReview(rating)"
-                  title="View review">
-                  <mat-icon>comment</mat-icon>
-                </button>
+        <div class="stat-item clickable" (click)="openFollowListDialog('following')">
+          <span class="stat-value">{{ profile.followingCount }}</span>
+          <span class="stat-label">Following</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ profile.totalAlbumRatings }}</span>
+          <span class="stat-label">Albums rated</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ profile.totalTrackRatings }}</span>
+          <span class="stat-label">Tracks rated</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-value">{{ profile.totalReviews }}</span>
+          <span class="stat-label">Reviews</span>
+        </div>
+      </div>
+    </header>
+    <mat-tab-group animationDuration="0ms">
+      <mat-tab label="Ratings">
+        <div class="tab-content">
+          @if (isLoadingRatings) {
+            <div class="loading-container">
+              <mat-spinner diameter="40"></mat-spinner>
+            </div>
+          }
+          @if (!isLoadingRatings) {
+            <div>
+              @if ((ratings$ | async); as ratings) {
+                <div class="ratings-grid">
+                  @for (rating of ratings; track rating) {
+                    <div class="rating-item">
+                      <app-album-card [album]="rating.album"></app-album-card>
+                      <div class="rating-info">
+                        <app-star-rating [rating]="rating.rating" [readonly]="true"></app-star-rating>
+                        <button mat-icon-button [disabled]="!rating.reviewText" (click)="showReview(rating)"
+                          title="View review">
+                          <mat-icon>comment</mat-icon>
+                        </button>
+                      </div>
+                    </div>
+                  }
+                </div>
+              }
+              @if (!(ratings$ | async)?.length) {
+                <p class="no-content-message">This user has no ratings yet</p>
+              }
+              @if (totalRatings > ratingsPageSize) {
+                <mat-paginator class="custom-paginator" [length]="totalRatings"
+                  [pageSize]="ratingsPageSize" [pageIndex]="currentRatingsPage" (page)="onRatingsPageChange($event)">
+                </mat-paginator>
+              }
+            </div>
+          }
+        </div>
+      </mat-tab>
+      <mat-tab label="Likes">
+        <div class="tab-content">
+          @if (isLoadingLikedAlbums) {
+            <div class="loading-container">
+              <mat-spinner diameter="40"></mat-spinner>
+            </div>
+          }
+          @if (!isLoadingLikedAlbums) {
+            <div>
+              @if ((likedAlbums$ | async); as likedAlbums) {
+                <div class="album-grid">
+                  @for (album of likedAlbums; track album) {
+                    <div class="album-card-container">
+                      <app-album-card [album]="album"></app-album-card>
+                      @if (isOwnProfile) {
+                        <button mat-icon-button class="like-button" title="Remove from likes"
+                          (click)="unlikeAlbum(album.id, $event)">
+                          <mat-icon>favorite</mat-icon>
+                        </button>
+                      }
+                    </div>
+                  }
+                </div>
+              }
+              @if (totalLikedAlbums === 0) {
+                <p class="no-content-message">
+                  This user has no liked albums yet
+                </p>
+              }
+              @if (totalLikedAlbums > likedAlbumsPageSize) {
+                <mat-paginator class="custom-paginator"
+                  [length]="totalLikedAlbums" [pageSize]="likedAlbumsPageSize" [pageIndex]="currentLikedAlbumsPage"
+                  (page)="onLikedAlbumsPageChange($event)">
+                </mat-paginator>
+              }
+            </div>
+          }
+        </div>
+      </mat-tab>
+      @if (isOwnProfile) {
+        <mat-tab label="Listen Later">
+          <div class="tab-content">
+            @if (isLoadingListenLater) {
+              <div class="loading-container">
+                <mat-spinner diameter="40"></mat-spinner>
               </div>
-            </div>
+            }
+            @if (!isLoadingListenLater) {
+              <div>
+                @if ((listenLater$ | async); as listenLaterAlbums) {
+                  <div class="album-grid">
+                    @for (album of listenLaterAlbums; track album) {
+                      <div class="album-card-container">
+                        <app-album-card [album]="album"></app-album-card>
+                        <button mat-icon-button class="listen-later-button" title="Remove from Listen Later"
+                          (click)="removeFromListenLater(album.id, $event)">
+                          <mat-icon>bookmark_remove</mat-icon>
+                        </button>
+                      </div>
+                    }
+                  </div>
+                }
+                @if (totalListenLater === 0) {
+                  <p class="no-content-message">
+                    You don't have albums on listen later list yet
+                  </p>
+                }
+                @if (totalListenLater > listenLaterPageSize) {
+                  <mat-paginator class="custom-paginator"
+                    [length]="totalListenLater" [pageSize]="listenLaterPageSize" [pageIndex]="currentListenLaterPage"
+                    (page)="onListenLaterPageChange($event)">
+                  </mat-paginator>
+                }
+              </div>
+            }
           </div>
-          <p *ngIf="!(ratings$ | async)?.length" class="no-content-message">This user has no ratings yet</p>
-          <mat-paginator class="custom-paginator" *ngIf="totalRatings > ratingsPageSize" [length]="totalRatings"
-            [pageSize]="ratingsPageSize" [pageIndex]="currentRatingsPage" (page)="onRatingsPageChange($event)">
-          </mat-paginator>
-        </div>
-      </div>
-    </mat-tab>
-
-    <mat-tab label="Likes">
-      <div class="tab-content">
-        <div *ngIf="isLoadingLikedAlbums" class="loading-container">
-          <mat-spinner diameter="40"></mat-spinner>
-        </div>
-
-        <div *ngIf="!isLoadingLikedAlbums">
-          <div class="album-grid" *ngIf="(likedAlbums$ | async) as likedAlbums">
-            <div *ngFor="let album of likedAlbums" class="album-card-container">
-              <app-album-card [album]="album"></app-album-card>
-              <button *ngIf="isOwnProfile" mat-icon-button class="like-button" title="Remove from likes"
-                (click)="unlikeAlbum(album.id, $event)">
-                <mat-icon>favorite</mat-icon>
-              </button>
-            </div>
-          </div>
-
-          <p *ngIf="totalLikedAlbums === 0" class="no-content-message">
-            This user has no liked albums yet
-          </p>
-
-          <mat-paginator class="custom-paginator" *ngIf="totalLikedAlbums > likedAlbumsPageSize"
-            [length]="totalLikedAlbums" [pageSize]="likedAlbumsPageSize" [pageIndex]="currentLikedAlbumsPage"
-            (page)="onLikedAlbumsPageChange($event)">
-          </mat-paginator>
-        </div>
-      </div>
-    </mat-tab>
-
-    <mat-tab label="Listen Later" *ngIf="isOwnProfile">
-      <div class="tab-content">
-        <div *ngIf="isLoadingListenLater" class="loading-container">
-          <mat-spinner diameter="40"></mat-spinner>
-        </div>
-
-        <div *ngIf="!isLoadingListenLater">
-          <div class="album-grid" *ngIf="(listenLater$ | async) as listenLaterAlbums">
-
-            <div *ngFor="let album of listenLaterAlbums" class="album-card-container">
-              <app-album-card [album]="album"></app-album-card>
-
-              <button mat-icon-button class="listen-later-button" title="Remove from Listen Later"
-                (click)="removeFromListenLater(album.id, $event)">
-                <mat-icon>bookmark_remove</mat-icon>
-              </button>
-            </div>
-          </div>
-
-          <p *ngIf="totalListenLater === 0" class="no-content-message">
-            You don't have albums on listen later list yet
-          </p>
-
-          <mat-paginator class="custom-paginator" *ngIf="totalListenLater > listenLaterPageSize"
-            [length]="totalListenLater" [pageSize]="listenLaterPageSize" [pageIndex]="currentListenLaterPage"
-            (page)="onListenLaterPageChange($event)">
-          </mat-paginator>
-        </div>
-      </div>
-    </mat-tab>
-  </mat-tab-group>
-
-</div>
-
-<ng-template #loading>
+        </mat-tab>
+      }
+    </mat-tab-group>
+  </div>
+} @else {
   <div class="loading-container">
     <mat-spinner diameter="50"></mat-spinner>
   </div>
-</ng-template>
+}

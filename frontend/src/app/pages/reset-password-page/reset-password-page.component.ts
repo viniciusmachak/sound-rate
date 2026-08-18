@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService, ResetPasswordRequest } from '../../services/api.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -19,7 +19,6 @@ export const passwordsMatchValidator: ValidatorFn = (control: AbstractControl): 
   selector: 'app-reset-password-page',
   standalone: true,
   imports: [
-    CommonModule,
     RouterLink,
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -27,7 +26,7 @@ export const passwordsMatchValidator: ValidatorFn = (control: AbstractControl): 
     MatButtonModule,
     MatProgressSpinnerModule,
     MatIconModule
-  ],
+],
   templateUrl: './reset-password-page.component.html',
   styleUrl: './reset-password-page.component.scss'
 })

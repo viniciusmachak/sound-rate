@@ -1,21 +1,29 @@
 <div class="page-container">
-    <h1>Listen Later</h1>
-    <p class="page-subtitle">Albums you saved to explore</p>
+  <h1>Listen Later</h1>
+  <p class="page-subtitle">Albums you saved to explore</p>
 
-    <div *ngIf="isLoading" class="loading-container">
-        <mat-spinner diameter="50"></mat-spinner>
+  @if (isLoading) {
+    <div class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
     </div>
+  }
 
-    <div *ngIf="!isLoading">
-        <div class="album-grid" *ngIf="(albums$ | async) as albums; else noAlbums">
-            <app-album-card *ngFor="let album of albums" [album]="album"></app-album-card>
+  @if (!isLoading) {
+    <div>
+      @if ((albums$ | async); as albums) {
+        <div class="album-grid">
+          @for (album of albums; track album) {
+            <app-album-card [album]="album"></app-album-card>
+          }
         </div>
-        <ng-template #noAlbums>
-            <p class="info-message">Your listen later list is empty</p>
-        </ng-template>
-
-        <mat-paginator *ngIf="totalAlbums > pageSize" [length]="totalAlbums" [pageSize]="pageSize"
-            [pageIndex]="currentPage" (page)="onPageChange($event)">
+      } @else {
+        <p class="info-message">Your listen later list is empty</p>
+      }
+      @if (totalAlbums > pageSize) {
+        <mat-paginator [length]="totalAlbums" [pageSize]="pageSize"
+          [pageIndex]="currentPage" (page)="onPageChange($event)">
         </mat-paginator>
+      }
     </div>
+  }
 </div>

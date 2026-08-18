@@ -1,25 +1,24 @@
-<div class="audio-player-container" *ngIf="currentTrack$ | async as track">
+@if (currentTrack$ | async; as track) {
+  <div class="audio-player-container">
     <img [src]="track.album.cover" alt="Album cover" class="track-cover">
-
     <div class="track-details">
-        <span class="track-title">{{ track.title }}</span>
-        <div class="artist-and-timer"> <span class="track-artist">{{ track.artist.name }}</span>
-            <span class="track-timer">{{ (currentTime$ | async) | number:'1.0-0' }}s / 30s</span>
-        </div>
+      <span class="track-title">{{ track.title }}</span>
+      <div class="artist-and-timer"> <span class="track-artist">{{ track.artist.name }}</span>
+      <span class="track-timer">{{ (currentTime$ | async) | number:'1.0-0' }}s / 30s</span>
     </div>
-
-    <div class="player-controls">
-        <button mat-icon-button (click)="togglePlay(track)" title="{{ (isPlaying$ | async) ? 'Pause' : 'Play' }}">
-            <mat-icon>{{ (isPlaying$ | async) ? 'pause_circle' : 'play_circle' }}</mat-icon>
-        </button>
-        <button mat-icon-button (click)="closePlayer()" title="Close player">
-            <mat-icon>close</mat-icon>
-        </button>
-    </div>
-
-    <mat-progress-bar
-        class="track-progress-bar"
-        mode="determinate"
-        [value]="((currentTime$ | async) || 0) / 30 * 100">
-    </mat-progress-bar>
+  </div>
+  <div class="player-controls">
+    <button mat-icon-button (click)="togglePlay(track)" title="{{ (isPlaying$ | async) ? 'Pause' : 'Play' }}">
+      <mat-icon>{{ (isPlaying$ | async) ? 'pause_circle' : 'play_circle' }}</mat-icon>
+    </button>
+    <button mat-icon-button (click)="closePlayer()" title="Close player">
+      <mat-icon>close</mat-icon>
+    </button>
+  </div>
+  <mat-progress-bar
+    class="track-progress-bar"
+    mode="determinate"
+    [value]="((currentTime$ | async) || 0) / 30 * 100">
+  </mat-progress-bar>
 </div>
+}

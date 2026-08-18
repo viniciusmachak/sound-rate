@@ -1,133 +1,145 @@
-<div class="page-container" *ngIf="albumDetails$ | async as details; else loading">
+@if (albumDetails$ | async; as details) {
+  <div class="page-container">
     <header class="album-header">
-        <div class="cover-container"> <img [src]="getAlbumCover(details)" alt="Album cover" class="album-cover">
-            <button mat-icon-button class="like-button" *ngIf="authService.isAuthenticated()" (click)="toggleLike()"
-                [class.liked]="details.isLikedByCurrentUser"
-                [title]="details.isLikedByCurrentUser ? 'Unlike album' : 'Like album'">
-                <mat-icon>{{
-                    details.isLikedByCurrentUser ? 'favorite' : 'favorite_border' }}
-                </mat-icon>
+      <div class="cover-container"> <img [src]="getAlbumCover(details)" alt="Album cover" class="album-cover">
+        @if (authService.isAuthenticated()) {
+          <button mat-icon-button class="like-button" (click)="toggleLike()"
+            [class.liked]="details.isLikedByCurrentUser"
+            [title]="details.isLikedByCurrentUser ? 'Unlike album' : 'Like album'">
+            <mat-icon>{{
+              details.isLikedByCurrentUser ? 'favorite' : 'favorite_border' }}
+            </mat-icon>
+          </button>
+        }
+      </div>
+      <div class="album-info">
+        <h1>{{ details.deezerDetails.title }}</h1>
+        @if (details.deezerDetails.artist) {
+          <h2>
+            <a [routerLink]="['/artist', details.deezerDetails.artist.id]" class="artist-link">
+              {{ details.deezerDetails.artist.name }}
+            </a>
+          </h2>
+        }
+        <p class="release-date">{{ details.deezerDetails.release_date | slice:0:4 }}</p>
+        <div class="stats-and-ratings">
+          <div class="stats-container">
+            <div class="stat-item">
+              <mat-icon class="stat-icon">favorite</mat-icon>
+              <span>{{ details.likesCount }} likes</span>
+            </div>
+          </div>
+          <div class="ratings-section">
+            @if (authService.isAuthenticated()) {
+              <div class="rating-box">
+                <span class="rating-label">Your Rating</span>
+                <app-star-rating [rating]="details.currentUserRating || 0"
+                  (ratingChange)="onAlbumRatingChanged($event)">
+                </app-star-rating>
+                @if (details.currentUserRating) {
+                  <button (click)="onAlbumRatingChanged(null)"
+                    class="clear-rating-btn" aria-label="Clear rating" title="Clear rating">
+                    ❌
+                  </button>
+                }
+                @if (details.currentUserTrackRatings.length > 0) {
+                  <span class="rating-source-label">(Based on
+                    tracks ratings)
+                  </span>
+                }
+              </div>
+            }
+            <div class="rating-box">
+              <span class="rating-label" aria-label="Average score">Average</span>
+              <app-star-rating [rating]="details.communityScore || 0" [readonly]="true"> </app-star-rating>
+              <span class="average-score">{{ details.communityScore | number:'1.1-1' }}</span>
+              @if (details.ratingsCount > 0) {
+                <span class="ratings-count">
+                  ({{ details.ratingsCount }} {{ details.ratingsCount === 1 ? 'rating' : 'ratings' }})
+                </span>
+              }
+            </div>
+          </div>
+        </div>
+        @if (authService.isAuthenticated()) {
+          <div class="actions-section">
+            @if (!details.currentUserReview) {
+              <button mat-raised-button class="custom-accent" (click)="openReviewDialog()"
+                >
+                <mat-icon>edit</mat-icon>
+                Write a Review
+              </button>
+            }
+            <button mat-stroked-button class="listen-later" (click)="toggleListenLater()"
+              [class.active]="details.isOnListenLaterList"
+              title="{{ details.isOnListenLaterList ? 'Remove from Listen Later' : 'Add to Listen Later' }}">
+              <mat-icon>{{ details.isOnListenLaterList ? 'bookmark_added' : 'bookmark_add' }}</mat-icon> {{
+              details.isOnListenLaterList ? 'On Your List' : 'Listen Later' }}
             </button>
-        </div>
-
-        <div class="album-info">
-            <h1>{{ details.deezerDetails.title }}</h1>
-            <h2 *ngIf="details.deezerDetails.artist">
-                <a [routerLink]="['/artist', details.deezerDetails.artist.id]" class="artist-link">
-                    {{ details.deezerDetails.artist.name }}
-                </a>
-            </h2>
-            <p class="release-date">{{ details.deezerDetails.release_date | slice:0:4 }}</p>
-            <div class="stats-and-ratings">
-                <div class="stats-container">
-                    <div class="stat-item">
-                        <mat-icon class="stat-icon">favorite</mat-icon>
-                        <span>{{ details.likesCount }} likes</span>
-                    </div>
-                </div>
-
-                <div class="ratings-section">
-                    <div class="rating-box" *ngIf="authService.isAuthenticated()">
-                        <span class="rating-label">Your Rating</span>
-                        <app-star-rating [rating]="details.currentUserRating || 0"
-                            (ratingChange)="onAlbumRatingChanged($event)">
-                        </app-star-rating>
-
-                        <button *ngIf="details.currentUserRating" (click)="onAlbumRatingChanged(null)"
-                            class="clear-rating-btn" aria-label="Clear rating" title="Clear rating">
-                            ❌
-                        </button>
-
-                        <span *ngIf="details.currentUserTrackRatings.length > 0" class="rating-source-label">(Based on
-                            tracks ratings)
-                        </span>
-                    </div>
-
-                    <div class="rating-box">
-                        <span class="rating-label" aria-label="Average score">Average</span>
-                        <app-star-rating [rating]="details.communityScore || 0" [readonly]="true"> </app-star-rating>
-                        <span class="average-score">{{ details.communityScore | number:'1.1-1' }}</span>
-
-                        <span class="ratings-count" *ngIf="details.ratingsCount > 0">
-                            ({{ details.ratingsCount }} {{ details.ratingsCount === 1 ? 'rating' : 'ratings' }})
-                        </span>
-                    </div>
-                </div>
-            </div>
-
-            <div class="actions-section" *ngIf="authService.isAuthenticated()">
-                <button mat-raised-button class="custom-accent" (click)="openReviewDialog()"
-                    *ngIf="!details.currentUserReview">
-                    <mat-icon>edit</mat-icon>
-                    Write a Review
-                </button>
-                <button mat-stroked-button class="listen-later" (click)="toggleListenLater()"
-                    [class.active]="details.isOnListenLaterList"
-                    title="{{ details.isOnListenLaterList ? 'Remove from Listen Later' : 'Add to Listen Later' }}">
-                    <mat-icon>{{ details.isOnListenLaterList ? 'bookmark_added' : 'bookmark_add' }}</mat-icon> {{
-                    details.isOnListenLaterList ? 'On Your List' : 'Listen Later' }}
-                </button>
-            </div>
-        </div>
+          </div>
+        }
+      </div>
     </header>
-
     <mat-tab-group animationDuration="0ms">
-        <mat-tab label="Tracks">
-            <mat-list *ngIf="details.deezerDetails.tracks.data.length > 0; else noTracks">
-                <mat-list-item *ngFor="let track of details.deezerDetails.tracks.data; let i = index"
-                    class="track-grid-item">
-                    <div class="align-cover-number-song">
-                        <div class="track-cover-container"> <img [src]="track.album.cover"
-                                alt="Cover for {{ track.title }}" class="track-thumbnail">
-                            <button mat-mini-fab *ngIf="track.preview" (click)="audioService.togglePlay(track)"
-                                class="play-button"> <mat-icon>
-                                    <span
-                                        *ngIf="(audioService.isPlaying$ | async) && (audioService.currentTrack$ | async)?.id === track.id; else playIcon">pause
-                                    </span>
-
-                                    <ng-template #playIcon>play_arrow</ng-template>
-                                </mat-icon>
-                            </button>
-                        </div>
-
-                        <span class="track-number">{{ i + 1 }}.</span>
-                        <span class="track-name">{{ track.title }}</span>
-                    </div>
-
-                    <div class="align-artist-duration">
-                        <span class="track-duration">{{ track.duration * 1000 | formatDuration }}</span>
-
-                        <span class="track-artists">
-                            <a *ngIf="track.artist" [routerLink]="['/artist', track.artist.id]" class="artist-link">
-                                {{ track.artist.name }}
-                            </a>
-                        </span>
-                    </div>
-
-                    <app-star-rating *ngIf="authService.isAuthenticated()" class="track-rating"
-                        [rating]="getUserRatingForTrack(track.id.toString(), details)"
-                        (ratingChange)="onTrackRatingChanged($event, track.id.toString())">
-
-                    </app-star-rating>
-                </mat-list-item>
-            </mat-list>
-
-            <ng-template #noTracks>
-                <p class="info-message">The tracklist for this album is not available.</p>
-            </ng-template>
-        </mat-tab>
-
-        <mat-tab label="Reviews">
-            <app-review-list [reviews]="details.userReviews" [currentUser]="authService.currentUserValue"
-                (edit)="openReviewDialog($event)" (delete)="onDeleteReview($event)"
-                (ratingChanged)="onAlbumRatingChanged($event)">
-            </app-review-list>
-        </mat-tab>
-    </mat-tab-group>
+      <mat-tab label="Tracks">
+        @if (details.deezerDetails.tracks.data.length > 0) {
+          <mat-list>
+            @for (track of details.deezerDetails.tracks.data; track track; let i = $index) {
+              <mat-list-item
+                class="track-grid-item">
+                <div class="align-cover-number-song">
+                  <div class="track-cover-container"> <img [src]="track.album.cover"
+                    alt="Cover for {{ track.title }}" class="track-thumbnail">
+                    @if (track.preview) {
+                      <button mat-mini-fab (click)="audioService.togglePlay(track)"
+                        class="play-button"> <mat-icon>
+                        @if ((audioService.isPlaying$ | async) && (audioService.currentTrack$ | async)?.id === track.id) {
+                          <span
+                            >pause
+                          </span>
+                        } @else {
+                          play_arrow
+                        }
+                      </mat-icon>
+                    </button>
+                  }
+                </div>
+                <span class="track-number">{{ i + 1 }}.</span>
+                <span class="track-name">{{ track.title }}</span>
+              </div>
+              <div class="align-artist-duration">
+                <span class="track-duration">{{ track.duration * 1000 | formatDuration }}</span>
+                <span class="track-artists">
+                  @if (track.artist) {
+                    <a [routerLink]="['/artist', track.artist.id]" class="artist-link">
+                      {{ track.artist.name }}
+                    </a>
+                  }
+                </span>
+              </div>
+              @if (authService.isAuthenticated()) {
+                <app-star-rating class="track-rating"
+                  [rating]="getUserRatingForTrack(track.id.toString(), details)"
+                  (ratingChange)="onTrackRatingChanged($event, track.id.toString())">
+                </app-star-rating>
+              }
+            </mat-list-item>
+          }
+        </mat-list>
+      } @else {
+        <p class="info-message">The tracklist for this album is not available.</p>
+      }
+    </mat-tab>
+    <mat-tab label="Reviews">
+      <app-review-list [reviews]="details.userReviews" [currentUser]="authService.currentUserValue"
+        (edit)="openReviewDialog($event)" (delete)="onDeleteReview($event)"
+        (ratingChanged)="onAlbumRatingChanged($event)">
+      </app-review-list>
+    </mat-tab>
+  </mat-tab-group>
 </div>
-
-<ng-template #loading>
-    <div class="loading-container">
-        <mat-spinner diameter="50"></mat-spinner>
-    </div>
-</ng-template>
+} @else {
+  <div class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+}

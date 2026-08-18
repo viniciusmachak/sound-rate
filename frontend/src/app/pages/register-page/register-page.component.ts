@@ -6,14 +6,13 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { CommonModule } from '@angular/common';
+
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIcon } from '@angular/material/icon';
 @Component({
   selector: 'app-register-page',
   standalone: true,
   imports: [
-    CommonModule,
     ReactiveFormsModule,
     MatCardModule,
     MatFormFieldModule,
@@ -21,7 +20,7 @@ import { MatIcon } from '@angular/material/icon';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatIcon
-  ],
+],
   templateUrl: './register-page.component.html',
   styleUrl: './register-page.component.scss'
 })

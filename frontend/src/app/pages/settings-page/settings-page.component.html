@@ -1,83 +1,87 @@
 <div class="settings-container">
-    <h1>Account Settings</h1>
+  <h1>Account Settings</h1>
 
-    <mat-card class="settings-card">
-        <mat-card-header>
-            <mat-card-title>Profile Picture</mat-card-title>
-        </mat-card-header>
-        <mat-card-content class="avatar-content">
-            <div class="avatar-preview-container">
-                <img [src]="imagePreview" alt="Avatar preview" class="avatar-preview">
-            </div>
+  <mat-card class="settings-card">
+    <mat-card-header>
+      <mat-card-title>Profile Picture</mat-card-title>
+    </mat-card-header>
+    <mat-card-content class="avatar-content">
+      <div class="avatar-preview-container">
+        <img [src]="imagePreview" alt="Avatar preview" class="avatar-preview">
+      </div>
 
-            <div class="avatar-actions">
-                <input type="file" #fileInput hidden (change)="onFileSelected($event)" accept="image/png, image/jpeg">
+      <div class="avatar-actions">
+        <input type="file" #fileInput hidden (change)="onFileSelected($event)" accept="image/png, image/jpeg">
 
-                <button mat-stroked-button (click)="fileInput.click()">
-                    <mat-icon>upload</mat-icon>
-                    Choose Image
-                </button>
+        <button mat-stroked-button (click)="fileInput.click()">
+          <mat-icon>upload</mat-icon>
+          Choose Image
+        </button>
 
-                <button mat-raised-button color="primary" *ngIf="selectedFile" (click)="onUploadAvatar()">
-                    Save New Picture
-                </button>
+        @if (selectedFile) {
+          <button mat-raised-button color="primary" (click)="onUploadAvatar()">
+            Save New Picture
+          </button>
+        }
 
-                <button mat-button type="button" (click)="onResetAvatar()">Reset to Default</button>
-            </div>
-        </mat-card-content>
-    </mat-card>
+        <button mat-button type="button" (click)="onResetAvatar()">Reset to Default</button>
+      </div>
+    </mat-card-content>
+  </mat-card>
 
-    <mat-card class="settings-card">
-        <mat-card-header>
-            <mat-card-title>Edit Profile</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <form [formGroup]="profileForm" (ngSubmit)="onUpdateProfile()">
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Email</mat-label>
-                    <input matInput formControlName="email" type="email">
-                </mat-form-field>
-                <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid">Save
-                    Changes</button>
-            </form>
-        </mat-card-content>
-    </mat-card>
+  <mat-card class="settings-card">
+    <mat-card-header>
+      <mat-card-title>Edit Profile</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="profileForm" (ngSubmit)="onUpdateProfile()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Email</mat-label>
+          <input matInput formControlName="email" type="email">
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit" [disabled]="profileForm.invalid">Save
+        Changes</button>
+      </form>
+    </mat-card-content>
+  </mat-card>
 
-    <mat-card class="settings-card">
-        <mat-card-header>
-            <mat-card-title>Change Password</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <form [formGroup]="passwordForm" (ngSubmit)="onUpdatePassword()">
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Current Password</mat-label>
-                    <input matInput formControlName="currentPassword" type="password">
-                </mat-form-field>
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>New Password</mat-label>
-                    <input matInput formControlName="newPassword" type="password">
-                </mat-form-field>
-                <mat-form-field appearance="outline" class="full-width">
-                    <mat-label>Confirm New Password</mat-label>
-                    <input matInput formControlName="confirmPassword" type="password">
-                    <mat-error *ngIf="passwordForm.hasError('passwordMismatch')">Passwords do not match.</mat-error>
-                </mat-form-field>
-                <button mat-raised-button color="primary" type="submit" [disabled]="passwordForm.invalid">Change
-                    Password</button>
-            </form>
-        </mat-card-content>
-    </mat-card>
+  <mat-card class="settings-card">
+    <mat-card-header>
+      <mat-card-title>Change Password</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <form [formGroup]="passwordForm" (ngSubmit)="onUpdatePassword()">
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Current Password</mat-label>
+          <input matInput formControlName="currentPassword" type="password">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>New Password</mat-label>
+          <input matInput formControlName="newPassword" type="password">
+        </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Confirm New Password</mat-label>
+          <input matInput formControlName="confirmPassword" type="password">
+          @if (passwordForm.hasError('passwordMismatch')) {
+            <mat-error>Passwords do not match.</mat-error>
+          }
+        </mat-form-field>
+        <button mat-raised-button color="primary" type="submit" [disabled]="passwordForm.invalid">Change
+        Password</button>
+      </form>
+    </mat-card-content>
+  </mat-card>
 
-    <mat-card class="settings-card danger-zone">
-        <mat-card-header>
-            <mat-card-title>Danger Zone</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-            <p>Deleting your account is a permanent action and will remove all your data.</p>
-            <button mat-raised-button color="warn" (click)="deleteAccount()">
-                <mat-icon>delete_forever</mat-icon>
-                Delete My Account
-            </button>
-        </mat-card-content>
-    </mat-card>
+  <mat-card class="settings-card danger-zone">
+    <mat-card-header>
+      <mat-card-title>Danger Zone</mat-card-title>
+    </mat-card-header>
+    <mat-card-content>
+      <p>Deleting your account is a permanent action and will remove all your data.</p>
+      <button mat-raised-button color="warn" (click)="deleteAccount()">
+        <mat-icon>delete_forever</mat-icon>
+        Delete My Account
+      </button>
+    </mat-card-content>
+  </mat-card>
 </div>

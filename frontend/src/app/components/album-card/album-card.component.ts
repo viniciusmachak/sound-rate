@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core';
 import { DeezerAlbum } from '../../models/deezer.model';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { CommonModule } from '@angular/common';
+
 import { RouterLink } from '@angular/router';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -11,8 +11,11 @@ import { AlbumDashboard } from '../../models/album-details.model';
   selector: 'app-album-card',
   standalone: true,
   imports: [
-    CommonModule, RouterLink, MatDialogModule, MatIconModule, MatButtonModule,
-  ],
+    RouterLink,
+    MatDialogModule,
+    MatIconModule,
+    MatButtonModule
+],
   templateUrl: './album-card.component.html',
   styleUrl: './album-card.component.scss'
 })

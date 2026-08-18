@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { CommonModule } from '@angular/common';
+
 import { Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -13,7 +13,6 @@ import { MatIconModule } from '@angular/material/icon';
   selector: 'app-forget-password-page',
   standalone: true,
   imports: [
-    CommonModule,
     RouterLink,
     ReactiveFormsModule,
     MatFormFieldModule,
@@ -21,7 +20,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatIconModule
-  ],
+],
   templateUrl: './forget-password-page.component.html',
   styleUrl: './forget-password-page.component.scss'
 })

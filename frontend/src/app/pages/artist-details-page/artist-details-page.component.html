@@ -1,37 +1,41 @@
-<div class="artist-page-container" *ngIf="artistPage$ | async as page; else loading">
-
+@if (artistPage$ | async; as page) {
+  <div class="artist-page-container">
     <header class="artist-header">
-        <img [src]="page.artistDetails.picture_xl" [alt]="page.artistDetails.name" class="artist-photo">
-        <div class="artist-info">
-            <h1>{{ page.artistDetails.name }}</h1>
-            <div class="artist-stats">
-                <span>{{ page.artistDetails.nb_fan | number }} fans</span>
-                <span>•</span>
-                <span>{{ page.artistDetails.nb_album }} albums</span>
-            </div>
+      <img [src]="page.artistDetails.picture_xl" [alt]="page.artistDetails.name" class="artist-photo">
+      <div class="artist-info">
+        <h1>{{ page.artistDetails.name }}</h1>
+        <div class="artist-stats">
+          <span>{{ page.artistDetails.nb_fan | number }} fans</span>
+          <span>•</span>
+          <span>{{ page.artistDetails.nb_album }} albums</span>
         </div>
+      </div>
     </header>
-
-    <section class="albums-section" *ngIf="page.albums && page.albums.content.length > 0">
+    @if (page.albums && page.albums.content.length > 0) {
+      <section class="albums-section">
         <h2 class="section-title">Albums</h2>
         <div class="albums-grid">
-            <app-album-card *ngFor="let album of page.albums.content" [album]="album">
+          @for (album of page.albums.content; track album) {
+            <app-album-card [album]="album">
             </app-album-card>
+          }
         </div>
-    </section>
-
-    <p *ngIf="!page.albums || page.albums.content.length === 0" class="no-content-message">
+      </section>
+    }
+    @if (!page.albums || page.albums.content.length === 0) {
+      <p class="no-content-message">
         This artist has no albums to display
-    </p>
-    
-    <mat-paginator class="custom-paginator" *ngIf="page.albums && page.albums.totalElements > page.albums.size"
+      </p>
+    }
+    @if (page.albums && page.albums.totalElements > page.albums.size) {
+      <mat-paginator class="custom-paginator"
         [length]="page.albums.totalElements" [pageSize]="page.albums.size" [pageIndex]="page.albums.number"
         [pageSizeOptions]="[12, 24, 48]" (page)="onPageChange($event)">
-    </mat-paginator>
-</div>
-
-<ng-template #loading>
-    <div class="loading-container">
-        <mat-spinner diameter="50"></mat-spinner>
-    </div>
-</ng-template>
+      </mat-paginator>
+    }
+  </div>
+} @else {
+  <div class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+  </div>
+}

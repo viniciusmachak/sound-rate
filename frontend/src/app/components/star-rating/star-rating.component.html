@@ -1,6 +1,8 @@
 <div class="star-container">
-    <button mat-icon-button *ngFor="let star of stars" [disabled]="readonly" (click)="rate(star, $event)"
-        (mousemove)="setHoverRating(star, $event)" (mouseleave)="clearHoverRating()">
-        <mat-icon>{{ getStarIcon(star) }}</mat-icon>
+  @for (star of stars; track star) {
+    <button mat-icon-button [disabled]="readonly" (click)="rate(star, $event)"
+      (mousemove)="setHoverRating(star, $event)" (mouseleave)="clearHoverRating()">
+      <mat-icon>{{ getStarIcon(star) }}</mat-icon>
     </button>
+  }
 </div>

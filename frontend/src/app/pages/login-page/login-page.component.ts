@@ -7,7 +7,7 @@ import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
-import { CommonModule } from '@angular/common';
+
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIcon } from '@angular/material/icon';
 
@@ -15,7 +15,6 @@ import { MatIcon } from '@angular/material/icon';
   selector: 'app-login-page',
   standalone: true,
   imports: [
-    CommonModule,
     RouterLink,
     ReactiveFormsModule,
     MatCardModule,
@@ -24,7 +23,7 @@ import { MatIcon } from '@angular/material/icon';
     MatButtonModule,
     MatProgressSpinnerModule,
     MatIcon
-  ],
+],
   templateUrl: './login-page.component.html',
   styleUrl: './login-page.component.scss'
 })

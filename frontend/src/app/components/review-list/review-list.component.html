@@ -1,49 +1,50 @@
 <div class="review-list-container">
-    <mat-card *ngFor="let review of reviews" class="review-card">
-        <mat-card-header>
-            <img mat-card-avatar [src]="review.author.avatarUrl" alt="Avatar of {{ review.author.username }}"
-                [routerLink]="['/user', review.author.username]" class="user-link">
-
-            <div class="review-header-content">
-                <div class="review-info">
-                    <mat-card-title>
-                        <a [routerLink]="['/user', review.author.username]">{{ review.author.username }}</a>
-                    </mat-card-title>
-                    <mat-card-subtitle>{{ review.createdAt | date:'dd/MM/yyyy' }}</mat-card-subtitle>
-                </div>
-
-                <app-star-rating [rating]="review.rating" [readonly]="!isAuthor(review)"
-                    (ratingChange)="onRatingChange($event)">
-                </app-star-rating>
+  @for (review of reviews; track review) {
+    <mat-card class="review-card">
+      <mat-card-header>
+        <img mat-card-avatar [src]="review.author.avatarUrl" alt="Avatar of {{ review.author.username }}"
+          [routerLink]="['/user', review.author.username]" class="user-link">
+          <div class="review-header-content">
+            <div class="review-info">
+              <mat-card-title>
+                <a [routerLink]="['/user', review.author.username]">{{ review.author.username }}</a>
+              </mat-card-title>
+              <mat-card-subtitle>{{ review.createdAt | date:'dd/MM/yyyy' }}</mat-card-subtitle>
             </div>
-
-            <button *ngIf="isAuthor(review)" mat-icon-button [matMenuTriggerFor]="menu">
-                <mat-icon>more_vert</mat-icon>
-            </button>
-            <mat-menu #menu="matMenu">
-                <button mat-menu-item (click)="edit.emit(review)">
-                    <mat-icon>edit</mat-icon>
-                    <span>Edit</span>
-                </button>
-                <button mat-menu-item (click)="delete.emit(review.id)">
-                    <mat-icon>delete</mat-icon>
-                    <span>Delete</span>
-                </button>
-            </mat-menu>
-        </mat-card-header>
-
-        <mat-card-content>
-            <p>{{ review.text }}</p>
-        </mat-card-content>
-
-        <mat-card-actions class="review-actions">
-            <button mat-icon-button (click)="toggleLike(review)" [disabled]="!currentUser"
-                [class.liked]="review.isLikedByCurrentUser" [title]="review.isLikedByCurrentUser ? 'Unlike' : 'Like'">
-                <mat-icon>{{ review.isLikedByCurrentUser ? 'favorite' : 'favorite_border' }}</mat-icon>
-            </button>
-            <span>{{ review.likesCount }}</span>
-        </mat-card-actions>
+            <app-star-rating [rating]="review.rating" [readonly]="!isAuthor(review)"
+              (ratingChange)="onRatingChange($event)">
+          </app-star-rating>
+        </div>
+        @if (isAuthor(review)) {
+          <button mat-icon-button [matMenuTriggerFor]="menu">
+            <mat-icon>more_vert</mat-icon>
+          </button>
+        }
+        <mat-menu #menu="matMenu">
+          <button mat-menu-item (click)="edit.emit(review)">
+            <mat-icon>edit</mat-icon>
+            <span>Edit</span>
+          </button>
+          <button mat-menu-item (click)="delete.emit(review.id)">
+            <mat-icon>delete</mat-icon>
+            <span>Delete</span>
+          </button>
+        </mat-menu>
+      </mat-card-header>
+      <mat-card-content>
+        <p>{{ review.text }}</p>
+      </mat-card-content>
+      <mat-card-actions class="review-actions">
+        <button mat-icon-button (click)="toggleLike(review)" [disabled]="!currentUser"
+          [class.liked]="review.isLikedByCurrentUser" [title]="review.isLikedByCurrentUser ? 'Unlike' : 'Like'">
+          <mat-icon>{{ review.isLikedByCurrentUser ? 'favorite' : 'favorite_border' }}</mat-icon>
+        </button>
+        <span>{{ review.likesCount }}</span>
+      </mat-card-actions>
     </mat-card>
+  }
 
-    <p *ngIf="reviews.length === 0">There are no reviews yet!</p>
+  @if (reviews.length === 0) {
+    <p>There are no reviews yet!</p>
+  }
 </div>

@@ -3,12 +3,12 @@
     <a routerLink="/" class="app-title">SoundRate</a>
 
     <div class="nav-actions">
-      <ng-container *ngIf="!(currentUser$ | async)">
+      @if (!(currentUser$ | async)) {
         <a mat-button class="nav-link" routerLink="/login">Login</a>
         <a mat-button class="nav-link register-btn" routerLink="/register">Register</a>
-      </ng-container>
+      }
 
-      <ng-container *ngIf="currentUser$ | async as user">
+      @if (currentUser$ | async; as user) {
         <a mat-button class="nav-link profile-link" [routerLink]="['/user', user.username]">
           <img [src]="user.avatarUrl" alt="Avatar of {{ user.username }}" class="toolbar-avatar">
           <span class="username-label">{{ user.username }}</span>
@@ -20,7 +20,7 @@
           <mat-icon>logout</mat-icon>
           <span class="logout-label">Logout</span>
         </button>
-      </ng-container>
+      }
     </div>
   </div>
 </mat-toolbar>
@@ -43,17 +43,17 @@
       <h3>Made by</h3>
       <ul>
         <li><a href="https://github.com/viniciusmcabral/sound-rate.git" target="_blank"><i
-              class="fab fa-github"></i>Code on GitHub</a></li>
+        class="fab fa-github"></i>Code on GitHub</a></li>
         <li><a href="#" target="_blank"> <i class="fas fa-briefcase"></i> Portfolio</a></li>
         <li><a href="https://www.instagram.com/vinicabr4l/" target="_blank"> <i class="fab fa-instagram"></i>
-            Instagram</a></li>
-        <li><a href="https://wa.me/5571999259526" target="_blank"> <i class="fab fa-whatsapp"></i> WhatsApp</a></li>
-      </ul>
-    </div>
+      Instagram</a></li>
+      <li><a href="https://wa.me/5571999259526" target="_blank"> <i class="fab fa-whatsapp"></i> WhatsApp</a></li>
+    </ul>
   </div>
+</div>
 
-  <div class="footer-bottom">
-    <span>© 2025 SoundRate</span>
-    <span>Data provided by Deezer API</span>
-  </div>
+<div class="footer-bottom">
+  <span>© 2025 SoundRate</span>
+  <span>Data provided by Deezer API</span>
+</div>
 </footer>
