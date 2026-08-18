@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { BehaviorSubject, switchMap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AlbumDetails } from '../../models/album-details.model';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
@@ -31,10 +32,12 @@ import { RatingRequest } from '../../models/rating.model';
     DecimalPipe, SlicePipe
   ],
   templateUrl: './album-details-page.component.html',
-  styleUrl: './album-details-page.component.scss'
+  styleUrl: './album-details-page.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AlbumDetailsPageComponent implements OnInit {
   private albumDetailsSubject = new BehaviorSubject<AlbumDetails | null>(null);
+  private trackRatingsById = new Map<string, number>();
   albumDetails$ = this.albumDetailsSubject.asObservable();
   albumId!: string;
 
@@ -44,7 +47,8 @@ export class AlbumDetailsPageComponent implements OnInit {
     private snackBar: MatSnackBar,
     public authService: AuthService,
     public audioService: AudioService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private destroyRef: DestroyRef
   ) { }
 
   ngOnInit(): void {
@@ -55,14 +59,12 @@ export class AlbumDetailsPageComponent implements OnInit {
         this.albumId = id;
         return this.apiService.getAlbumDetails(this.albumId);
       })
-    ).subscribe(details => {
-      this.albumDetailsSubject.next(details);
-    });
+    ).pipe(takeUntilDestroyed(this.destroyRef)).subscribe(details => this.setAlbumDetails(details));
   }
 
   loadAlbumDetails(): void {
     this.apiService.getAlbumDetails(this.albumId).subscribe(details => {
-      this.albumDetailsSubject.next(details);
+      this.setAlbumDetails(details);
     });
   }
 
@@ -227,9 +229,14 @@ export class AlbumDetailsPageComponent implements OnInit {
       || 'https://placehold.co/300x300?text=No+Image';
   }
 
-  getUserRatingForTrack(trackId: string, details: AlbumDetails): number {
-    const rating = details.currentUserTrackRatings.find(r => r.trackId === trackId);
-    return rating ? rating.rating : 0;
+  getUserRatingForTrack(trackId: string): number {
+    return this.trackRatingsById.get(trackId) ?? 0;
+  }
+
+  private setAlbumDetails(details: AlbumDetails): void {
+    this.trackRatingsById = new Map(
+      details.currentUserTrackRatings.map(rating => [rating.trackId, rating.rating])
+    );
+    this.albumDetailsSubject.next(details);
   }
 }
-

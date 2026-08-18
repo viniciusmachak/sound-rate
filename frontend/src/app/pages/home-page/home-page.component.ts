@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
-import { Observable, combineLatest, of } from 'rxjs';
-import { map, startWith, debounceTime, distinctUntilChanged, switchMap, tap } from 'rxjs/operators';
+import { Observable, combineLatest, concat, of } from 'rxjs';
+import { catchError, debounceTime, distinctUntilChanged, map, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 import { SearchResult } from '../../models/search-result.model';
 import { ApiService } from '../../services/api.service';
 import { CommonModule } from '@angular/common';
@@ -15,6 +15,13 @@ import { ArtistCardComponent } from '../../components/artist-card/artist-card.co
 import { UserCardComponent } from '../../components/user-card/user-card.component';
 import { AlbumDashboard } from '../../models/album-details.model';
 
+interface SearchState {
+  isLoading: boolean;
+  results: SearchResult[];
+  query: string;
+  error: string | null;
+}
+
 @Component({
   selector: 'app-home-page',
   standalone: true,
@@ -24,7 +31,7 @@ import { AlbumDashboard } from '../../models/album-details.model';
     MatProgressSpinnerModule, MatButtonToggleModule,
   ],
   templateUrl: './home-page.component.html',
-  styleUrl: './home-page.component.scss'
+  styleUrl: './home-page.component.css'
 })
 export class HomePageComponent implements OnInit {
   searchControl = new FormControl('');
@@ -35,46 +42,60 @@ export class HomePageComponent implements OnInit {
     results: SearchResult[];
     filteredResults: SearchResult[];
     query: string;
+    error: string | null;
   }>;
 
   highestRatedAlbums$!: Observable<AlbumDashboard[]>;
-  isLoading = false;
 
   constructor(private apiService: ApiService) { }
 
   ngOnInit(): void {
-    this.highestRatedAlbums$ = this.apiService.getHighestRatedAlbums();
-    const rawResults$ = this.searchControl.valueChanges.pipe(
+    this.highestRatedAlbums$ = this.apiService.getHighestRatedAlbums().pipe(
+      catchError(() => of([])),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
+
+    const resultsState$ = this.searchControl.valueChanges.pipe(
       startWith(''),
+      map(query => (query ?? '').trim()),
       debounceTime(400),
       distinctUntilChanged(),
       tap(query => {
-        this.isLoading = !!query && query.length >= 3;
-        if (this.isLoading) {
+        if (query.length >= 3) {
           this.filterControl.setValue('all', { emitEvent: false });
         }
       }),
       switchMap(query => {
-        if (!query || query.length < 3) {
-          return of([]);
+        if (query.length < 3) {
+          return of<SearchState>({ isLoading: false, results: [], query, error: null });
         }
-        return this.apiService.search(query);
+
+        return concat(
+          of<SearchState>({ isLoading: true, results: [], query, error: null }),
+          this.apiService.search(query).pipe(
+            map(results => ({ isLoading: false, results, query, error: null })),
+            catchError(() => of<SearchState>({
+              isLoading: false,
+              results: [],
+              query,
+              error: 'Search is temporarily unavailable. Please try again.'
+            }))
+          )
+        );
       }),
-      tap(() => {
-        this.isLoading = false;
-      })
+      shareReplay({ bufferSize: 1, refCount: true })
     );
 
     this.resultsData$ = combineLatest({
-      results: rawResults$,
-      filter: this.filterControl.valueChanges.pipe(startWith('all' as const)),
-      query: this.searchControl.valueChanges.pipe(startWith(''))
+      state: resultsState$,
+      filter: this.filterControl.valueChanges.pipe(startWith('all' as const))
     }).pipe(
-      map(({ results, filter, query }) => {
+      map(({ state, filter }) => {
         const filteredResults = filter === 'all'
-          ? results
-          : results.filter(result => result.type === filter);
-        return { isLoading: this.isLoading, results, filteredResults, query: query || '' };
+          ? state.results
+          : state.results.filter(result => result.type === filter);
+
+        return { ...state, filteredResults };
       })
     );
   }

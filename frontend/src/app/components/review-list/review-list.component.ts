@@ -15,7 +15,7 @@ import { ApiService } from '../../services/api.service';
   standalone: true,
   imports: [CommonModule, MatCardModule, MatButtonModule, MatIconModule, MatMenuModule, RouterLink, StarRatingComponent],
   templateUrl: './review-list.component.html',
-  styleUrl: './review-list.component.scss'
+  styleUrl: './review-list.component.css'
 })
 export class ReviewListComponent {
   @Input() reviews: AlbumReview[] = [];

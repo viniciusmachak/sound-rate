@@ -84,7 +84,7 @@
       <mat-tab label="Tracks">
         @if (details.deezerDetails.tracks.data.length > 0) {
           <mat-list>
-            @for (track of details.deezerDetails.tracks.data; track track; let i = $index) {
+            @for (track of details.deezerDetails.tracks.data; track track.id; let i = $index) {
               <mat-list-item
                 class="track-grid-item">
                 <div class="align-cover-number-song">
@@ -119,7 +119,7 @@
               </div>
               @if (authService.isAuthenticated()) {
                 <app-star-rating class="track-rating"
-                  [rating]="getUserRatingForTrack(track.id.toString(), details)"
+                  [rating]="getUserRatingForTrack(track.id.toString())"
                   (ratingChange)="onTrackRatingChanged($event, track.id.toString())">
                 </app-star-rating>
               }

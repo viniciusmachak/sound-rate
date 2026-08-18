@@ -17,7 +17,7 @@ import { AlbumDashboard } from '../../models/album-details.model';
     MatButtonModule
 ],
   templateUrl: './album-card.component.html',
-  styleUrl: './album-card.component.scss'
+  styleUrl: './album-card.component.css'
 })
 export class AlbumCardComponent {
   @Input() album!: DeezerAlbum | AlbumDashboard;

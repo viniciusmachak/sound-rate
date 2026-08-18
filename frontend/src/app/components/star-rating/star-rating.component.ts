@@ -1,4 +1,4 @@
-import { Component, EventEmitter, Input, Output } from '@angular/core';
+import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -8,19 +8,16 @@ import { MatButtonModule } from '@angular/material/button';
   standalone: true,
   imports: [MatIconModule, MatButtonModule],
   templateUrl: './star-rating.component.html',
-  styleUrl: './star-rating.component.scss',
+  styleUrl: './star-rating.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class StarRatingComponent {
   @Input() rating: number = 0;
   @Input() readonly: boolean = false;
   @Output() ratingChange = new EventEmitter<number | null>();
 
-  maxRating: number = 5;
+  readonly stars = [1, 2, 3, 4, 5];
   hoverRating: number = 0;
-
-  get stars(): number[] {
-    return Array.from({ length: this.maxRating }, (_, i) => i + 1);
-  }
 
   getStarIcon(star: number): string {
     const ratingToShow = this.hoverRating || this.rating;
@@ -63,9 +60,5 @@ export class StarRatingComponent {
   clearHoverRating(): void {
     if (this.readonly) return;
     this.hoverRating = 0;
-  }
-
-  trackByIndex(index: number): number {
-    return index;
   }
 }

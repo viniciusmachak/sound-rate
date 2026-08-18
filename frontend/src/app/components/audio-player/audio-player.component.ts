@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectionStrategy, Component } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
@@ -12,7 +12,8 @@ import { MatProgressBarModule } from '@angular/material/progress-bar';
   standalone: true,
   imports: [CommonModule, MatIconModule, MatButtonModule, MatProgressBarModule],
   templateUrl: './audio-player.component.html',
-  styleUrl: './audio-player.component.scss'
+  styleUrl: './audio-player.component.css',
+  changeDetection: ChangeDetectionStrategy.OnPush
 })
 export class AudioPlayerComponent {
   currentTrack$: Observable<DeezerTrack | null>;

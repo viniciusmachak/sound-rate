@@ -9,7 +9,7 @@ import { MatCardModule } from '@angular/material/card';
   standalone: true,
   imports: [RouterLink, MatCardModule],
   templateUrl: './user-card.component.html',
-  styleUrl: './user-card.component.scss'
+  styleUrl: './user-card.component.css'
 })
 export class UserCardComponent {
   @Input() user!: User;

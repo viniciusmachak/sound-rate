@@ -17,7 +17,7 @@ import { MatInputModule } from '@angular/material/input';
     MatButtonModule
 ],
   templateUrl: './review-dialog.component.html',
-  styleUrl: './review-dialog.component.scss'
+  styleUrl: './review-dialog.component.css'
 })
 export class ReviewDialogComponent {
   form: FormGroup;

@@ -31,7 +31,7 @@ export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): V
     MatSnackBarModule
 ],
   templateUrl: './settings-page.component.html',
-  styleUrl: './settings-page.component.scss'
+  styleUrl: './settings-page.component.css'
 })
 export class SettingsPageComponent implements OnInit {
   profileForm!: FormGroup;
@@ -50,11 +50,11 @@ export class SettingsPageComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    const currentUser = this.authService.currentUserValue;
+    this.currentUser = this.authService.currentUserValue;
     this.imagePreview = this.currentUser?.avatarUrl || null;
 
     this.profileForm = this.fb.group({
-      email: [currentUser?.email || '', [Validators.required, Validators.email]]
+      email: [this.currentUser?.email || '', [Validators.required, Validators.email]]
     });
 
     this.passwordForm = this.fb.group({
@@ -73,6 +73,8 @@ export class SettingsPageComponent implements OnInit {
 
     this.apiService.updateProfile(this.profileForm.value).subscribe({
       next: (updatedUser) => {
+        this.currentUser = updatedUser;
+        this.authService.updateCurrentUser(updatedUser);
         this.snackBar.open('Profile updated successfully!', 'Close', { duration: 3000 });
       },
       error: (err) => this.snackBar.open('Error updating profile. Email may already be in use.', 'Close', { duration: 3000 })
@@ -134,7 +136,9 @@ export class SettingsPageComponent implements OnInit {
     this.apiService.updateAvatar(this.selectedFile).subscribe({
       next: (updatedUser) => {
         this.snackBar.open('Profile picture updated successfully!', 'Close', { duration: 3000 });
+        this.currentUser = updatedUser;
         this.authService.updateCurrentUser(updatedUser);
+        this.imagePreview = updatedUser.avatarUrl;
         this.selectedFile = null;
       },
       error: (err) => this.snackBar.open('Error uploading image.', 'Close', { duration: 3000 })
@@ -145,6 +149,7 @@ export class SettingsPageComponent implements OnInit {
     this.apiService.resetAvatar().subscribe({
       next: (updatedUser) => {
         this.snackBar.open('Profile picture reset to default.', 'Close', { duration: 3000 });
+        this.currentUser = updatedUser;
         this.authService.updateCurrentUser(updatedUser);
         this.imagePreview = updatedUser.avatarUrl;
         this.selectedFile = null;

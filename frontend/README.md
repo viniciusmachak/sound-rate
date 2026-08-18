@@ -19,7 +19,7 @@ The application is responsible for:
 - TypeScript 5.9
 - Angular Material and CDK
 - RxJS
-- SCSS
+- CSS
 - Karma and Jasmine
 - Nginx for container delivery
 - Node.js 24.19 LTS and npm 11.17 for development and builds
@@ -174,7 +174,13 @@ Run it once in headless Chrome with:
 npm test -- --watch=false --browsers=ChromeHeadless
 ```
 
-Karma and Jasmine are configured, but the frontend currently has no `*.spec.ts` test files.
+The current regression suite covers:
+
+- JWT attachment to API requests
+- session invalidation on `401` responses
+- session preservation on `403` responses
+- authentication state requirements
+- malformed stored-session recovery
 
 ## Useful Commands
 

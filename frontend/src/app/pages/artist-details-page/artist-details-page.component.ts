@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { BehaviorSubject, switchMap, Observable } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, map, Observable, shareReplay, switchMap } from 'rxjs';
 import { ApiService } from '../../services/api.service';
 import { CommonModule } from '@angular/common';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
@@ -20,7 +20,7 @@ interface Pageable {
   standalone: true,
   imports: [CommonModule, MatProgressSpinnerModule, AlbumCardComponent, MatIconModule, MatPaginatorModule],
   templateUrl: './artist-details-page.component.html',
-  styleUrl: './artist-details-page.component.scss'
+  styleUrl: './artist-details-page.component.css'
 })
 export class ArtistDetailsPageComponent implements OnInit {
   artistPage$!: Observable<ArtistPage>;
@@ -32,14 +32,17 @@ export class ArtistDetailsPageComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe(params => {
-      const artistId = Number(params.get('id'));
-      this.artistPage$ = this.pageableSubject.pipe(
-        switchMap(pageable =>
-          this.apiService.getArtistPage(artistId, pageable.page, pageable.size)
-        )
-      );
-    });
+    this.artistPage$ = this.route.paramMap.pipe(
+      map(params => Number(params.get('id'))),
+      distinctUntilChanged(),
+      switchMap(artistId => {
+        this.pageableSubject.next({ page: 0, size: 12 });
+        return this.pageableSubject.pipe(
+          switchMap(pageable => this.apiService.getArtistPage(artistId, pageable.page, pageable.size))
+        );
+      }),
+      shareReplay({ bufferSize: 1, refCount: true })
+    );
   }
 
   onPageChange(event: PageEvent): void {

@@ -19,7 +19,7 @@ export interface UserListDialogData {
   standalone: true,
   imports: [CommonModule, MatListModule, MatButtonModule, MatProgressSpinnerModule, RouterLink, MatDialogModule],
   templateUrl: './user-list.component.html',
-  styleUrl: './user-list.component.scss'
+  styleUrl: './user-list.component.css'
 })
 export class UserListComponent implements OnInit {
   private usersSubject = new BehaviorSubject<User[]>([]);

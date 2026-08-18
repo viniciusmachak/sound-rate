@@ -22,7 +22,7 @@ import { MatIcon } from '@angular/material/icon';
     MatIcon
 ],
   templateUrl: './register-page.component.html',
-  styleUrl: './register-page.component.scss'
+  styleUrl: './register-page.component.css'
 })
 
 export class RegisterPageComponent {

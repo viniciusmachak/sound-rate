@@ -25,7 +25,7 @@ import { MatIcon } from '@angular/material/icon';
     MatIcon
 ],
   templateUrl: './login-page.component.html',
-  styleUrl: './login-page.component.scss'
+  styleUrl: './login-page.component.css'
 })
 export class LoginPageComponent {
   loginForm: FormGroup;

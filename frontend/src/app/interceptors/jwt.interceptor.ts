@@ -16,12 +16,9 @@ export const jwtInterceptor: HttpInterceptorFn = (req, next) => {
   }
 
   return next(req).pipe(
-    catchError((error: any) => {
-      if (error instanceof HttpErrorResponse) {
-        if (error.status === 401 || error.status === 403) {
-          authService.logout();
-          console.error('Invalid or expired token. Logging out the user', error);
-        }
+    catchError((error: unknown) => {
+      if (error instanceof HttpErrorResponse && error.status === 401) {
+        authService.logout();
       }
       return throwError(() => error);
     })

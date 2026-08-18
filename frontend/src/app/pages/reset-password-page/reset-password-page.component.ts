@@ -28,7 +28,7 @@ export const passwordsMatchValidator: ValidatorFn = (control: AbstractControl): 
     MatIconModule
 ],
   templateUrl: './reset-password-page.component.html',
-  styleUrl: './reset-password-page.component.scss'
+  styleUrl: './reset-password-page.component.css'
 })
 export class ResetPasswordPageComponent implements OnInit {
   resetPasswordForm!: FormGroup;

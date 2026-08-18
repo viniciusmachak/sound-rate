@@ -1,12 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, DestroyRef, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { Observable, BehaviorSubject, switchMap, tap } from 'rxjs';
+import { BehaviorSubject, distinctUntilChanged, filter, forkJoin, map, Observable, of, switchMap, tap } from 'rxjs';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { UserProfile } from '../../models/user-profile.model';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
 import { UserRating } from '../../models/user-rating.model';
 import { DeezerAlbum } from '../../models/deezer.model';
-import { Page } from '../../models/page.model';
 import { PageEvent, MatPaginatorModule } from '@angular/material/paginator';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { ReviewDisplayDialogComponent } from '../../components/review-display-dialog/review-display-dialog.component';
@@ -30,7 +30,7 @@ import { UserListComponent } from '../../components/user-list/user-list.componen
     MatPaginatorModule, MatDialogModule
   ],
   templateUrl: './user-profile-page.component.html',
-  styleUrl: './user-profile-page.component.scss'
+  styleUrl: './user-profile-page.component.css'
 })
 export class UserProfilePageComponent implements OnInit {
   private profileSubject = new BehaviorSubject<UserProfile | null>(null);
@@ -64,26 +64,57 @@ export class UserProfilePageComponent implements OnInit {
     private apiService: ApiService,
     public authService: AuthService,
     private dialog: MatDialog,
-    private snackBar: MatSnackBar
+    private snackBar: MatSnackBar,
+    private destroyRef: DestroyRef
   ) { }
 
   ngOnInit(): void {
     this.route.paramMap.pipe(
-      switchMap(params => {
-        this.username = params.get('username')!;
+      map(params => params.get('username')),
+      filter((username): username is string => !!username),
+      distinctUntilChanged(),
+      tap(username => {
+        this.username = username;
         this.resetFeeds();
-        return this.apiService.getUserProfile(this.username);
       }),
-      tap(profile => {
-        this.profileSubject.next(profile);
-        this.isOwnProfile = this.authService.currentUserValue?.username === profile.user.username;
-        this.loadRatedAlbums();
-        this.loadLikedAlbums();
-        if (this.isOwnProfile) {
-          this.loadListenLater();
+      switchMap(username => this.apiService.getUserProfile(username).pipe(
+        tap(profile => {
+          this.profileSubject.next(profile);
+          this.isOwnProfile = this.authService.currentUserValue?.username === profile.user.username;
+        }),
+        switchMap(profile => forkJoin({
+          profile: of(profile),
+          ratings: this.apiService.getRatedAlbums(username, 0, this.ratingsPageSize),
+          likedAlbums: this.apiService.getLikedAlbums(username, 0, this.likedAlbumsPageSize),
+          listenLater: this.isOwnProfile
+            ? this.apiService.getListenLaterList(0, this.listenLaterPageSize)
+            : of(null)
+        }))
+      )),
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: ({ ratings, likedAlbums, listenLater }) => {
+        this.ratingsSubject.next(ratings.content);
+        this.totalRatings = ratings.totalElements;
+        this.isLoadingRatings = false;
+
+        this.likedAlbumsSubject.next(likedAlbums.content);
+        this.totalLikedAlbums = likedAlbums.totalElements;
+        this.isLoadingLikedAlbums = false;
+
+        if (listenLater) {
+          this.listenLaterSubject.next(listenLater.content);
+          this.totalListenLater = listenLater.totalElements;
         }
-      })
-    ).subscribe();
+        this.isLoadingListenLater = false;
+      },
+      error: () => {
+        this.isLoadingRatings = false;
+        this.isLoadingLikedAlbums = false;
+        this.isLoadingListenLater = false;
+        this.snackBar.open('Error loading this profile.', 'Close', { duration: 3000 });
+      }
+    });
   }
 
   toggleFollow(): void {
@@ -228,11 +259,18 @@ export class UserProfilePageComponent implements OnInit {
   }
 
   private resetFeeds(): void {
+    this.profileSubject.next(null);
     this.ratingsSubject.next([]);
     this.likedAlbumsSubject.next([]);
+    this.listenLaterSubject.next([]);
+    this.totalRatings = 0;
+    this.totalLikedAlbums = 0;
+    this.totalListenLater = 0;
     this.currentRatingsPage = 0;
     this.currentLikedAlbumsPage = 0;
+    this.currentListenLaterPage = 0;
     this.isLoadingRatings = true;
     this.isLoadingLikedAlbums = true;
+    this.isLoadingListenLater = true;
   }
 }

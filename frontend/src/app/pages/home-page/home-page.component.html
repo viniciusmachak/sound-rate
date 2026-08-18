@@ -47,8 +47,12 @@
           }
           @if (data.query.length >= 3 && data.results.length === 0) {
             <div class="info-message">
-              <mat-icon class="info-icon">search_off</mat-icon>
-              <p>No results found for "<strong>{{ data.query }}</strong>".</p>
+              <mat-icon class="info-icon">{{ data.error ? 'error_outline' : 'search_off' }}</mat-icon>
+              @if (data.error) {
+                <p>{{ data.error }}</p>
+              } @else {
+                <p>No results found for "<strong>{{ data.query }}</strong>".</p>
+              }
             </div>
           }
         </div>

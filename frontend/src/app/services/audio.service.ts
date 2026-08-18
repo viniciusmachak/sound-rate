@@ -37,7 +37,7 @@ export class AudioService {
 
         if (isSameTrack) {
             if (this.audio.paused) {
-                this.audio.play();
+                this.playCurrentTrack();
             } else {
                 this.audio.pause();
             }
@@ -46,14 +46,7 @@ export class AudioService {
             this.audio.src = track.preview;
             this.currentTrackSubject.next(track);
 
-            const playPromise = this.audio.play();
-            if (playPromise !== undefined) {
-                playPromise.catch(error => {
-                    console.warn('Audio play error caught:', error);
-                    this.isPlayingSubject.next(false);
-                    this.currentTrackSubject.next(null);
-                });
-            }
+            this.playCurrentTrack();
         }
     }
 
@@ -62,5 +55,12 @@ export class AudioService {
         this.audio.src = '';
         this.currentTrackSubject.next(null);
         this.currentTimeSubject.next(0);
+    }
+
+    private playCurrentTrack(): void {
+        this.audio.play().catch(() => {
+            this.isPlayingSubject.next(false);
+            this.currentTrackSubject.next(null);
+        });
     }
 }
