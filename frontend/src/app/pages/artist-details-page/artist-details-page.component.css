@@ -1,7 +1,6 @@
 .artist-page-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem;
 }
 
 .artist-header {
@@ -36,6 +35,10 @@
     font-size: 1rem;
 }
 
+.artist-deezer-link {
+    margin-top: 1.25rem;
+}
+
 .albums-section {
     margin-top: 3rem;
 }
@@ -61,10 +64,6 @@
 }
 
 @media (max-width: 768px) {
-    .artist-page-container {
-        padding: 1.5rem;
-    }
-
     .artist-header {
         flex-direction: column;
         text-align: center;

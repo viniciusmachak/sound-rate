@@ -5,7 +5,6 @@
 .profile-container {
     max-width: 900px;
     margin: 0 auto;
-    padding: 1.5rem;
 }
 
 .profile-header {
@@ -142,10 +141,6 @@
 }
 
 @media (max-width: 768px) {
-    .profile-container {
-        padding: 1rem;
-    }
-
     .profile-header {
         flex-direction: column;
         text-align: center;

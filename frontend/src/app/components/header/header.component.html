@@ -5,13 +5,13 @@
       <mat-icon>menu</mat-icon>
     </button>
 
-    <a routerLink="/" class="app-title">SoundRate</a>
+    <a routerLink="/" class="app-title">Soundrate</a>
 
     <form class="search-container" (submit)="submitSearch($event)">
       <button type="submit" class="search-submit" aria-label="Show all search results">
         <mat-icon>search</mat-icon>
       </button>
-      <input class="search-input" type="search" placeholder="Search SoundRate"
+      <input class="search-input" type="search" placeholder="Search Soundrate"
         aria-label="Search albums, artists or users" autocomplete="off"
         [formControl]="searchControl" (focus)="isSearchFocused = true" (blur)="closeSearch()"
         (keydown.escape)="isSearchFocused = false">
@@ -75,7 +75,7 @@
 
   <aside class="sidebar" aria-label="Main navigation">
     <div class="sidebar-header">
-      <a routerLink="/" class="sidebar-brand" (click)="closeSidebar()">SoundRate</a>
+      <a routerLink="/" class="sidebar-brand" (click)="closeSidebar()">Soundrate</a>
       <button mat-icon-button type="button" aria-label="Close navigation menu" (click)="closeSidebar()">
         <mat-icon>close</mat-icon>
       </button>
@@ -85,6 +85,11 @@
       <a class="sidebar-link" routerLink="/" (click)="closeSidebar()">
         <mat-icon>home</mat-icon>
         <span>Home</span>
+      </a>
+
+      <a class="sidebar-link" routerLink="/about" (click)="closeSidebar()">
+        <mat-icon>info</mat-icon>
+        <span>About</span>
       </a>
 
       @if (currentUser$ | async; as user) {

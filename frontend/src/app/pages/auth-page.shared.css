@@ -75,7 +75,6 @@
 @media (max-width: 480px) {
   .login-container,
   .register-container {
-    padding: 1rem;
     min-height: auto;
     align-items: flex-start;
   }

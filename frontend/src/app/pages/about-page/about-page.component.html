@@ -1,0 +1,91 @@
+<div class="about-page">
+  <section class="hero" aria-labelledby="about-title">
+    <div class="hero-copy">
+      <span class="hero-kicker">
+        <mat-icon aria-hidden="true">headphones</mat-icon>
+        A home for your music taste
+      </span>
+
+      <h1 id="about-title">Listen closely.<br />Remember everything.</h1>
+      <p>
+        Soundrate helps you discover albums, keep track of what you hear and share the music
+        that stays with you.
+      </p>
+
+      <div class="hero-actions" aria-label="Get started">
+        <a routerLink="/" class="explore-action">
+          Explore music
+          <mat-icon aria-hidden="true">arrow_forward</mat-icon>
+        </a>
+        <a routerLink="/register" class="account-action">Create an account</a>
+      </div>
+    </div>
+
+    <aside class="catalog-card" aria-label="Music catalog provided by Deezer">
+      <span>Catalog partner</span>
+      <img src="/deezer-logo.jpeg" alt="Deezer" />
+      <p>Album and artist information is provided by Deezer.</p>
+    </aside>
+  </section>
+
+  <section class="features-section" aria-labelledby="features-title">
+    <header class="section-heading">
+      <span class="section-kicker">Made for listeners</span>
+      <h2 id="features-title">Your listening life, all in one place.</h2>
+      <p>Four simple tools to go from finding an album to remembering why it mattered.</p>
+    </header>
+
+    <div class="feature-grid">
+      @for (feature of features; track feature.title) {
+        <article class="feature-card">
+          <span class="feature-icon">
+            <mat-icon aria-hidden="true">{{ feature.icon }}</mat-icon>
+          </span>
+          <div>
+            <h3>{{ feature.title }}</h3>
+            <p>{{ feature.description }}</p>
+          </div>
+        </article>
+      }
+    </div>
+  </section>
+
+  <section class="technical-section" aria-labelledby="technical-title">
+    <header class="technical-heading">
+      <span class="section-kicker">Under the hood</span>
+      <h2 id="technical-title">Built to explore an idea.</h2>
+      <p>
+        Soundrate brings product design and modern web development together around one
+        question: how can a listening history feel personal?
+      </p>
+    </header>
+
+    <div class="technical-grid">
+      @for (topic of technicalTopics; track topic.label) {
+        <article class="technical-card">
+          <div class="technical-card-heading">
+            <mat-icon aria-hidden="true">{{ topic.icon }}</mat-icon>
+            <span>{{ topic.label }}</span>
+          </div>
+          <h3>{{ topic.title }}</h3>
+          <p>{{ topic.description }}</p>
+          <ul [attr.aria-label]="topic.label + ' details'">
+            @for (detail of topic.details; track detail) {
+              <li>{{ detail }}</li>
+            }
+          </ul>
+        </article>
+      }
+    </div>
+
+    <a
+      class="project-link"
+      href="https://github.com/viniciusmcabral/sound-rate"
+      target="_blank"
+      rel="noopener noreferrer"
+    >
+      View project on GitHub
+      <mat-icon aria-hidden="true">arrow_outward</mat-icon>
+    </a>
+  </section>
+</div>

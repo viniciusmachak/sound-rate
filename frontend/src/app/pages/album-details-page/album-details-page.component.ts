@@ -21,6 +21,8 @@ import { ReviewListComponent } from '../../components/review-list/review-list.co
 import { FormatDurationPipe } from '../../pipes/format-duration.pipe';
 import { RatingRequest } from '../../models/rating.model';
 import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skeleton-loader.component';
+import { AlbumCoverDialogComponent } from '../../components/album-cover-dialog/album-cover-dialog.component';
+import { DeezerButtonComponent } from '../../components/deezer-button/deezer-button.component';
 
 @Component({
   selector: 'app-album-details-page',
@@ -29,7 +31,7 @@ import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skelet
     CommonModule, RouterLink, MatCardModule, MatTabsModule, MatIconModule, MatListModule,
     StarRatingComponent, MatSnackBarModule, MatButtonModule, MatDialogModule,
     ReviewListComponent, FormatDurationPipe,
-    DecimalPipe, SlicePipe, SkeletonLoaderComponent
+    DecimalPipe, SlicePipe, SkeletonLoaderComponent, DeezerButtonComponent
   ],
   templateUrl: './album-details-page.component.html',
   styleUrl: './album-details-page.component.css',
@@ -227,6 +229,20 @@ export class AlbumDetailsPageComponent implements OnInit {
     return albumDetails?.deezerDetails.cover_xl
       || albumDetails?.deezerDetails?.cover_medium
       || 'https://placehold.co/300x300?text=No+Image';
+  }
+
+  openAlbumCover(details: AlbumDetails): void {
+    this.dialog.open(AlbumCoverDialogComponent, {
+      data: {
+        imageUrl: this.getAlbumCover(details),
+        title: details.deezerDetails.title,
+        artistName: details.deezerDetails.artist?.name
+      },
+      panelClass: 'image-dialog-panel',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+      autoFocus: false
+    });
   }
 
   getUserRatingForTrack(trackId: string): number {

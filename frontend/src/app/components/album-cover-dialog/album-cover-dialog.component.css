@@ -1,0 +1,78 @@
+:host {
+  display: block;
+}
+
+.cover-dialog {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-width: min(90vw, 760px);
+  max-height: 90vh;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 10px;
+  background-color: var(--background-dark);
+  box-shadow: 0 24px 72px rgba(0, 0, 0, 0.72);
+}
+
+.cover-dialog img {
+  display: block;
+  width: auto;
+  max-width: min(90vw, 760px);
+  height: auto;
+  max-height: calc(90vh - 74px);
+  aspect-ratio: 1;
+  object-fit: contain;
+  background-color: #050607;
+}
+
+.close-button {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  z-index: 1;
+  background-color: rgba(12, 14, 16, 0.82);
+  color: #fff;
+}
+
+.close-button:hover,
+.close-button:focus-visible {
+  background-color: var(--accent-color);
+}
+
+.cover-dialog figcaption {
+  display: flex;
+  align-items: baseline;
+  gap: 12px;
+  min-height: 54px;
+  padding: 10px 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.18);
+  box-sizing: border-box;
+  box-shadow: 0 -3px 10px rgba(196, 139, 219, 0.24);
+}
+
+.cover-dialog figcaption strong,
+.cover-dialog figcaption span {
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.cover-dialog figcaption strong {
+  color: var(--primary-text);
+  font-size: 0.9rem;
+}
+
+.cover-dialog figcaption span {
+  color: var(--secondary-text);
+  font-size: 0.78rem;
+}
+
+@media (max-width: 520px) {
+  .cover-dialog figcaption {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 3px;
+  }
+}

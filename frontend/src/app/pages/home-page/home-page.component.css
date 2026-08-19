@@ -2,7 +2,6 @@
     display: flex;
     flex-direction: column;
     align-items: center;
-    padding: 24px;
     text-align: center;
 }
 
@@ -125,10 +124,6 @@
 }
 
 @media (max-width: 768px) {
-    .home-container {
-        padding: 16px;
-    }
-
     .headline {
         font-size: 2.5rem;
     }

@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { PageEvent } from '@angular/material/paginator';
 import { ArtistPage } from '../../models/artist-page.model';
 import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skeleton-loader.component';
+import { DeezerButtonComponent } from '../../components/deezer-button/deezer-button.component';
 
 interface Pageable {
   page: number;
@@ -23,7 +24,8 @@ interface Pageable {
     AlbumCardComponent,
     MatIconModule,
     MatPaginatorModule,
-    SkeletonLoaderComponent
+    SkeletonLoaderComponent,
+    DeezerButtonComponent
   ],
   templateUrl: './artist-details-page.component.html',
   styleUrl: './artist-details-page.component.css'

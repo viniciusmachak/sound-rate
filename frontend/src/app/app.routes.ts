@@ -44,5 +44,9 @@ export const routes: Routes = [
     canActivate: [authGuard],
     loadComponent: () => import('./pages/listen-later-page/listen-later-page.component').then(m => m.ListenLaterPageComponent)
   },
+  {
+    path: 'about',
+    loadComponent: () => import('./pages/about-page/about-page.component').then(m => m.AboutPageComponent)
+  },
   { path: '**', redirectTo: '' }
 ];

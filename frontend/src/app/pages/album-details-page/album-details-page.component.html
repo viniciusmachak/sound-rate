@@ -1,7 +1,12 @@
 @if (albumDetails$ | async; as details) {
   <div class="page-container">
     <header class="album-header">
-      <div class="cover-container"> <img [src]="getAlbumCover(details)" alt="Album cover" class="album-cover">
+      <div class="cover-container">
+        <button type="button" class="album-cover-button" (click)="openAlbumCover(details)"
+          [attr.aria-label]="'Open cover of ' + details.deezerDetails.title">
+          <img [src]="getAlbumCover(details)" [alt]="'Cover of ' + details.deezerDetails.title"
+            class="album-cover">
+        </button>
         @if (authService.isAuthenticated()) {
           <button mat-icon-button class="like-button" (click)="toggleLike()"
             [class.liked]="details.isLikedByCurrentUser"
@@ -32,52 +37,68 @@
           <div class="ratings-section">
             @if (authService.isAuthenticated()) {
               <div class="rating-box">
-                <span class="rating-label">Your Rating</span>
-                <app-star-rating [rating]="details.currentUserRating || 0"
-                  (ratingChange)="onAlbumRatingChanged($event)">
-                </app-star-rating>
-                @if (details.currentUserRating) {
-                  <button (click)="onAlbumRatingChanged(null)"
-                    class="clear-rating-btn" aria-label="Clear rating" title="Clear rating">
-                    ❌
-                  </button>
-                }
+                <span class="rating-label">Your rating</span>
+                <div class="rating-value">
+                  <app-star-rating [rating]="details.currentUserRating || 0"
+                    (ratingChange)="onAlbumRatingChanged($event)">
+                  </app-star-rating>
+                  @if (details.currentUserRating) {
+                    <button mat-icon-button type="button" (click)="onAlbumRatingChanged(null)"
+                      class="clear-rating-btn" aria-label="Clear your rating" title="Clear your rating">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  }
+                </div>
                 @if (details.currentUserTrackRatings.length > 0) {
-                  <span class="rating-source-label">(Based on
-                    tracks ratings)
-                  </span>
+                  <span class="rating-source-label">Based on track ratings</span>
                 }
               </div>
             }
             <div class="rating-box">
-              <span class="rating-label" aria-label="Average score">Average</span>
-              <app-star-rating [rating]="details.communityScore || 0" [readonly]="true"> </app-star-rating>
-              <span class="average-score">{{ details.communityScore | number:'1.1-1' }}</span>
-              @if (details.ratingsCount > 0) {
-                <span class="ratings-count">
-                  ({{ details.ratingsCount }} {{ details.ratingsCount === 1 ? 'rating' : 'ratings' }})
-                </span>
-              }
+              <span class="rating-label">Community</span>
+              <div class="rating-value">
+                <app-star-rating [rating]="details.communityScore || 0" [readonly]="true" />
+                <span class="average-score">{{ details.communityScore | number:'1.1-1' }}</span>
+                @if (details.ratingsCount > 0) {
+                  <span class="ratings-count">
+                    {{ details.ratingsCount }} {{ details.ratingsCount === 1 ? 'rating' : 'ratings' }}
+                  </span>
+                }
+              </div>
             </div>
           </div>
         </div>
-        @if (authService.isAuthenticated()) {
-          <div class="actions-section">
-            @if (!details.currentUserReview) {
-              <button mat-raised-button class="custom-accent" (click)="openReviewDialog()"
-                >
-                <mat-icon>edit</mat-icon>
-                Write a Review
-              </button>
-            }
-            <button mat-stroked-button class="listen-later" (click)="toggleListenLater()"
-              [class.active]="details.isOnListenLaterList"
-              title="{{ details.isOnListenLaterList ? 'Remove from Listen Later' : 'Add to Listen Later' }}">
-              <mat-icon>{{ details.isOnListenLaterList ? 'bookmark_added' : 'bookmark_add' }}</mat-icon> {{
-              details.isOnListenLaterList ? 'On Your List' : 'Listen Later' }}
-            </button>
-          </div>
-        }
+        <div class="actions-section">
+          <section class="action-group" aria-labelledby="listen-on-title">
+            <div class="action-group-heading">
+              <span id="listen-on-title" class="action-group-label">Listen on</span>
+              <small>More services coming soon</small>
+            </div>
+            <div class="action-buttons streaming-actions">
+              <!-- Future streaming providers belong in this group. -->
+              <app-deezer-button [href]="details.deezerDetails.link" />
+            </div>
+          </section>
+          @if (authService.isAuthenticated()) {
+            <section class="action-group" aria-labelledby="soundrate-actions-title">
+              <span id="soundrate-actions-title" class="action-group-label">On Soundrate</span>
+              <div class="action-buttons">
+                @if (!details.currentUserReview) {
+                  <button mat-raised-button class="custom-accent" (click)="openReviewDialog()">
+                    <mat-icon>edit</mat-icon>
+                    Write a Review
+                  </button>
+                }
+                <button mat-stroked-button class="listen-later" (click)="toggleListenLater()"
+                  [class.active]="details.isOnListenLaterList"
+                  [title]="details.isOnListenLaterList ? 'Remove from Listen Later' : 'Add to Listen Later'">
+                  <mat-icon>{{ details.isOnListenLaterList ? 'bookmark_added' : 'bookmark_add' }}</mat-icon>
+                  {{ details.isOnListenLaterList ? 'On Your List' : 'Listen Later' }}
+                </button>
+              </div>
+            </section>
+          }
+        </div>
       </div>
     </header>
     <mat-tab-group animationDuration="0ms">

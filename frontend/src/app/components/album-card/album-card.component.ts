@@ -1,32 +1,34 @@
 import { Component, Input } from '@angular/core';
-import { DeezerAlbum } from '../../models/deezer.model';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-
-import { RouterLink } from '@angular/router';
-import { MatIconModule } from '@angular/material/icon';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatIconModule } from '@angular/material/icon';
+import { RouterLink } from '@angular/router';
 import { AlbumDashboard } from '../../models/album-details.model';
+import { DeezerAlbum } from '../../models/deezer.model';
+import { AlbumCoverDialogComponent } from '../album-cover-dialog/album-cover-dialog.component';
 
 @Component({
   selector: 'app-album-card',
   standalone: true,
-  imports: [
-    RouterLink,
-    MatDialogModule,
-    MatIconModule,
-    MatButtonModule
-],
+  imports: [RouterLink, MatDialogModule, MatIconModule, MatButtonModule],
   templateUrl: './album-card.component.html',
   styleUrl: './album-card.component.css'
 })
 export class AlbumCardComponent {
   @Input() album!: DeezerAlbum | AlbumDashboard;
 
-  constructor(private dialog: MatDialog) { }
+  constructor(private dialog: MatDialog) {}
 
   get coverUrl(): string {
     if ('cover_medium' in this.album) {
       return this.album.cover_medium;
+    }
+    return this.album.coverUrl;
+  }
+
+  get fullCoverUrl(): string {
+    if ('cover_xl' in this.album) {
+      return this.album.cover_xl || this.album.cover_medium;
     }
     return this.album.coverUrl;
   }
@@ -56,5 +58,19 @@ export class AlbumCardComponent {
       return this.album.averageRating;
     }
     return null;
+  }
+
+  openCover(): void {
+    this.dialog.open(AlbumCoverDialogComponent, {
+      data: {
+        imageUrl: this.fullCoverUrl,
+        title: this.title,
+        artistName: this.artistName
+      },
+      panelClass: 'image-dialog-panel',
+      maxWidth: '95vw',
+      maxHeight: '95vh',
+      autoFocus: false
+    });
   }
 }

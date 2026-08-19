@@ -1,6 +1,5 @@
 :host {
   display: block;
-  padding: 1.5rem;
 }
 
 .album-header {
@@ -14,6 +13,20 @@
 .cover-container {
   position: relative;
   flex-shrink: 0;
+}
+
+.album-cover-button {
+  display: block;
+  padding: 0;
+  border: 0;
+  border-radius: 4px;
+  background: transparent;
+  cursor: zoom-in;
+}
+
+.album-cover-button:focus-visible {
+  outline: 3px solid #d09ae5;
+  outline-offset: 4px;
 }
 
 .album-cover {
@@ -80,7 +93,7 @@
 .stats-and-ratings {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 1rem;
   margin-top: 1.5rem;
 }
 
@@ -98,22 +111,35 @@
 }
 
 .ratings-section {
-  display: flex;
-  gap: 2.5rem;
+  display: inline-flex;
+  align-items: stretch;
+  align-self: flex-start;
   flex-wrap: wrap;
-  align-items: flex-start;
+  overflow: hidden;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  background-color: var(--surface-dark);
 }
 
 .rating-box {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: 0.5rem;
+  justify-content: center;
+  gap: 0.4rem;
+  min-width: 250px;
+  padding: 14px 18px;
+  box-sizing: border-box;
+
+  & + .rating-box {
+    border-left: 1px solid rgba(255, 255, 255, 0.1);
+  }
 
   .rating-label {
     font-size: 0.75rem;
-    font-weight: 500;
+    font-weight: 700;
     text-transform: uppercase;
+    letter-spacing: 0.06em;
     color: var(--secondary-text);
   }
 
@@ -121,7 +147,6 @@
     font-size: 0.75rem;
     font-style: italic;
     color: var(--secondary-text);
-    padding-left: 4px;
   }
 
   .average-score {
@@ -132,21 +157,69 @@
 
   .ratings-count {
     color: var(--secondary-text);
+    font-size: 0.75rem;
   }
 }
 
-.actions-section {
-  margin-top: 1.5rem;
+.rating-value {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 32px;
+}
 
+.actions-section {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 24px;
+  margin-top: 1.75rem;
+}
+
+.action-group {
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+}
+
+.action-group-heading {
+  display: flex;
+  align-items: baseline;
+  gap: 10px;
+}
+
+.action-group-label {
+  color: var(--secondary-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.action-group-heading small {
+  color: var(--secondary-text);
+  font-size: 0.68rem;
+  opacity: 0.7;
+}
+
+.action-buttons {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
 }
 
 .custom-accent,
 .listen-later {
-  border-radius: 9999px;
-  padding: 0.6rem 1.5rem;
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
+  width: 190px;
+  height: 48px;
+  padding: 0 1.25rem;
+  border-radius: 12px;
+  box-sizing: border-box;
   transition: transform 0.25s ease, box-shadow 0.25s ease;
 
   &:hover {
@@ -166,7 +239,7 @@
 }
 
 .listen-later {
-  margin-left: 10px;
+  margin-left: 0;
 }
 
 .mat-mdc-list-item {
@@ -282,17 +355,21 @@
 }
 
 .clear-rating-btn {
-  background: none;
-  border: none;
-  padding: 0 8px;
-  cursor: pointer;
-  vertical-align: middle;
-  font-size: 1.2rem;
-  color: var(--accent-color);
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  color: var(--secondary-text);
   transition: transform 0.2s ease-in-out;
 
   &:hover {
-    transform: scale(1.15);
+    color: var(--primary-text);
+    background-color: rgba(255, 255, 255, 0.08);
+  }
+
+  mat-icon {
+    width: 18px;
+    height: 18px;
+    font-size: 18px;
   }
 }
 
@@ -309,10 +386,13 @@
   }
 
   .stats-and-ratings,
-  .ratings-section,
   .stats-container,
   .actions-section {
     justify-content: center;
+  }
+
+  .ratings-section {
+    align-self: center;
   }
 
   .track-grid-item {
@@ -337,11 +417,18 @@
   }
 }
 
-@media (max-width: 480px) {
-  :host {
-    padding: 1rem;
+@media (max-width: 620px) {
+  .ratings-section {
+    flex-direction: column;
   }
 
+  .rating-box + .rating-box {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    border-left: 0;
+  }
+}
+
+@media (max-width: 480px) {
   .album-cover {
     width: 200px;
     height: 200px;
@@ -356,14 +443,18 @@
   }
 
   .actions-section {
-    display: flex;
     flex-direction: column;
     align-items: center;
     gap: 1rem;
+  }
 
-    .listen-later {
-      margin-left: 0;
-    }
+  .action-group,
+  .action-group-heading {
+    align-items: center;
+  }
+
+  .action-buttons {
+    justify-content: center;
   }
 
   .track-name {

@@ -1,6 +1,6 @@
-# SoundRate Frontend
+# Soundrate Frontend
 
-This module contains the Angular single-page application for SoundRate.
+This module contains the Angular single-page application for Soundrate.
 
 ## What The Frontend Does
 
@@ -156,6 +156,8 @@ The main routes are:
   Authenticated account settings
 - `/listen-later`
   Authenticated listen-later list
+- `/about`
+  Public information about Soundrate and its main features
 
 ## Authentication Model
 

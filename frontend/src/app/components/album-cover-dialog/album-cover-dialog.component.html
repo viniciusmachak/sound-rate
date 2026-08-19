@@ -1,0 +1,14 @@
+<figure class="cover-dialog">
+  <button mat-icon-button mat-dialog-close class="close-button" aria-label="Close album cover">
+    <mat-icon>close</mat-icon>
+  </button>
+
+  <img [src]="data.imageUrl" [alt]="'Cover of ' + data.title" />
+
+  <figcaption>
+    <strong>{{ data.title }}</strong>
+    @if (data.artistName) {
+      <span>{{ data.artistName }}</span>
+    }
+  </figcaption>
+</figure>

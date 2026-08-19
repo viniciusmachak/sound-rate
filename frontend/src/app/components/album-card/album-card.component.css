@@ -20,6 +20,25 @@
     }
 }
 
+.album-cover-container,
+.album-cover-button {
+    width: 100%;
+    height: 100%;
+}
+
+.album-cover-button {
+    display: block;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: zoom-in;
+}
+
+.album-cover-button:focus-visible {
+    outline: 3px solid #d09ae5;
+    outline-offset: -3px;
+}
+
 .album-cover {
     width: 100%;
     height: 100%;
@@ -43,13 +62,16 @@
     box-sizing: border-box;
     opacity: 0;
     transition: opacity 0.3s ease;
+    pointer-events: none;
 }
 
-.album-card-wrapper:hover .album-overlay {
+.album-card-wrapper:hover .album-overlay,
+.album-card-wrapper:focus-within .album-overlay {
     opacity: 1;
 }
 
-.album-card-wrapper:hover .album-cover {
+.album-card-wrapper:hover .album-cover,
+.album-card-wrapper:focus-within .album-cover {
     opacity: 0.8;
 }
 
@@ -82,5 +104,5 @@
     color: white;
     flex-shrink: 0;
     margin-left: 8px;
+    pointer-events: auto;
 }
-

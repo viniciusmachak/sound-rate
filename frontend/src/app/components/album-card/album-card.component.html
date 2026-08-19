@@ -1,6 +1,9 @@
 <div class="album-card-wrapper">
     <div class="album-cover-container">
-        <img [src]="coverUrl" [alt]="title" class="album-cover">
+        <button type="button" class="album-cover-button" (click)="openCover()"
+            [attr.aria-label]="'Open cover of ' + title">
+            <img [src]="coverUrl" [alt]="title" class="album-cover">
+        </button>
     </div>
     <div class="album-overlay">
         <div class="overlay-content">

@@ -9,6 +9,11 @@
           <span>•</span>
           <span>{{ page.artistDetails.nb_album }} albums</span>
         </div>
+        <app-deezer-button
+          class="artist-deezer-link"
+          [href]="page.artistDetails.link"
+          label="Artist on Deezer"
+        />
       </div>
     </header>
     @if (page.albums && page.albums.content.length > 0) {
