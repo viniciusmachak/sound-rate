@@ -7,8 +7,10 @@
 
     <a routerLink="/" class="app-title">SoundRate</a>
 
-    <div class="search-container">
-      <mat-icon class="search-icon">search</mat-icon>
+    <form class="search-container" (submit)="submitSearch($event)">
+      <button type="submit" class="search-submit" aria-label="Show all search results">
+        <mat-icon>search</mat-icon>
+      </button>
       <input class="search-input" type="search" placeholder="Search SoundRate"
         aria-label="Search albums, artists or users" autocomplete="off"
         [formControl]="searchControl" (focus)="isSearchFocused = true" (blur)="closeSearch()"
@@ -44,7 +46,7 @@
           }
         }
       }
-    </div>
+    </form>
 
     <div class="nav-actions">
       @if (currentUser$ | async; as user) {

@@ -1,29 +1,48 @@
 <footer class="footer">
-  <div class="footer-content">
-    <div class="footer-section about">
-      <h2 class="footer-logo">SoundRate</h2>
-      <p>
-        A web site for reviewing and discovering new music.
-        Project created for portfolio purposes.
-      </p>
+  <div class="footer-container">
+    <div class="footer-main">
+      <div class="footer-brand">
+        <a routerLink="/" class="footer-logo">SoundRate</a>
+        <p>Discover, rate and share the music that stays with you.</p>
+      </div>
+
+      <nav class="footer-navigation" aria-label="Footer navigation">
+        <a routerLink="/">Home</a>
+        <a routerLink="/listen-later">Listen Later</a>
+        <a href="https://www.deezer.com/" target="_blank" rel="noopener noreferrer">Deezer</a>
+        <a
+          href="https://github.com/viniciusmcabral/sound-rate"
+          target="_blank"
+          rel="noopener noreferrer"
+          >Code</a
+        >
+      </nav>
+
+      <div class="social-links" aria-label="Developer social links">
+        <a
+          href="https://github.com/viniciusmcabral"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Developer's GitHub"
+          title="GitHub"
+        >
+          <i class="fab fa-github" aria-hidden="true"></i>
+        </a>
+        <a
+          href="https://www.instagram.com/vinicabr4l/"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="Developer's Instagram"
+          title="Instagram"
+        >
+          <i class="fab fa-instagram" aria-hidden="true"></i>
+        </a>
+      </div>
     </div>
 
-    <div class="footer-section developer">
-      <h3>Made by</h3>
-      <ul>
-        <li><a href="https://github.com/viniciusmcabral/sound-rate.git" target="_blank"><i
-          class="fab fa-github"></i>Code on GitHub</a></li>
-        <li><a href="#" target="_blank"><i class="fas fa-briefcase"></i> Portfolio</a></li>
-        <li><a href="https://www.instagram.com/vinicabr4l/" target="_blank"><i
-          class="fab fa-instagram"></i> Instagram</a></li>
-        <li><a href="https://wa.me/5571999259526" target="_blank"><i
-          class="fab fa-whatsapp"></i> WhatsApp</a></li>
-      </ul>
+    <div class="footer-bottom">
+      <p>© {{ currentYear }} SoundRate. Built for music lovers.</p>
+      <p>Music data provided by Deezer.</p>
     </div>
-  </div>
-
-  <div class="footer-bottom">
-    <span>© 2025 SoundRate</span>
-    <span>Data provided by Deezer API</span>
   </div>
 </footer>

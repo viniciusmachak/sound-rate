@@ -2,24 +2,16 @@
   <h1 class="headline">Find. Listen. Rate</h1>
   <p class="subheadline">Your music diary</p>
 
-  <mat-form-field class="search-bar" appearance="outline">
-    <mat-label>Search by album, artist or user...</mat-label>
-    <input matInput type="text" [formControl]="searchControl">
-    <mat-icon matSuffix>search</mat-icon>
-  </mat-form-field>
-
   @if (resultsData$ | async; as data) {
     <div class="results-container">
       @if (data.isLoading) {
-        <div class="loading-container">
-          <mat-spinner diameter="32"></mat-spinner>
-        </div>
+        <app-skeleton-loader variant="cards" [count]="8" />
       }
       @if (!data.isLoading) {
         <div>
           @if (data.query.length >= 3 && data.results.length > 0) {
             <mat-button-toggle-group
-              [formControl]="filterControl" class="filter-toggle-group">
+              [formControl]="filterControl" class="filter-toggle-group" [hideSingleSelectionIndicator]="true">
               <mat-button-toggle value="all">All</mat-button-toggle>
               <mat-button-toggle value="album">Albums</mat-button-toggle>
               <mat-button-toggle value="artist">Artists</mat-button-toggle>
@@ -29,7 +21,7 @@
           @if (data.filteredResults.length > 0) {
             <div class="results-grid">
               @for (result of data.filteredResults; track result) {
-                <div>
+                <div class="result-item" [class.artist-result]="result.type === 'artist'">
                   @switch (result.type) {
                     @case ('album') {
                       <app-album-card [album]="result.album!"></app-album-card>

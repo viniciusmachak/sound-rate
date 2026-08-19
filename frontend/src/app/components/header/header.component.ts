@@ -135,6 +135,16 @@ export class HeaderComponent {
     }, 150);
   }
 
+  submitSearch(event?: Event): void {
+    event?.preventDefault();
+    const query = this.searchControl.value.trim();
+
+    if (query.length < 3) return;
+
+    this.isSearchFocused = false;
+    void this.router.navigate(['/'], { queryParams: { q: query } });
+  }
+
   selectResult(result: SearchResult): void {
     if (result.type === 'album' && result.album) {
       void this.router.navigate(['/album', result.album.id]);

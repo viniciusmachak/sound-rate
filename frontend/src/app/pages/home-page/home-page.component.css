@@ -15,13 +15,21 @@
 .filter-toggle-group {
     margin-bottom: 2.5rem;
     display: inline-flex;
-    background-color: var(--accent-color);
-    border-radius: 999px;
-    overflow: hidden;
-    border: 1px solid #333;
+    gap: 10px;
+    background-color: transparent;
+    border: 0;
+    overflow: visible;
 
-    ::ng-deep .mat-mdc-button-toggle {
-        background-color: transparent;
+    &.mat-button-toggle-group-appearance-standard {
+        border: 0;
+        box-shadow: none;
+    }
+
+    ::ng-deep .mat-button-toggle {
+        overflow: hidden;
+        border: 1px solid rgba(255, 255, 255, 0.14);
+        border-radius: 999px;
+        background-color: var(--surface-dark);
         color: var(--secondary-text);
         font-weight: 500;
         letter-spacing: 0.5px;
@@ -36,10 +44,14 @@
         }
     }
 
-    ::ng-deep .mat-mdc-button-toggle-checked {
+    ::ng-deep .mat-button-toggle-checked {
         background-color: var(--accent-color);
         color: white;
         box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
+    }
+
+    ::ng-deep .mat-button-toggle + .mat-button-toggle {
+        border-left: 1px solid rgba(255, 255, 255, 0.14);
     }
 }
 
@@ -53,6 +65,18 @@
     grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
     gap: 20px;
     justify-content: center;
+}
+
+.result-item {
+    width: 100%;
+}
+
+.artist-result {
+    ::ng-deep .artist-photo {
+        aspect-ratio: 1;
+        border-radius: 50%;
+        object-fit: cover;
+    }
 }
 
 .info-message {
@@ -98,13 +122,6 @@
     justify-content: center;
     flex-wrap: wrap;
     gap: 1.5rem;
-}
-
-.loading-container {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 5rem;
 }
 
 @media (max-width: 768px) {

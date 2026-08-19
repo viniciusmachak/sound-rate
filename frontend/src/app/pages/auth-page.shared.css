@@ -60,6 +60,7 @@
 .login-button,
 .register-button {
   height: 48px;
+  border-radius: 999px;
   font-size: 1rem;
   text-transform: uppercase;
   letter-spacing: 1px;

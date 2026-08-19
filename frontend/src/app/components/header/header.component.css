@@ -66,10 +66,18 @@
   background-color: var(--background-dark);
 }
 
-.search-icon {
-  flex-shrink: 0;
-  margin-left: 16px;
+.search-submit {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  flex: 0 0 40px;
+  height: 100%;
+  padding: 0;
+  border: 0;
+  appearance: none;
+  background: transparent;
   color: var(--secondary-text);
+  cursor: pointer;
 }
 
 .search-input {
@@ -185,6 +193,7 @@
 }
 
 .nav-link {
+  border-radius: 999px;
   color: var(--primary-text);
   font-size: 0.9rem;
   font-weight: 600;
@@ -420,6 +429,10 @@
   color: var(--secondary-text);
   font-size: 0.85rem;
   line-height: 1.5;
+}
+
+.sidebar-auth a {
+  border-radius: 999px;
 }
 
 @media (max-width: 900px) {
