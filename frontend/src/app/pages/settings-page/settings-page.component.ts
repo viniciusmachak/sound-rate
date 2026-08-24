@@ -39,15 +39,21 @@ export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): V
 export class SettingsPageComponent implements OnInit {
   profileForm!: FormGroup;
   passwordForm!: FormGroup;
-  avatarForm!: FormGroup;
   selectedFile: File | null = null;
   imagePreview: string | ArrayBuffer | null = null;
   currentUser!: User | null;
+  hideCurrentPassword = true;
+  hideNewPassword = true;
+  hideConfirmPassword = true;
   isUpdatingProfile = false;
   isUpdatingPassword = false;
   isUploadingAvatar = false;
   isResettingAvatar = false;
   isDeletingAccount = false;
+
+  get hasProfileChanges(): boolean {
+    return this.profileForm?.get('email')?.value !== (this.currentUser?.email || '');
+  }
 
   constructor(
     private fb: FormBuilder,
@@ -70,14 +76,10 @@ export class SettingsPageComponent implements OnInit {
       newPassword: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', Validators.required]
     }, { validators: passwordMatchValidator });
-
-    this.avatarForm = this.fb.group({
-      avatarUrl: [this.currentUser?.avatarUrl || '', [Validators.required, Validators.pattern('https?://.+')]]
-    });
   }
 
   onUpdateProfile(): void {
-    if (this.profileForm.invalid) return;
+    if (this.profileForm.invalid || !this.hasProfileChanges) return;
 
     this.isUpdatingProfile = true;
     this.apiService.updateProfile(this.profileForm.value).pipe(
@@ -86,6 +88,7 @@ export class SettingsPageComponent implements OnInit {
       next: (updatedUser) => {
         this.currentUser = updatedUser;
         this.authService.updateCurrentUser(updatedUser);
+        this.profileForm.markAsPristine();
         this.snackBar.open('Profile updated successfully!', 'Close', { duration: 3000 });
       },
       error: (err) => this.snackBar.open('Error updating profile. Email may already be in use.', 'Close', { duration: 3000 })

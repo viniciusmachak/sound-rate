@@ -19,6 +19,7 @@ import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skelet
     SkeletonLoaderComponent
   ],
   templateUrl: './listen-later-page.component.html',
+  styleUrl: './listen-later-page.component.css'
 })
 export class ListenLaterPageComponent implements OnInit {
   private albumsSubject = new BehaviorSubject<DeezerAlbum[]>([]);

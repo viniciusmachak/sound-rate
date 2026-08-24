@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { MatCardModule } from '@angular/material/card';
 import { MatFormFieldModule } from '@angular/material/form-field';
@@ -14,6 +14,7 @@ import { finalize } from 'rxjs/operators';
   selector: 'app-register-page',
   standalone: true,
   imports: [
+    RouterLink,
     ReactiveFormsModule,
     MatCardModule,
     MatFormFieldModule,
@@ -23,7 +24,7 @@ import { finalize } from 'rxjs/operators';
     MatIcon
 ],
   templateUrl: './register-page.component.html',
-  styleUrls: ['../auth-page.shared.css', './register-page.component.css']
+  styleUrl: '../auth-page.shared.css'
 })
 
 export class RegisterPageComponent {

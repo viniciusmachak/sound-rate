@@ -26,7 +26,7 @@ import { finalize } from 'rxjs/operators';
     MatIcon
 ],
   templateUrl: './login-page.component.html',
-  styleUrls: ['../auth-page.shared.css', './login-page.component.css']
+  styleUrl: '../auth-page.shared.css'
 })
 export class LoginPageComponent {
   loginForm: FormGroup;

@@ -13,7 +13,6 @@ interface AboutFeature {
 
 interface Technology {
   name: string;
-  mark: string;
   image: string;
 }
 
@@ -38,7 +37,7 @@ export class AboutPageComponent {
     },
     {
       icon: 'star',
-      image: '/rate-image.jpeg',
+      image: '/rate-image.png',
       imageAlt: 'A listener rating an album on Soundrate',
       label: 'Rate',
       title: 'Turn every listen into a memory.',
@@ -48,7 +47,7 @@ export class AboutPageComponent {
     },
     {
       icon: 'forum',
-      image: '/share-image.jpeg',
+      image: '/share-image.png',
       imageAlt: 'Listeners sharing their music opinions',
       label: 'Share',
       title: 'Make music a conversation.',
@@ -58,7 +57,7 @@ export class AboutPageComponent {
     },
     {
       icon: 'bookmark',
-      image: '/save-later-image.jpeg',
+      image: '/listen-later.png',
       imageAlt: 'Albums saved to listen to later',
       label: 'Save for later',
       title: 'Keep your next listen within reach.',
@@ -69,14 +68,40 @@ export class AboutPageComponent {
   ];
 
   readonly technologies: Technology[] = [
-    { name: 'Java', mark: 'J', image: '/technologies/java.png' },
-    { name: 'Spring Boot', mark: 'SB', image: '/technologies/spring-boot.png' },
-    { name: 'TypeScript', mark: 'TS', image: '/technologies/typescript.png' },
-    { name: 'Angular', mark: 'A', image: '/technologies/angular.png' },
-    { name: 'PostgreSQL', mark: 'PG', image: '/technologies/postgresql.png' },
-    { name: 'Angular Material', mark: 'AM', image: '/technologies/angular-material.png' },
-    { name: 'RxJS', mark: 'RX', image: '/technologies/rxjs.png' },
-    { name: 'Docker', mark: 'D', image: '/technologies/docker.png' }
+    {
+      name: 'Java',
+      image: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/java/java-original.svg'
+    },
+    {
+      name: 'Spring Boot',
+      image: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/spring/spring-original.svg'
+    },
+    {
+      name: 'TypeScript',
+      image:
+        'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/typescript/typescript-original.svg'
+    },
+    {
+      name: 'Angular',
+      image: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/angular/angular-original.svg'
+    },
+    {
+      name: 'PostgreSQL',
+      image:
+        'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/postgresql/postgresql-original.svg'
+    },
+    {
+      name: 'Angular Material',
+      image: 'https://cdn.simpleicons.org/materialdesign'
+    },
+    {
+      name: 'RxJS',
+      image: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/rxjs/rxjs-original.svg'
+    },
+    {
+      name: 'Docker',
+      image: 'https://cdn.jsdelivr.net/gh/devicons/devicon@latest/icons/docker/docker-original.svg'
+    }
   ];
 
   hideUnavailableImage(event: Event): void {

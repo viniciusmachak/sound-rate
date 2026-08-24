@@ -8,6 +8,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIconModule } from '@angular/material/icon';
+import { MatCardModule } from '@angular/material/card';
 
 @Component({
   selector: 'app-forget-password-page',
@@ -15,6 +16,7 @@ import { MatIconModule } from '@angular/material/icon';
   imports: [
     RouterLink,
     ReactiveFormsModule,
+    MatCardModule,
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule,
@@ -22,7 +24,7 @@ import { MatIconModule } from '@angular/material/icon';
     MatIconModule
 ],
   templateUrl: './forget-password-page.component.html',
-  styleUrls: ['../password-flow.shared.css', './forget-password-page.component.css']
+  styleUrl: '../auth-page.shared.css'
 })
 export class ForgetPasswordPageComponent implements OnInit {
   forgotPasswordForm!: FormGroup;
