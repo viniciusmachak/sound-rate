@@ -6,6 +6,7 @@
 }
 
 .star-container button {
+  --mat-icon-button-hover-state-layer-opacity: 0;
   color: #ffca28;
   position: relative;
   padding: 0;
@@ -24,5 +25,6 @@
 }
 
 .star-container button:not([disabled]):hover {
+  background-color: transparent;
   transform: scale(1.15);
 }

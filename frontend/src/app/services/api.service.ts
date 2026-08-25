@@ -45,6 +45,14 @@ export class ApiService {
     return this.http.get<ArtistPage>(`${this.apiUrl}/artists/${artistId}`, { params });
   }
 
+  followArtist(artistId: number): Observable<void> {
+    return this.http.post<void>(`${this.apiUrl}/artists/${artistId}/follow`, {});
+  }
+
+  unfollowArtist(artistId: number): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/artists/${artistId}/follow`);
+  }
+
   getFollowers(username: string, page: number, size: number): Observable<Page<User>> {
     const params = new HttpParams().set('page', page.toString()).set('size', size.toString());
     return this.http.get<Page<User>>(`${this.apiUrl}/users/${username}/followers`, { params });

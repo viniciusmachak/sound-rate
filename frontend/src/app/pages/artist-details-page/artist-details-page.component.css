@@ -1,100 +1,254 @@
+:host {
+  display: block;
+}
+
+@keyframes artist-photo-enter {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
 .artist-page-container {
-    max-width: 1200px;
-    margin: 0 auto;
+  margin: -24px -24px 0;
 }
 
 .artist-header {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    margin-bottom: 3rem;
-    flex-wrap: wrap;
+  position: relative;
+  isolation: isolate;
+  min-height: clamp(390px, 54vw, 560px);
+  overflow: hidden;
+  background-color: #101215;
+}
+
+.artist-backdrop {
+  position: absolute;
+  inset: -56px;
+  z-index: -2;
+  background-position: center 28%;
+  background-size: cover;
+  filter: blur(38px) saturate(1.2);
+  opacity: 0.5;
+  transform: scale(1.14);
+}
+
+.artist-header::after {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: '';
+  background:
+    linear-gradient(90deg, rgba(8, 10, 12, 0.72), rgba(8, 10, 12, 0.9)),
+    linear-gradient(145deg, color-mix(in srgb, var(--artist-accent) 48%, transparent), transparent 64%);
+  transition: background 0.35s ease;
+}
+
+.artist-hero-content {
+  display: grid;
+  grid-template-columns: minmax(200px, 260px) minmax(0, 1fr);
+  align-items: center;
+  gap: clamp(28px, 5vw, 64px);
+  width: 100%;
+  max-width: 1280px;
+  min-height: inherit;
+  margin: 0 auto;
+  padding: clamp(44px, 7vw, 84px) clamp(24px, 6vw, 80px);
+  box-sizing: border-box;
 }
 
 .artist-photo {
-    width: 200px;
-    height: 200px;
-    border-radius: 50%;
-    object-fit: cover;
-    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
+  width: 100%;
+  max-width: 260px;
+  aspect-ratio: 1;
+  border: 3px solid color-mix(in srgb, var(--artist-accent) 56%, white);
+  border-radius: 50%;
+  object-fit: cover;
+  box-shadow: 0 18px 44px rgba(0, 0, 0, 0.46);
+  animation: artist-photo-enter 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both;
 }
 
 .artist-info {
-    h1 {
-        font-size: 3.5rem;
-        font-weight: bold;
-        margin: 0;
-    }
+  min-width: 0;
 }
 
-.artist-stats {
-    display: flex;
-    gap: 1rem;
-    margin-top: 0.5rem;
-    color: var(--secondary-text);
-    font-size: 1rem;
+.artist-eyebrow {
+  color: #d09ae5;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+.artist-info h1 {
+  margin: 8px 0 14px;
+  overflow-wrap: anywhere;
+  font-size: clamp(2.6rem, 7vw, 5.6rem);
+  line-height: 0.96;
+}
+
+.artist-metadata {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 0.86rem;
+  font-weight: 650;
+}
+
+.artist-actions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 28px;
+}
+
+.popular-play-button,
+.artist-secondary-button {
+  height: 48px;
+  padding-inline: 18px;
+  border-radius: 12px;
+  box-sizing: border-box;
+  box-shadow: none !important;
+  font-weight: 700;
+  transition: background-color 0.18s ease, border-color 0.18s ease, color 0.18s ease, transform 0.12s ease;
+}
+
+.popular-play-button {
+  min-width: 170px;
+  background-color: var(--accent-color);
+  color: #fff;
+}
+
+.popular-play-button:hover:not(:disabled) {
+  background-color: #76249a;
+}
+
+.popular-play-button:active:not(:disabled),
+.artist-secondary-button:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.artist-secondary-button {
+  min-width: 116px;
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--primary-text);
+}
+
+.artist-secondary-button:hover:not(:disabled),
+.artist-secondary-button.following {
+  border-color: #a75bd0;
+  background-color: rgba(167, 91, 208, 0.14);
+  color: #d09ae5;
 }
 
 .artist-deezer-link {
-    margin-top: 1.25rem;
+  margin: 0;
+}
+
+.soundrate-followers {
+  display: block;
+  margin-top: 12px;
+  color: rgba(255, 255, 255, 0.58);
+  font-size: 0.72rem;
+}
+
+.albums-section,
+.custom-paginator,
+.no-content-message {
+  width: min(1200px, calc(100% - 48px));
+  margin-right: auto;
+  margin-left: auto;
 }
 
 .albums-section {
-    margin-top: 3rem;
+  margin-top: 48px;
 }
 
 .section-title {
-    font-size: 1.5rem;
-    font-weight: 500;
-    margin-bottom: 1.5rem;
-    padding-bottom: 0.5rem;
-    border-bottom: 1px solid var(--surface-dark);
+  margin: 0 0 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px solid var(--surface-dark);
+  font-size: 1.5rem;
+  font-weight: 600;
 }
 
 .albums-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 24px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.custom-paginator {
+  margin-top: 28px;
+}
+
+.no-content-message {
+  margin-top: 48px;
+  color: var(--secondary-text);
+  text-align: center;
 }
 
 @media (max-width: 992px) {
-    .albums-grid {
-        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-    }
+  .albums-grid {
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  }
 }
 
-@media (max-width: 768px) {
-    .artist-header {
-        flex-direction: column;
-        text-align: center;
-        gap: 1.5rem;
-        margin-bottom: 2rem;
-    }
+@media (max-width: 720px) {
+  .artist-hero-content {
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    text-align: center;
+  }
 
-    .artist-photo {
-        width: 150px;
-        height: 150px;
-    }
+  .artist-photo {
+    width: 160px;
+  }
 
-    .artist-info h1 {
-        font-size: 2.8rem;
-    }
+  .artist-metadata,
+  .artist-actions {
+    justify-content: center;
+  }
 
-    .artist-stats {
-        justify-content: center;
-    }
+  .artist-actions > * {
+    width: min(100%, 240px);
+  }
 
-    .albums-grid {
-        grid-template-columns: 1fr;
-        justify-items: center;
-    }
+  .albums-grid {
+    grid-template-columns: 1fr;
+    justify-items: center;
+  }
 
-    .section-title {
-        text-align: center;
-        border-bottom: none;
-    }
+  .section-title {
+    border-bottom: 0;
+    text-align: center;
+  }
 
-    ::ng-deep .custom-paginator .mat-mdc-paginator-page-size-options {
-        display: none;
-    }
+  ::ng-deep .custom-paginator .mat-mdc-paginator-page-size-options {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .artist-photo {
+    animation: none;
+  }
+
+  .artist-header::after,
+  .popular-play-button,
+  .artist-secondary-button {
+    transition: none;
+  }
+
+  .popular-play-button:active:not(:disabled),
+  .artist-secondary-button:active:not(:disabled) {
+    transform: none;
+  }
 }

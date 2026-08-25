@@ -1,7 +1,13 @@
 @if (albumDetails$ | async; as details) {
+  @let currentTrack = audioService.currentTrack$ | async;
+  @let isPlaying = audioService.isPlaying$ | async;
   <div class="page-container">
-    <header class="album-header">
-      <div class="cover-container">
+    <header class="album-header" [style.--album-accent]="albumAccentColor">
+      <div class="album-backdrop" aria-hidden="true"
+        [style.background-image]="'url(' + getAlbumCover(details) + ')'">
+      </div>
+      <div class="album-hero-content">
+        <div class="cover-container">
         <button type="button" class="album-cover-button" (click)="openAlbumCover(details)"
           [attr.aria-label]="'Open cover of ' + details.deezerDetails.title">
           <img [src]="getAlbumCover(details)" [alt]="'Cover of ' + details.deezerDetails.title"
@@ -16,17 +22,45 @@
             </mat-icon>
           </button>
         }
-      </div>
-      <div class="album-info">
+        </div>
+        <div class="album-info">
         <h1>{{ details.deezerDetails.title }}</h1>
         @if (details.deezerDetails.artist) {
-          <h2>
-            <a [routerLink]="['/artist', details.deezerDetails.artist.id]" class="artist-link">
-              {{ details.deezerDetails.artist.name }}
+          <div class="artist-identity">
+            <a [routerLink]="['/artist', details.deezerDetails.artist.id]" class="artist-avatar-link"
+              [attr.aria-label]="'Open ' + details.deezerDetails.artist.name + ' artist page'">
+              <img
+                [src]="details.deezerDetails.artist.picture_medium || details.deezerDetails.artist.picture"
+                [alt]="details.deezerDetails.artist.name"
+                class="artist-avatar">
             </a>
-          </h2>
+            <div class="artist-copy">
+              <span>Artist</span>
+              <h2>
+                <a [routerLink]="['/artist', details.deezerDetails.artist.id]" class="artist-link">
+                  {{ details.deezerDetails.artist.name }}
+                </a>
+              </h2>
+            </div>
+          </div>
         }
-        <p class="release-date">{{ details.deezerDetails.release_date | slice:0:4 }}</p>
+        <div class="album-metadata" aria-label="Album information">
+          <span>Album</span>
+          @if (details.deezerDetails.release_date) {
+            <span class="metadata-separator" aria-hidden="true">•</span>
+            <span>{{ details.deezerDetails.release_date | slice:0:4 }}</span>
+          }
+          <span class="metadata-separator" aria-hidden="true">•</span>
+          <span>
+            {{ details.deezerDetails.tracks.data.length }}
+            {{ details.deezerDetails.tracks.data.length === 1 ? 'track' : 'tracks' }}
+          </span>
+          <span class="metadata-separator" aria-hidden="true">•</span>
+          <span>{{ details.deezerDetails.duration / 60 | number:'1.0-0' }} min</span>
+          @if (details.deezerDetails.explicit_lyrics) {
+            <span class="explicit-badge" title="Explicit content" aria-label="Explicit content">E</span>
+          }
+        </div>
         <div class="stats-and-ratings">
           <div class="stats-container">
             <div class="stat-item">
@@ -68,6 +102,23 @@
             </div>
           </div>
         </div>
+        <div class="album-playback">
+          <button mat-raised-button class="album-play-button"
+            type="button"
+            [disabled]="!hasPlayableTracks(details.deezerDetails.tracks.data)"
+            (click)="toggleAlbumPlayback(details.deezerDetails.tracks.data)"
+            [attr.aria-label]="currentTrack?.album?.id === details.deezerDetails.id && isPlaying
+              ? 'Pause album ' + details.deezerDetails.title
+              : 'Play album ' + details.deezerDetails.title">
+            <mat-icon>
+              {{ currentTrack?.album?.id === details.deezerDetails.id && isPlaying ? 'pause' : 'play_arrow' }}
+            </mat-icon>
+            {{ currentTrack?.album?.id === details.deezerDetails.id && isPlaying
+              ? 'Pause album'
+              : 'Play album' }}
+          </button>
+          <span class="preview-note">Plays the available Deezer previews in order</span>
+        </div>
         <div class="actions-section">
           <section class="action-group" aria-labelledby="listen-on-title">
             <div class="action-group-heading">
@@ -99,65 +150,158 @@
             </section>
           }
         </div>
+        </div>
       </div>
     </header>
-    <mat-tab-group animationDuration="0ms">
+    <mat-tab-group animationDuration="180ms">
       <mat-tab label="Tracks">
         @if (details.deezerDetails.tracks.data.length > 0) {
-          <mat-list>
+          <div class="track-list-shell">
+            <ol class="track-list">
             @for (track of details.deezerDetails.tracks.data; track track.id; let i = $index) {
-              <mat-list-item
-                class="track-grid-item">
-                <div class="align-cover-number-song">
-                  <div class="track-cover-container"> <img [src]="track.album.cover"
-                    alt="Cover for {{ track.title }}" class="track-thumbnail">
-                    @if (track.preview) {
-                      <button mat-mini-fab (click)="audioService.togglePlay(track)"
-                        class="play-button"> <mat-icon>
-                        @if ((audioService.isPlaying$ | async) && (audioService.currentTrack$ | async)?.id === track.id) {
-                          <span
-                            >pause
-                          </span>
-                        } @else {
-                          play_arrow
-                        }
-                      </mat-icon>
-                    </button>
+              <li class="track-grid-item"
+                [class.current-track]="currentTrack?.id === track.id"
+                [class.track-playing]="currentTrack?.id === track.id && isPlaying">
+                <div class="track-index-cell">
+                  @if (currentTrack?.id === track.id && isPlaying) {
+                    <span class="playing-indicator" aria-label="Now playing">
+                      <i></i><i></i><i></i>
+                    </span>
+                  } @else {
+                    <span class="track-number">{{ i + 1 }}</span>
+                    @if (track.preview && track.readable !== false) {
+                      <button mat-icon-button type="button"
+                        (click)="toggleTrackPlayback(details.deezerDetails.tracks.data, track)"
+                        class="track-index-play"
+                        [attr.aria-label]="currentTrack?.id === track.id && isPlaying
+                          ? 'Pause ' + track.title
+                          : 'Play ' + track.title">
+                        <mat-icon>play_arrow</mat-icon>
+                      </button>
+                    }
                   }
                 </div>
-                <span class="track-number">{{ i + 1 }}.</span>
-                <span class="track-name">{{ track.title }}</span>
-              </div>
-              <div class="align-artist-duration">
-                <span class="track-duration">{{ track.duration * 1000 | formatDuration }}</span>
-                <span class="track-artists">
-                  @if (track.artist) {
-                    <a [routerLink]="['/artist', track.artist.id]" class="artist-link">
-                      {{ track.artist.name }}
-                    </a>
+                <div class="track-title-cell">
+                  <img [src]="track.album.cover" alt="" class="track-thumbnail">
+                  <div class="track-copy">
+                    <span class="track-title-line">
+                      <strong class="track-name">{{ track.title_short || track.title }}</strong>
+                      @if (track.explicit_lyrics) {
+                        <span class="track-explicit-badge" title="Explicit content"
+                          aria-label="Explicit content">E</span>
+                      }
+                    </span>
+                    @if (track.artist) {
+                      <a [routerLink]="['/artist', track.artist.id]" class="track-artist-link">
+                        {{ track.artist.name }}
+                      </a>
+                    }
+                  </div>
+                </div>
+
+                <div class="track-rating-column">
+                  @if (authService.isAuthenticated()) {
+                    <app-star-rating [id]="'track-rating-' + track.id"
+                      [rating]="getUserRatingForTrack(track.id.toString())"
+                      (ratingChange)="onTrackRatingChanged($event, track.id.toString())">
+                    </app-star-rating>
                   }
-                </span>
-              </div>
-              @if (authService.isAuthenticated()) {
-                <app-star-rating class="track-rating"
-                  [rating]="getUserRatingForTrack(track.id.toString())"
-                  (ratingChange)="onTrackRatingChanged($event, track.id.toString())">
-                </app-star-rating>
-              }
-            </mat-list-item>
-          }
-        </mat-list>
+                </div>
+
+                <span class="track-duration">{{ track.duration * 1000 | formatDuration }}</span>
+
+                <a class="track-deezer-button"
+                  [href]="track.link || details.deezerDetails.link"
+                  target="_blank" rel="noopener noreferrer"
+                  [attr.aria-label]="'Listen to ' + track.title + ' on Deezer'"
+                  title="Listen on Deezer">
+                </a>
+              </li>
+            }
+            </ol>
+          </div>
       } @else {
         <p class="info-message">The tracklist for this album is not available.</p>
       }
     </mat-tab>
-    <mat-tab label="Reviews">
+    <mat-tab>
+      <ng-template mat-tab-label>
+        <span>Reviews</span>
+        <span class="tab-count">{{ details.userReviews.length }}</span>
+      </ng-template>
       <app-review-list [reviews]="details.userReviews" [currentUser]="authService.currentUserValue"
         (edit)="openReviewDialog($event)" (delete)="onDeleteReview($event)"
         (ratingChanged)="onAlbumRatingChanged($event)">
       </app-review-list>
     </mat-tab>
   </mat-tab-group>
+
+  @if (details.deezerDetails.label || details.deezerDetails.copyright
+    || (details.deezerDetails.genres?.data?.length ?? 0) > 0
+    || albumContributors.length > 0) {
+    <section class="album-credits" aria-labelledby="album-credits-title">
+      <header class="credits-heading">
+        <span>Album information</span>
+        <h2 id="album-credits-title">Credits and details</h2>
+      </header>
+
+      <div class="album-editorial-details">
+        @if (details.deezerDetails.label) {
+          <div class="editorial-item">
+            <span>Label</span>
+            <strong>{{ details.deezerDetails.label }}</strong>
+          </div>
+        }
+
+        @if (details.deezerDetails.genres?.data; as genres) {
+          @if (genres.length > 0) {
+            <div class="editorial-item genres-item">
+              <span>Genres</span>
+              <div class="genre-list">
+                @for (genre of genres; track genre.id) {
+                  <span>{{ genre.name }}</span>
+                }
+              </div>
+            </div>
+          }
+        }
+
+        @if (details.deezerDetails.copyright) {
+          <div class="editorial-item copyright-item">
+            <span>Copyright</span>
+            <strong>{{ details.deezerDetails.copyright }}</strong>
+          </div>
+        }
+      </div>
+
+      @if (albumContributors.length > 0) {
+        <div class="contributors-section">
+          <h3>Participants</h3>
+          <ul class="contributors-list">
+            @for (contributor of albumContributors; track contributor.id ?? contributor.name) {
+              <li>
+                <a [routerLink]="contributor.id !== null ? ['/artist', contributor.id] : null"
+                  class="contributor-link"
+                  [class.contributor-link-static]="contributor.id === null">
+                  <span class="contributor-avatar">
+                    @if (contributor.picture_medium) {
+                      <img [src]="contributor.picture_medium" alt="" />
+                    } @else {
+                      <mat-icon>person</mat-icon>
+                    }
+                  </span>
+                  <span class="contributor-copy">
+                    <strong>{{ contributor.name }}</strong>
+                    <small>{{ contributor.role || 'Contributor' }}</small>
+                  </span>
+                </a>
+              </li>
+            }
+          </ul>
+        </div>
+      }
+    </section>
+  }
 </div>
 } @else {
   <app-skeleton-loader variant="detail" [count]="6" />

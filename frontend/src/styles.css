@@ -59,3 +59,288 @@ mat-paginator {
     font-weight: 500;
   }
 }
+
+app-album-details-page .artist-identity {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  margin: 0 0 14px;
+}
+
+app-album-details-page .artist-avatar-link {
+  flex-shrink: 0;
+  border-radius: 50%;
+  line-height: 0;
+}
+
+app-album-details-page .artist-avatar-link:focus-visible {
+  outline: 3px solid color-mix(in srgb, var(--album-accent) 55%, white);
+  outline-offset: 3px;
+}
+
+app-album-details-page .artist-avatar {
+  width: 48px;
+  height: 48px;
+  border: 2px solid color-mix(in srgb, var(--album-accent) 55%, white);
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+app-album-details-page .artist-copy {
+  min-width: 0;
+}
+
+app-album-details-page .artist-copy > span {
+  color: rgba(255, 255, 255, 0.62);
+  font-size: 0.66rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+app-album-details-page .album-metadata {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+  color: rgba(255, 255, 255, 0.74);
+  font-size: 0.82rem;
+  font-weight: 600;
+}
+
+app-album-details-page .metadata-separator {
+  color: color-mix(in srgb, var(--album-accent) 55%, white);
+}
+
+app-album-details-page .explicit-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 19px;
+  height: 19px;
+  margin-left: 3px;
+  border-radius: 4px;
+  background-color: rgba(255, 255, 255, 0.72);
+  color: #15171a;
+  font-size: 0.68rem;
+  font-weight: 800;
+}
+
+app-album-details-page .track-explicit-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  border-radius: 3px;
+  background-color: rgba(255, 255, 255, 0.6);
+  color: #14181c;
+  font-size: 0.6rem;
+  font-weight: 800;
+}
+
+app-album-details-page .track-deezer-button {
+  justify-self: center;
+  width: 72px;
+  height: 30px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  border-radius: 8px;
+  box-sizing: border-box;
+  background-color: #0d0a10;
+  background-image: url('/listen-deezer-image.png');
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: contain;
+  transition: border-color 0.18s ease, background-color 0.18s ease;
+}
+
+app-album-details-page .track-deezer-button:hover,
+app-album-details-page .track-deezer-button:focus-visible {
+  border-color: #a75bd0;
+  background-color: #19121d;
+  outline: none;
+}
+
+app-album-details-page .track-deezer-button:focus-visible {
+  outline: 2px solid #d09ae5;
+  outline-offset: 2px;
+}
+
+app-album-details-page .tab-count {
+  display: inline-grid;
+  place-items: center;
+  min-width: 20px;
+  height: 20px;
+  margin-left: 7px;
+  padding-inline: 5px;
+  border-radius: 999px;
+  box-sizing: border-box;
+  background-color: rgba(255, 255, 255, 0.1);
+  color: var(--secondary-text);
+  font-size: 0.68rem;
+  font-weight: 700;
+}
+
+app-album-details-page .mat-mdc-tab-body-content {
+  overflow: hidden;
+}
+
+app-album-details-page .album-credits {
+  max-width: 1280px;
+  margin: 48px auto 24px;
+  padding: 36px clamp(20px, 4vw, 52px);
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  box-sizing: border-box;
+}
+
+app-album-details-page .credits-heading > span {
+  color: var(--accent-color);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+app-album-details-page .editorial-item.genres-item > span {
+  color: var(--accent-color);
+}
+
+app-album-details-page .credits-heading h2 {
+  margin: 8px 0 28px;
+  font-size: clamp(1.5rem, 3vw, 2.2rem);
+}
+
+app-album-details-page .album-editorial-details {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+}
+
+app-album-details-page .editorial-item {
+  min-width: 0;
+  padding: 16px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
+  background-color: var(--surface-dark);
+}
+
+app-album-details-page .editorial-item > span,
+app-album-details-page .contributors-section h3 {
+  color: var(--secondary-text);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+app-album-details-page .editorial-item strong {
+  display: block;
+  margin-top: 8px;
+  overflow-wrap: anywhere;
+  font-size: 0.86rem;
+}
+
+app-album-details-page .genre-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+}
+
+app-album-details-page .genre-list span {
+  padding: 0;
+  background: none;
+  color: var(--primary-text);
+  font-size: 0.72rem;
+  font-weight: 700;
+}
+
+app-album-details-page .contributors-section {
+  margin-top: 30px;
+}
+
+app-album-details-page .contributors-section h3 {
+  margin: 0 0 12px;
+}
+
+app-album-details-page .contributors-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+  gap: 10px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+app-album-details-page .contributor-link {
+  display: flex;
+  align-items: center;
+  gap: 11px;
+  min-width: 0;
+  padding: 10px;
+  border-radius: 10px;
+  color: var(--primary-text);
+  text-decoration: none;
+  transition: background-color 0.18s ease;
+}
+
+app-album-details-page .contributor-link:hover,
+app-album-details-page .contributor-link:focus-visible {
+  background-color: var(--surface-dark);
+  outline: none;
+}
+
+app-album-details-page .contributor-link-static {
+  cursor: default;
+}
+
+app-album-details-page .contributor-avatar {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  overflow: hidden;
+  border-radius: 50%;
+  background-color: rgba(255, 255, 255, 0.08);
+  color: var(--secondary-text);
+}
+
+app-album-details-page .contributor-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+app-album-details-page .contributor-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+}
+
+app-album-details-page .contributor-copy strong,
+app-album-details-page .contributor-copy small {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+app-album-details-page .contributor-copy strong {
+  font-size: 0.82rem;
+}
+
+app-album-details-page .contributor-copy small {
+  color: var(--secondary-text);
+  font-size: 0.7rem;
+}
+
+@media (max-width: 760px) {
+  app-album-details-page .album-credits {
+    margin-top: 32px;
+    padding-inline: 8px;
+  }
+
+  app-album-details-page .album-editorial-details {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

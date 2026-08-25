@@ -49,6 +49,11 @@ class ProtectedEndpointsIntegrationTest extends AbstractIntegrationTest {
 		mockMvc.perform(delete("/api/v1/users/author/follow").header("Authorization", bearerToken(currentUser)))
 				.andExpect(status().isNoContent());
 
+		mockMvc.perform(post("/api/v1/artists/27/follow").header("Authorization", bearerToken(currentUser)))
+				.andExpect(status().isOk());
+		mockMvc.perform(delete("/api/v1/artists/27/follow").header("Authorization", bearerToken(currentUser)))
+				.andExpect(status().isNoContent());
+
 		mockMvc.perform(post("/api/v1/listen-later/1001").header("Authorization", bearerToken(currentUser)))
 				.andExpect(status().isOk());
 		mockMvc.perform(get("/api/v1/listen-later").header("Authorization", bearerToken(currentUser)))
@@ -115,6 +120,8 @@ class ProtectedEndpointsIntegrationTest extends AbstractIntegrationTest {
 				delete("/api/v1/albums/1001/like"),
 				post("/api/v1/users/author/follow"),
 				delete("/api/v1/users/author/follow"),
+				post("/api/v1/artists/27/follow"),
+				delete("/api/v1/artists/27/follow"),
 				get("/api/v1/listen-later"),
 				post("/api/v1/listen-later/1001"),
 				delete("/api/v1/listen-later/1001"),

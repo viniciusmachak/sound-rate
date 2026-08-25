@@ -1,24 +1,144 @@
 @if (currentTrack$ | async; as track) {
-  <div class="audio-player-container">
-    <img [src]="track.album.cover" alt="Album cover" class="track-cover">
-    <div class="track-details">
-      <span class="track-title">{{ track.title }}</span>
-      <div class="artist-and-timer"> <span class="track-artist">{{ track.artist.name }}</span>
-      <span class="track-timer">{{ (currentTime$ | async) | number:'1.0-0' }}s / 30s</span>
+  @let currentTime = (currentTime$ | async) || 0;
+  @let duration = (duration$ | async) || 0;
+  @let queue = (queue$ | async) || [];
+  @let queueIndex = (currentQueueIndex$ | async) ?? -1;
+  @let volume = (volume$ | async) ?? 0.8;
+  @let muted = (muted$ | async) || false;
+  @let isLoading = (isLoading$ | async) || false;
+  @let playbackError = error$ | async;
+
+  @if (queueExpanded) {
+    <aside id="current-preview-queue" class="queue-panel" aria-labelledby="queue-title">
+      <header class="queue-header">
+        <div>
+          <span class="queue-eyebrow">Playing from</span>
+          <h2 id="queue-title">Current queue</h2>
+        </div>
+        <button mat-icon-button type="button" class="secondary-player-control"
+          (click)="toggleQueue()" aria-label="Close queue">
+          <mat-icon>close</mat-icon>
+        </button>
+      </header>
+
+      <ol class="queue-list">
+        @for (queueTrack of queue; track queueTrack.id; let index = $index) {
+          <li>
+            <button type="button" class="queue-track"
+              [class.active]="index === queueIndex"
+              (click)="playQueueTrack(index)"
+              [attr.aria-label]="'Play ' + queueTrack.title">
+              <span class="queue-track-index">
+                @if (index === queueIndex && isLoading) {
+                  <mat-spinner diameter="16" />
+                } @else if (index === queueIndex && (isPlaying$ | async)) {
+                  <mat-icon>graphic_eq</mat-icon>
+                } @else {
+                  {{ index + 1 }}
+                }
+              </span>
+              <img [src]="queueTrack.album.cover" alt="" />
+              <span class="queue-track-copy">
+                <strong>{{ queueTrack.title }}</strong>
+                <small>{{ queueTrack.artist.name }}</small>
+              </span>
+              <span class="queue-track-duration">
+                {{ queueTrack.duration * 1000 | formatDuration }}
+              </span>
+            </button>
+          </li>
+        }
+      </ol>
+    </aside>
+  }
+
+  <div class="audio-player-container" role="region" aria-label="Preview player">
+    <div class="track-summary">
+      <img [src]="track.album.cover" [alt]="'Cover of ' + track.album.title" class="track-cover">
+      <div class="track-details">
+        <span class="preview-label">
+          @if (isLoading) {
+            Loading preview…
+          } @else if (playbackError) {
+            Playback unavailable
+          } @else {
+            Deezer preview
+          }
+        </span>
+        <span class="track-title">{{ track.title }}</span>
+        <div class="track-secondary-info">
+          <span class="track-artist">{{ track.artist.name }}</span>
+          <span aria-hidden="true">·</span>
+          <a class="album-link" [routerLink]="['/album', track.album.id]">
+            {{ track.album.title }}
+          </a>
+          <span aria-hidden="true">·</span>
+          <span class="track-timer">
+            {{ currentTime * 1000 | formatDuration }} /
+            {{ duration > 0 ? (duration * 1000 | formatDuration) : '--:--' }}
+          </span>
+        </div>
+        @if (playbackError) {
+          <div class="playback-error" role="alert">
+            <span>{{ playbackError }}</span>
+            <button type="button" (click)="retry()">Retry</button>
+          </div>
+        }
+      </div>
     </div>
+
+    <div class="player-controls">
+      <button mat-icon-button type="button" class="secondary-player-control"
+        (click)="playPrevious()" aria-label="Previous preview">
+        <mat-icon>skip_previous</mat-icon>
+      </button>
+      <button mat-icon-button type="button" class="main-play-control" (click)="togglePlay(track)"
+        [attr.aria-busy]="isLoading"
+        [attr.aria-label]="isLoading ? 'Loading preview' : ((isPlaying$ | async) ? 'Pause preview' : 'Play preview')">
+        @if (isLoading) {
+          <mat-spinner diameter="24" />
+        } @else {
+          <mat-icon>{{ (isPlaying$ | async) ? 'pause' : 'play_arrow' }}</mat-icon>
+        }
+      </button>
+      <button mat-icon-button type="button" class="secondary-player-control" (click)="playNext()"
+        [disabled]="queueIndex >= queue.length - 1" aria-label="Next preview">
+        <mat-icon>skip_next</mat-icon>
+      </button>
+    </div>
+
+    <div class="player-actions">
+      <div class="volume-control">
+        <button mat-icon-button type="button" class="secondary-player-control"
+          (click)="toggleMute()" [attr.aria-label]="muted ? 'Unmute' : 'Mute'">
+          <mat-icon>{{ getVolumeIcon(volume, muted) }}</mat-icon>
+        </button>
+        <input type="range" class="volume-slider" min="0" max="1" step="0.05"
+          [value]="muted ? 0 : volume" (input)="changeVolume($event)"
+          aria-label="Preview volume" />
+      </div>
+
+      <button mat-icon-button type="button" class="secondary-player-control queue-control"
+        (click)="toggleQueue()"
+        [attr.aria-expanded]="queueExpanded"
+        aria-controls="current-preview-queue"
+        aria-label="Show current queue">
+        <mat-icon>queue_music</mat-icon>
+      </button>
+      @if (queue.length > 1) {
+        <span class="queue-position">{{ queueIndex + 1 }} of {{ queue.length }}</span>
+      }
+      <button mat-icon-button type="button" class="close-control"
+        (click)="closePlayer()" aria-label="Close player">
+        <mat-icon>close</mat-icon>
+      </button>
+    </div>
+
+    <input type="range" class="track-progress-slider"
+      min="0" [max]="duration" step="0.1" [value]="currentTime"
+      [disabled]="duration <= 0" (input)="seek($event)"
+      [style.--seek-progress]="(duration > 0 ? currentTime / duration * 100 : 0) + '%'"
+      [attr.aria-valuetext]="(currentTime * 1000 | formatDuration) + ' of ' + (duration * 1000 | formatDuration)"
+      aria-label="Preview position" />
   </div>
-  <div class="player-controls">
-    <button mat-icon-button (click)="togglePlay(track)" title="{{ (isPlaying$ | async) ? 'Pause' : 'Play' }}">
-      <mat-icon>{{ (isPlaying$ | async) ? 'pause_circle' : 'play_circle' }}</mat-icon>
-    </button>
-    <button mat-icon-button (click)="closePlayer()" title="Close player">
-      <mat-icon>close</mat-icon>
-    </button>
-  </div>
-  <mat-progress-bar
-    class="track-progress-bar"
-    mode="determinate"
-    [value]="((currentTime$ | async) || 0) / 30 * 100">
-  </mat-progress-bar>
-</div>
 }

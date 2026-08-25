@@ -24,6 +24,7 @@ import com.viniciusmcabral.sound_rate.models.UserModel;
 import com.viniciusmcabral.sound_rate.repositories.AlbumLikeRepository;
 import com.viniciusmcabral.sound_rate.repositories.AlbumRatingRepository;
 import com.viniciusmcabral.sound_rate.repositories.AlbumReviewRepository;
+import com.viniciusmcabral.sound_rate.repositories.ArtistFollowRepository;
 import com.viniciusmcabral.sound_rate.repositories.FollowRepository;
 import com.viniciusmcabral.sound_rate.repositories.ListenLaterRepository;
 import com.viniciusmcabral.sound_rate.repositories.PasswordResetTokenRepository;
@@ -59,6 +60,9 @@ public abstract class AbstractIntegrationTest {
 	protected AlbumReviewRepository albumReviewRepository;
 
 	@Autowired
+	protected ArtistFollowRepository artistFollowRepository;
+
+	@Autowired
 	protected FollowRepository followRepository;
 
 	@Autowired
@@ -91,6 +95,7 @@ public abstract class AbstractIntegrationTest {
 	@BeforeEach
 	void resetDatabaseAndMocks() {
 		reviewLikeRepository.deleteAll();
+		artistFollowRepository.deleteAll();
 		albumLikeRepository.deleteAll();
 		followRepository.deleteAll();
 		passwordResetTokenRepository.deleteAll();
@@ -138,7 +143,8 @@ public abstract class AbstractIntegrationTest {
 		return new DeezerAlbumDTO(id, "Album " + albumId, "https://deezer.example/albums/" + albumId,
 				"https://img.example/" + albumId + ".jpg", "https://img.example/" + albumId + "@2x.jpg",
 				new DeezerArtistDTO(1L, "Artist", "https://deezer.example/artists/1", null, null, null), "2024-01-01", 3600,
-				500, 4.5, false, new DeezerTracklistDTO(java.util.List.of()));
+				500, 4.5, false, "Test Label", "2024 Test Label", null, java.util.List.of(),
+				new DeezerTracklistDTO(java.util.List.of()));
 	}
 
 	protected Map<String, Object> mapOf(Object... values) {

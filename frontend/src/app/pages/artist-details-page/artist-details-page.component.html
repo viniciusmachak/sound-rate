@@ -1,19 +1,70 @@
 @if (artistPage$ | async; as page) {
+  @let currentTrack = audioService.currentTrack$ | async;
+  @let isPlaying = audioService.isPlaying$ | async;
   <div class="artist-page-container">
-    <header class="artist-header">
-      <img [src]="page.artistDetails.picture_xl" [alt]="page.artistDetails.name" class="artist-photo">
-      <div class="artist-info">
-        <h1>{{ page.artistDetails.name }}</h1>
-        <div class="artist-stats">
-          <span>{{ page.artistDetails.nb_fan | number }} fans</span>
-          <span>•</span>
-          <span>{{ page.artistDetails.nb_album }} albums</span>
+    <header class="artist-header" [style.--artist-accent]="artistAccentColor">
+      <div class="artist-backdrop" aria-hidden="true"
+        [style.background-image]="'url(' + page.artistDetails.picture_xl + ')'">
+      </div>
+
+      <div class="artist-hero-content">
+        <img [src]="page.artistDetails.picture_xl" [alt]="page.artistDetails.name" class="artist-photo">
+
+        <div class="artist-info">
+          <span class="artist-eyebrow">Artist</span>
+          <h1>{{ page.artistDetails.name }}</h1>
+
+          <div class="artist-metadata" aria-label="Artist information">
+            <span>Artist</span>
+            <span aria-hidden="true">•</span>
+            <span>{{ formatCompact(page.artistDetails.nb_fan) }} fans</span>
+            <span aria-hidden="true">•</span>
+            <span>
+              {{ page.artistDetails.nb_album }}
+              {{ page.artistDetails.nb_album === 1 ? 'album' : 'albums' }}
+            </span>
+          </div>
+
+          <div class="artist-actions">
+            <button mat-raised-button type="button" class="popular-play-button"
+              [disabled]="!hasPlayableTracks(page.popularTracks)"
+              (click)="togglePopularPlayback(page.popularTracks)">
+              <mat-icon>
+                {{ currentTrack?.artist?.id === page.artistDetails.id && isPlaying ? 'pause' : 'play_arrow' }}
+              </mat-icon>
+              {{ currentTrack?.artist?.id === page.artistDetails.id && isPlaying
+                ? 'Pause popular'
+                : 'Play popular' }}
+            </button>
+
+            <app-deezer-button
+              class="artist-deezer-link"
+              [href]="page.artistDetails.link"
+              label="Artist on Deezer"
+            />
+
+            <button mat-stroked-button type="button" class="artist-secondary-button"
+              [class.following]="isFollowed"
+              [disabled]="followRequestPending"
+              (click)="toggleFollow(page.artistDetails.id)">
+              <mat-icon>{{ isFollowed ? 'check' : 'person_add' }}</mat-icon>
+              {{ isFollowed ? 'Following' : 'Follow' }}
+            </button>
+
+            <button mat-stroked-button type="button" class="artist-secondary-button"
+              (click)="shareArtist(page.artistDetails.name)">
+              <mat-icon>share</mat-icon>
+              Share
+            </button>
+          </div>
+
+          @if (followersCount > 0) {
+            <span class="soundrate-followers">
+              {{ followersCount | number }}
+              {{ followersCount === 1 ? 'follower' : 'followers' }} on Sound Rate
+            </span>
+          }
         </div>
-        <app-deezer-button
-          class="artist-deezer-link"
-          [href]="page.artistDetails.link"
-          label="Artist on Deezer"
-        />
       </div>
     </header>
     @if (page.albums && page.albums.content.length > 0) {

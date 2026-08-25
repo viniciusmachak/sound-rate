@@ -27,11 +27,33 @@ export interface DeezerSimpleAlbum {
 
 export interface DeezerTrack {
   id: number;
+  readable: boolean;
   title: string;
+  title_short: string;
+  title_version?: string;
+  link: string;
   duration: number;
+  rank: number;
+  explicit_lyrics: boolean;
   preview: string | null;
+  bpm: number;
+  contributors?: DeezerContributor[];
   artist: DeezerArtist;
   album: DeezerSimpleAlbum;
+}
+
+export interface DeezerGenre {
+  id: number;
+  name: string;
+  picture: string;
+}
+
+export interface DeezerContributor {
+  id: number;
+  name: string;
+  link: string;
+  picture_medium: string;
+  role: string;
 }
 
 export interface DeezerAlbum {
@@ -45,8 +67,13 @@ export interface DeezerAlbum {
   duration: number;
   fans: number;
   explicit_lyrics: boolean;
+  label?: string;
+  copyright?: string;
+  genres?: {
+    data: DeezerGenre[];
+  };
+  contributors?: DeezerContributor[];
   tracks: {
     data: DeezerTrack[];
   };
 }
-

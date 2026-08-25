@@ -1,9 +1,11 @@
 package com.viniciusmcabral.sound_rate.services;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,11 +23,15 @@ import com.viniciusmcabral.sound_rate.dtos.deezer.DeezerArtistAlbumsResponseDTO;
 import com.viniciusmcabral.sound_rate.dtos.deezer.DeezerArtistDTO;
 import com.viniciusmcabral.sound_rate.dtos.deezer.DeezerArtistDetailsDTO;
 import com.viniciusmcabral.sound_rate.dtos.deezer.DeezerArtistSearchResponseDTO;
+import com.viniciusmcabral.sound_rate.dtos.deezer.DeezerTrackDTO;
+import com.viniciusmcabral.sound_rate.dtos.deezer.DeezerTracklistDTO;
 
 @Service
 public class DeezerService {
 
 	private static final Logger logger = LoggerFactory.getLogger(DeezerService.class);
+	private static final Pattern FEATURED_ARTIST_PATTERN = Pattern
+			.compile("(?i)(?:\\bfeat(?:uring)?\\.?\\s+|\\bft\\.?\\s+|\\(with\\s+)");
 	private final RestTemplate restTemplate;
 	private final String deezerApiUrl = "https://api.deezer.com";
 
@@ -60,6 +66,16 @@ public class DeezerService {
 				"Failed to fetch Deezer artist details for artist '{}': {}.", artistId);
 	}
 
+	public List<DeezerTrackDTO> getArtistTopTracks(String artistId) {
+		return getOrDefault(
+				() -> restTemplate.getForObject(
+						buildUri("/artist/{artistId}/top").queryParam("limit", 10).build(artistId),
+						DeezerTracklistDTO.class),
+				response -> response != null && response.data() != null ? response.data() : Collections.emptyList(),
+				Collections.emptyList(),
+				"Failed to fetch Deezer top tracks for artist '{}': {}.", artistId);
+	}
+
 	public Page<DeezerAlbumDTO> getArtistAlbums(String artistId, Pageable pageable) {
 		int index = pageable.getPageNumber() * pageable.getPageSize();
 		int limit = pageable.getPageSize();
@@ -79,8 +95,55 @@ public class DeezerService {
 	public DeezerAlbumDTO getAlbumDetails(String albumId) {
 		logger.debug("Fetching Deezer album details for album '{}'.", albumId);
 		return getOrDefault(() -> restTemplate.getForObject(buildUri("/album/{albumId}").build(albumId),
-				DeezerAlbumDTO.class), album -> album, null,
+				DeezerAlbumDTO.class), this::enrichFeaturedTrackContributors, null,
 				"Failed to fetch Deezer album details for album '{}': {}.", albumId);
+	}
+
+	private DeezerAlbumDTO enrichFeaturedTrackContributors(DeezerAlbumDTO album) {
+		if (album == null || album.tracks() == null || album.tracks().data() == null) {
+			return album;
+		}
+
+		List<DeezerTrackDTO> tracks = new ArrayList<>(album.tracks().data());
+		boolean changed = false;
+
+		for (int index = 0; index < tracks.size(); index++) {
+			DeezerTrackDTO track = tracks.get(index);
+			if (track == null) {
+				continue;
+			}
+
+			boolean hasFeaturedContributor = track.contributors() != null && track.contributors().stream()
+					.anyMatch(contributor -> contributor != null
+							&& (album.artist() == null || contributor.id() != album.artist().id()));
+
+			if (hasFeaturedContributor || !FEATURED_ARTIST_PATTERN.matcher(
+							String.join(" ", track.title() == null ? "" : track.title(),
+									track.titleVersion() == null ? "" : track.titleVersion()))
+							.find()) {
+				continue;
+			}
+
+			DeezerTrackDTO detailedTrack = getOrDefault(
+					() -> restTemplate.getForObject(buildUri("/track/{trackId}").build(track.id()), DeezerTrackDTO.class),
+					Function.identity(), track,
+					"Failed to fetch Deezer contributors for track '{}': {}.", track.id());
+
+			if (detailedTrack != null && detailedTrack.contributors() != null
+					&& !detailedTrack.contributors().isEmpty()) {
+				tracks.set(index, detailedTrack);
+				changed = true;
+			}
+		}
+
+		if (!changed) {
+			return album;
+		}
+
+		return new DeezerAlbumDTO(album.id(), album.title(), album.link(), album.coverMedium(), album.coverXl(),
+				album.artist(), album.releaseDate(), album.duration(), album.fans(), album.rating(), album.explicitLyrics(),
+				album.label(), album.copyright(), album.genres(), album.contributors(),
+				new DeezerTracklistDTO(List.copyOf(tracks)));
 	}
 
 	private UriComponentsBuilder buildUri(String path) {
