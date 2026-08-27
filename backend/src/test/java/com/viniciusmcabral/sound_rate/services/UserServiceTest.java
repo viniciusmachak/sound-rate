@@ -21,6 +21,7 @@ import com.viniciusmcabral.sound_rate.dtos.request.UpdateProfileDTO;
 import com.viniciusmcabral.sound_rate.repositories.AlbumLikeRepository;
 import com.viniciusmcabral.sound_rate.repositories.AlbumRatingRepository;
 import com.viniciusmcabral.sound_rate.repositories.AlbumReviewRepository;
+import com.viniciusmcabral.sound_rate.repositories.ArtistFollowRepository;
 import com.viniciusmcabral.sound_rate.repositories.FollowRepository;
 import com.viniciusmcabral.sound_rate.repositories.TrackRatingRepository;
 import com.viniciusmcabral.sound_rate.repositories.UserRepository;
@@ -57,6 +58,9 @@ class UserServiceTest {
 	private FollowRepository followRepository;
 
 	@Mock
+	private ArtistFollowRepository artistFollowRepository;
+
+	@Mock
 	private EmailService emailService;
 
 	@Mock
@@ -64,6 +68,18 @@ class UserServiceTest {
 
 	@InjectMocks
 	private UserService userService;
+
+	@Test
+	void profileFollowingCountIncludesUsersAndArtists() {
+		var user = TestDataFactory.user(1L, "listener");
+		when(userRepository.findByUsernameAndActiveTrue("listener")).thenReturn(Optional.of(user));
+		when(followRepository.countActiveFollowingByUser(user)).thenReturn(2L);
+		when(artistFollowRepository.countByUser(user)).thenReturn(3L);
+
+		var profile = userService.getUserProfile("listener");
+
+		assertThat(profile.followingCount()).isEqualTo(5L);
+	}
 
 	@Test
 	void deleteCurrentUserSoftDeletesAccountAndSendsEmail() {

@@ -63,10 +63,13 @@ export interface DeezerAlbum {
   cover_medium: string;
   cover_xl: string;
   artist: DeezerArtist;
+  record_type?: string;
   release_date?: string;
   duration: number;
   fans: number;
+  rating?: number;
   explicit_lyrics: boolean;
+  community_score?: number | null;
   label?: string;
   copyright?: string;
   genres?: {

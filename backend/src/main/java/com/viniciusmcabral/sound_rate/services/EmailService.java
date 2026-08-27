@@ -45,14 +45,14 @@ public class EmailService {
 	public void sendWelcomeEmail(String to, String username) {
 		Context context = new Context();
 		context.setVariable("username", username);
-		sendEmail("Welcome", to, "Welcome to SoundRate!", "welcome-email", context);
+		sendEmail("Welcome", to, "Welcome to Soundrate!", "welcome-email", context);
 	}
 
 	@Async
 	public void sendAccountDeletionEmail(String to, String username) {
 		Context context = new Context();
 		context.setVariable("username", username);
-		sendEmail("Account deletion", to, "Your SoundRate Account Has Been Deleted", "deletion-email", context);
+		sendEmail("Account deletion", to, "Your Soundrate Account Has Been Deleted", "deletion-email", context);
 	}
 
 	@Async
@@ -60,12 +60,12 @@ public class EmailService {
 		Context context = new Context();
 		context.setVariable("username", username);
 		context.setVariable("resetLink", resetLink);
-		sendEmail("Password reset", to, "SoundRate - Password Reset Request", "password-reset-email", context);
+		sendEmail("Password reset", to, "Soundrate - Password Reset Request", "password-reset-email", context);
 	}
 
 	private void sendEmail(String emailType, String to, String subject, String templateName, Context context) {
 		String htmlContent = templateEngine.process(templateName, context);
-		Mail mail = new Mail(new Email(fromEmail, "SoundRate"), subject, new Email(to),
+		Mail mail = new Mail(new Email(fromEmail, "Soundrate"), subject, new Email(to),
 				new Content("text/html", htmlContent));
 		Request request = new Request();
 

@@ -222,7 +222,7 @@
 }
 
 .technologies-heading .eyebrow {
-  color: #c48bdb;
+  color: var(--accent-color);
 }
 
 .technologies-heading p {

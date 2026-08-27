@@ -61,34 +61,228 @@
           @if (followersCount > 0) {
             <span class="soundrate-followers">
               {{ followersCount | number }}
-              {{ followersCount === 1 ? 'follower' : 'followers' }} on Sound Rate
+              {{ followersCount === 1 ? 'follower' : 'followers' }} on Soundrate
             </span>
           }
         </div>
       </div>
     </header>
-    @if (page.albums && page.albums.content.length > 0) {
-      <section class="albums-section">
-        <h2 class="section-title">Albums</h2>
+
+    <section class="community-section" aria-labelledby="community-title">
+      <header class="community-heading">
+        <span class="section-eyebrow">Community</span>
+        <h2 id="community-title">Listener pulse</h2>
+        <p>Ratings and reviews across {{ page.artistDetails.name }}'s discography on Soundrate.</p>
+      </header>
+
+      <div class="community-overview">
+        @if (page.community.highestRatedAlbum; as highestRatedAlbum) {
+          <a class="highest-rated-album" [routerLink]="['/album', highestRatedAlbum.id]">
+            <img [src]="highestRatedAlbum.cover_medium" [alt]="highestRatedAlbum.title">
+            <div>
+              <span>Highest-rated album</span>
+              <h3>{{ highestRatedAlbum.title }}</h3>
+              <strong>
+                <mat-icon>star</mat-icon>
+                {{ highestRatedAlbum.community_score | number:'1.1-1' }}
+              </strong>
+            </div>
+            <mat-icon class="feature-arrow">arrow_forward</mat-icon>
+          </a>
+        } @else {
+          <div class="highest-rated-album community-empty-highlight">
+            <mat-icon>hotel_class</mat-icon>
+            <div>
+              <span>Highest-rated album</span>
+              <h3>Waiting for ratings</h3>
+            </div>
+          </div>
+        }
+
+        <article class="community-metric">
+          <mat-icon>equalizer</mat-icon>
+          <div>
+            <span>Discography average</span>
+            <strong>
+              {{ page.community.discographyAverage !== null
+                ? (page.community.discographyAverage | number:'1.1-1')
+                : '—' }}
+            </strong>
+          </div>
+        </article>
+
+        <article class="community-metric">
+          <mat-icon>star_rate</mat-icon>
+          <div>
+            <span>Total ratings</span>
+            <strong>{{ page.community.ratingsCount | number }}</strong>
+          </div>
+        </article>
+
+        <article class="community-metric">
+          <mat-icon>rate_review</mat-icon>
+          <div>
+            <span>Total reviews</span>
+            <strong>{{ page.community.reviewsCount | number }}</strong>
+          </div>
+        </article>
+      </div>
+
+      @if (page.community.communityFavorites.length > 0) {
+        <div class="community-content-block">
+          <div class="community-block-heading">
+            <div>
+              <span>Top rated</span>
+              <h3>Community favorites</h3>
+            </div>
+            <small>Up to five albums</small>
+          </div>
+
+          <div class="community-favorites-grid">
+            @for (album of page.community.communityFavorites; track album.id) {
+              <article class="community-favorite">
+                <app-album-card [album]="album" [artistNameOverride]="page.artistDetails.name" />
+                <span class="favorite-score">
+                  <mat-icon>star</mat-icon>
+                  {{ album.community_score | number:'1.1-1' }}
+                </span>
+              </article>
+            }
+          </div>
+        </div>
+      }
+
+      @if (page.community.recentReviews.length > 0) {
+        <div class="community-content-block recent-reviews-block">
+          <div class="community-block-heading">
+            <div>
+              <span>Latest activity</span>
+              <h3>Recent reviews</h3>
+            </div>
+            <small>Across this artist's albums</small>
+          </div>
+
+          <div class="recent-reviews-list">
+            @for (item of page.community.recentReviews; track item.review.id) {
+              <article class="artist-review-card">
+                <a class="reviewed-album" [routerLink]="['/album', item.album.id]">
+                  <img [src]="item.album.cover_medium" [alt]="item.album.title">
+                  <span>
+                    <small>Review of</small>
+                    <strong>{{ item.album.title }}</strong>
+                  </span>
+                </a>
+
+                <div class="artist-review-author">
+                  <a [routerLink]="['/user', item.review.author.username]">
+                    <img [src]="item.review.author.avatarUrl" alt="">
+                    <strong>{{ item.review.author.username }}</strong>
+                  </a>
+                  <app-star-rating [rating]="item.review.rating" [readonly]="true" />
+                </div>
+
+                <p>{{ item.review.text }}</p>
+
+                <footer>
+                  <time [attr.datetime]="item.review.createdAt">
+                    {{ item.review.createdAt | date:'mediumDate' }}
+                  </time>
+                  @if (item.review.likesCount > 0) {
+                    <span><mat-icon>favorite</mat-icon>{{ item.review.likesCount }}</span>
+                  }
+                </footer>
+              </article>
+            }
+          </div>
+        </div>
+      }
+    </section>
+
+    <section class="discography-section" aria-labelledby="discography-title">
+      <div class="discography-header">
+        <div>
+          <span class="section-eyebrow">Discography</span>
+          <h2 id="discography-title" class="section-title">{{ categoryTitle }}</h2>
+        </div>
+
+        <div class="discography-sort-controls">
+          <label class="discography-sort">
+            <span>Sort by</span>
+            <select [value]="selectedSort" (change)="onSortChange($any($event.target).value)">
+              <option value="release">Release date</option>
+              <option value="popularity">Popularity</option>
+              <option value="community">Community rating</option>
+            </select>
+          </label>
+
+          <button type="button" class="direction-toggle"
+            [attr.aria-label]="selectedDirection === 'desc' ? 'Sort ascending' : 'Sort descending'"
+            [title]="selectedDirection === 'desc' ? 'Descending — switch to ascending' : 'Ascending — switch to descending'"
+            (click)="toggleSortDirection()">
+            <mat-icon>{{ selectedDirection === 'desc' ? 'arrow_upward' : 'arrow_downward' }}</mat-icon>
+          </button>
+        </div>
+      </div>
+
+      <nav class="discography-tabs" aria-label="Discography categories">
+        <button type="button" [class.active]="selectedCategory === 'popular'"
+          [attr.aria-pressed]="selectedCategory === 'popular'" (click)="selectCategory('popular')">
+          Popular
+        </button>
+        <button type="button" [class.active]="selectedCategory === 'albums'"
+          [attr.aria-pressed]="selectedCategory === 'albums'" (click)="selectCategory('albums')">
+          Albums
+        </button>
+        <button type="button" [class.active]="selectedCategory === 'singles'"
+          [attr.aria-pressed]="selectedCategory === 'singles'" (click)="selectCategory('singles')">
+          Singles &amp; EPs
+        </button>
+        <button type="button" [class.active]="selectedCategory === 'compilations'"
+          [attr.aria-pressed]="selectedCategory === 'compilations'" (click)="selectCategory('compilations')">
+          Compilations
+        </button>
+      </nav>
+
+      @if (page.albums && page.albums.content.length > 0) {
         <div class="albums-grid">
           @for (album of page.albums.content; track album) {
-            <app-album-card [album]="album">
-            </app-album-card>
+            <article class="discography-release">
+              <app-album-card [album]="album" [artistNameOverride]="page.artistDetails.name" />
+              <div class="release-metadata">
+                <span>{{ formatRecordType(album.record_type) }}</span>
+                @if (releaseYear(album.release_date); as year) {
+                  <span aria-hidden="true">•</span>
+                  <time [attr.datetime]="album.release_date">{{ year }}</time>
+                }
+                @if (album.explicit_lyrics) {
+                  <span class="explicit-badge" title="Explicit lyrics">E</span>
+                }
+              </div>
+              <div class="release-stats">
+                <span>{{ formatCompact(album.fans) }} fans</span>
+                @if (album.community_score !== null && album.community_score !== undefined) {
+                  <span class="community-score" title="Soundrate community rating">
+                    <mat-icon>star</mat-icon>
+                    {{ album.community_score | number:'1.1-1' }}
+                  </span>
+                }
+              </div>
+            </article>
           }
         </div>
-      </section>
-    }
-    @if (!page.albums || page.albums.content.length === 0) {
-      <p class="no-content-message">
-        This artist has no albums to display
-      </p>
-    }
-    @if (page.albums && page.albums.totalElements > page.albums.size) {
-      <mat-paginator class="custom-paginator"
-        [length]="page.albums.totalElements" [pageSize]="page.albums.size" [pageIndex]="page.albums.number"
-        [pageSizeOptions]="[12, 24, 48]" (page)="onPageChange($event)">
-      </mat-paginator>
-    }
+      } @else {
+        <p class="no-content-message">
+          No {{ categoryTitle.toLowerCase() }} to display
+        </p>
+      }
+
+      @if (page.albums && page.albums.totalElements > page.albums.size) {
+        <mat-paginator class="custom-paginator"
+          [length]="page.albums.totalElements" [pageSize]="page.albums.size" [pageIndex]="page.albums.number"
+          [pageSizeOptions]="[12, 24, 48]" (page)="onPageChange($event)">
+        </mat-paginator>
+      }
+    </section>
   </div>
 } @else {
   <app-skeleton-loader variant="profile" [count]="6" />

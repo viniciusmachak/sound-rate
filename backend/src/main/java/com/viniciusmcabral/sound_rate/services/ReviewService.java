@@ -9,6 +9,7 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
@@ -16,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.viniciusmcabral.sound_rate.dtos.request.ReviewRequestDTO;
 import com.viniciusmcabral.sound_rate.dtos.response.AlbumReviewDTO;
+import com.viniciusmcabral.sound_rate.dtos.response.AlbumReviewReferenceDTO;
 import com.viniciusmcabral.sound_rate.dtos.response.UserDTO;
 import com.viniciusmcabral.sound_rate.models.AlbumReviewModel;
 import com.viniciusmcabral.sound_rate.models.UserModel;
@@ -81,6 +83,16 @@ public class ReviewService {
 	public Page<AlbumReviewDTO> getReviewsForAlbum(String albumId, Pageable pageable) {
 		Page<AlbumReviewModel> reviewPage = albumReviewRepository.findActiveReviewsByAlbumId(albumId, pageable);
 		return reviewPage.map(buildReviewMapper(reviewPage.getContent()));
+	}
+
+	public List<AlbumReviewReferenceDTO> getRecentReviewsForAlbums(List<String> albumIds, int limit) {
+		if (albumIds.isEmpty() || limit <= 0) return Collections.emptyList();
+
+		List<AlbumReviewModel> reviews = albumReviewRepository.findRecentActiveReviewsByAlbumIds(albumIds,
+				PageRequest.of(0, limit));
+		Function<AlbumReviewModel, AlbumReviewDTO> mapper = buildReviewMapper(reviews);
+		return reviews.stream().map(review -> new AlbumReviewReferenceDTO(review.getAlbumId(), mapper.apply(review)))
+				.toList();
 	}
 
 	private Function<AlbumReviewModel, AlbumReviewDTO> buildReviewMapper(List<AlbumReviewModel> reviews) {

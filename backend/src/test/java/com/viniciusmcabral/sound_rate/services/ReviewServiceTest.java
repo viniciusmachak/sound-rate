@@ -105,4 +105,19 @@ class ReviewServiceTest {
 			assertThat(dto.isLikedByCurrentUser()).isTrue();
 		});
 	}
+
+	@Test
+	void getRecentReviewsForAlbumsPreservesTheAlbumReference() {
+		var author = TestDataFactory.user(2L, "author");
+		var review = TestDataFactory.review(5L, "album-42", author, 4.5);
+		when(albumReviewRepository.findRecentActiveReviewsByAlbumIds(any(), any())).thenReturn(List.of(review));
+
+		var recentReviews = reviewService.getRecentReviewsForAlbums(List.of("album-42"), 5);
+
+		assertThat(recentReviews).singleElement().satisfies(dto -> {
+			assertThat(dto.albumId()).isEqualTo("album-42");
+			assertThat(dto.review().author().username()).isEqualTo("author");
+			assertThat(dto.review().rating()).isEqualTo(4.5);
+		});
+	}
 }

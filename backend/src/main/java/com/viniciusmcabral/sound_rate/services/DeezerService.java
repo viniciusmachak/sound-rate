@@ -9,9 +9,6 @@ import java.util.regex.Pattern;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestClientException;
 import org.springframework.web.client.RestTemplate;
@@ -76,20 +73,32 @@ public class DeezerService {
 				"Failed to fetch Deezer top tracks for artist '{}': {}.", artistId);
 	}
 
-	public Page<DeezerAlbumDTO> getArtistAlbums(String artistId, Pageable pageable) {
-		int index = pageable.getPageNumber() * pageable.getPageSize();
-		int limit = pageable.getPageSize();
+	public List<DeezerAlbumDTO> getArtistAlbums(String artistId) {
+		final int pageSize = 100;
+		List<DeezerAlbumDTO> albums = new ArrayList<>();
+		int index = 0;
+		int total = Integer.MAX_VALUE;
 
-		return getOrDefault(
-				() -> restTemplate.getForObject(
-						buildUri("/artist/{artistId}/albums").queryParam("index", index).queryParam("limit", limit)
-								.build(artistId),
-						DeezerArtistAlbumsResponseDTO.class),
-				response -> response != null ? new PageImpl<>(response.data(), pageable, response.total())
-						: Page.empty(pageable),
-				Page.empty(pageable),
-				"Failed to fetch Deezer albums for artist '{}' at page {}: {}.",
-				artistId, pageable.getPageNumber());
+		while (index < total) {
+			int currentIndex = index;
+			DeezerArtistAlbumsResponseDTO response = getOrDefault(
+					() -> restTemplate.getForObject(
+							buildUri("/artist/{artistId}/albums").queryParam("index", currentIndex)
+									.queryParam("limit", pageSize).build(artistId),
+							DeezerArtistAlbumsResponseDTO.class),
+					Function.identity(), null,
+					"Failed to fetch Deezer albums for artist '{}' at index {}: {}.", artistId, currentIndex);
+
+			if (response == null || response.data() == null || response.data().isEmpty()) {
+				break;
+			}
+
+			albums.addAll(response.data());
+			total = response.total();
+			index += response.data().size();
+		}
+
+		return List.copyOf(albums);
 	}
 
 	public DeezerAlbumDTO getAlbumDetails(String albumId) {
@@ -141,9 +150,9 @@ public class DeezerService {
 		}
 
 		return new DeezerAlbumDTO(album.id(), album.title(), album.link(), album.coverMedium(), album.coverXl(),
-				album.artist(), album.releaseDate(), album.duration(), album.fans(), album.rating(), album.explicitLyrics(),
+				album.artist(), album.recordType(), album.releaseDate(), album.duration(), album.fans(), album.rating(), album.explicitLyrics(),
 				album.label(), album.copyright(), album.genres(), album.contributors(),
-				new DeezerTracklistDTO(List.copyOf(tracks)));
+				new DeezerTracklistDTO(List.copyOf(tracks)), album.communityScore());
 	}
 
 	private UriComponentsBuilder buildUri(String path) {

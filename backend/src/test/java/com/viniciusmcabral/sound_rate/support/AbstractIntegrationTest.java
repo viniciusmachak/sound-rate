@@ -142,9 +142,9 @@ public abstract class AbstractIntegrationTest {
 		long id = Long.parseLong(albumId.replaceAll("\\D", ""));
 		return new DeezerAlbumDTO(id, "Album " + albumId, "https://deezer.example/albums/" + albumId,
 				"https://img.example/" + albumId + ".jpg", "https://img.example/" + albumId + "@2x.jpg",
-				new DeezerArtistDTO(1L, "Artist", "https://deezer.example/artists/1", null, null, null), "2024-01-01", 3600,
+				new DeezerArtistDTO(1L, "Artist", "https://deezer.example/artists/1", null, null, null), "album", "2024-01-01", 3600,
 				500, 4.5, false, "Test Label", "2024 Test Label", null, java.util.List.of(),
-				new DeezerTracklistDTO(java.util.List.of()));
+				new DeezerTracklistDTO(java.util.List.of()), null);
 	}
 
 	protected Map<String, Object> mapOf(Object... values) {

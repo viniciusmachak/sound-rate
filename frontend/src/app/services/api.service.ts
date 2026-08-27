@@ -40,8 +40,20 @@ export class ApiService {
     return this.http.get<AlbumDashboard[]>(`${this.apiUrl}/albums/highest-rated`);
   }
 
-  getArtistPage(artistId: number, page: number, size: number): Observable<ArtistPage> {
-    const params = new HttpParams().set('page', page.toString()).set('size', size.toString());
+  getArtistPage(
+    artistId: number,
+    page: number,
+    size: number,
+    category: string,
+    sort: string,
+    direction: string
+  ): Observable<ArtistPage> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('category', category)
+      .set('order', sort)
+      .set('direction', direction);
     return this.http.get<ArtistPage>(`${this.apiUrl}/artists/${artistId}`, { params });
   }
 

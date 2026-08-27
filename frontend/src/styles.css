@@ -155,13 +155,13 @@ app-album-details-page .track-deezer-button {
 
 app-album-details-page .track-deezer-button:hover,
 app-album-details-page .track-deezer-button:focus-visible {
-  border-color: #a75bd0;
+  border-color: var(--accent-color);
   background-color: #19121d;
   outline: none;
 }
 
 app-album-details-page .track-deezer-button:focus-visible {
-  outline: 2px solid #d09ae5;
+  outline: 2px solid var(--accent-color);
   outline-offset: 2px;
 }
 
@@ -342,5 +342,126 @@ app-album-details-page .contributor-copy small {
 
   app-album-details-page .album-editorial-details {
     grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+app-artist-details-page .recent-reviews-list {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+app-artist-details-page .artist-review-card {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 14px;
+  background: #17191d;
+}
+
+app-artist-details-page .reviewed-album {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: var(--primary-text);
+  text-decoration: none;
+}
+
+app-artist-details-page .reviewed-album img {
+  width: 48px;
+  height: 48px;
+  border-radius: 7px;
+  object-fit: cover;
+}
+
+app-artist-details-page .reviewed-album span {
+  min-width: 0;
+}
+
+app-artist-details-page .reviewed-album strong,
+app-artist-details-page .reviewed-album small {
+  display: block;
+}
+
+app-artist-details-page .reviewed-album strong {
+  margin-top: 4px;
+  overflow: hidden;
+  font-size: 0.84rem;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+app-artist-details-page .artist-review-author {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+app-artist-details-page .artist-review-author > a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 0;
+  color: var(--secondary-text);
+  font-size: 0.78rem;
+  text-decoration: none;
+}
+
+app-artist-details-page .artist-review-author > a:hover {
+  color: var(--accent-color);
+}
+
+app-artist-details-page .artist-review-author img {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+app-artist-details-page .artist-review-author strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+app-artist-details-page .artist-review-card > p {
+  display: -webkit-box;
+  min-height: 3.9em;
+  margin: 16px 0;
+  overflow: hidden;
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.84rem;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 3;
+}
+
+app-artist-details-page .artist-review-card footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--secondary-text);
+  font-size: 0.7rem;
+}
+
+app-artist-details-page .artist-review-card footer span {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+}
+
+app-artist-details-page .artist-review-card footer mat-icon {
+  width: 14px;
+  height: 14px;
+  color: var(--accent-color);
+  font-size: 14px;
+}
+
+@media (max-width: 720px) {
+  app-artist-details-page .recent-reviews-list {
+    grid-template-columns: 1fr;
   }
 }

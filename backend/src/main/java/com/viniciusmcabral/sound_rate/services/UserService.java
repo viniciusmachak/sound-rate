@@ -28,6 +28,7 @@ import com.viniciusmcabral.sound_rate.models.UserModel;
 import com.viniciusmcabral.sound_rate.repositories.AlbumLikeRepository;
 import com.viniciusmcabral.sound_rate.repositories.AlbumRatingRepository;
 import com.viniciusmcabral.sound_rate.repositories.AlbumReviewRepository;
+import com.viniciusmcabral.sound_rate.repositories.ArtistFollowRepository;
 import com.viniciusmcabral.sound_rate.repositories.FollowRepository;
 import com.viniciusmcabral.sound_rate.repositories.TrackRatingRepository;
 import com.viniciusmcabral.sound_rate.repositories.UserRepository;
@@ -44,13 +45,15 @@ public class UserService {
 	private final StorageService storageService;
 	private final AlbumLikeRepository albumLikeRepository;
 	private final FollowRepository followRepository;
+	private final ArtistFollowRepository artistFollowRepository;
 	private final EmailService emailService;
 	private final AuthenticatedUserService authenticatedUserService;
 
 	public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder,
 			AlbumReviewRepository albumReviewRepository, AlbumRatingRepository albumRatingRepository,
 			TrackRatingRepository trackRatingRepository, DeezerService deezerService, StorageService storageService,
-			AlbumLikeRepository albumLikeRepository, FollowRepository followRepository, EmailService emailService,
+			AlbumLikeRepository albumLikeRepository, FollowRepository followRepository,
+			ArtistFollowRepository artistFollowRepository, EmailService emailService,
 			AuthenticatedUserService authenticatedUserService) {
 		this.userRepository = userRepository;
 		this.passwordEncoder = passwordEncoder;
@@ -61,6 +64,7 @@ public class UserService {
 		this.storageService = storageService;
 		this.albumLikeRepository = albumLikeRepository;
 		this.followRepository = followRepository;
+		this.artistFollowRepository = artistFollowRepository;
 		this.emailService = emailService;
 		this.authenticatedUserService = authenticatedUserService;
 	}
@@ -72,7 +76,7 @@ public class UserService {
 		UserModel currentUser = authenticatedUserService.getCurrentUserOrNull();
 
 		long followersCount = followRepository.countActiveFollowersByUser(user);
-		long followingCount = followRepository.countActiveFollowingByUser(user);
+		long followingCount = followRepository.countActiveFollowingByUser(user) + artistFollowRepository.countByUser(user);
 
 		boolean isFollowed = (currentUser != null)
 				&& followRepository.findByFollowerAndFollowing(currentUser, user).isPresent();

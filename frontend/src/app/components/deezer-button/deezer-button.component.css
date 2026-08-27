@@ -36,13 +36,13 @@
 
 .deezer-button:hover,
 .deezer-button:focus-visible {
-  border-color: #a75bd0;
+  border-color: var(--accent-color);
   background-color: #19121d;
   outline: none;
 }
 
 .deezer-button:focus-visible {
-  outline: 3px solid rgba(196, 139, 219, 0.45);
+  outline: 3px solid color-mix(in srgb, var(--accent-color) 45%, transparent);
   outline-offset: 2px;
 }
 

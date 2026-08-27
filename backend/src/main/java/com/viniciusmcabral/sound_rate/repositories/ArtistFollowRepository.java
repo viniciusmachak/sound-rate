@@ -15,5 +15,7 @@ public interface ArtistFollowRepository extends JpaRepository<ArtistFollowModel,
 
 	void deleteByUserAndArtistId(UserModel user, String artistId);
 
+	long countByUser(UserModel user);
+
 	long countByArtistId(String artistId);
 }

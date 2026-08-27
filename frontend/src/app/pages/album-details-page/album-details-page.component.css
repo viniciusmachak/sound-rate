@@ -77,7 +77,7 @@
 }
 
 .album-cover-button:focus-visible {
-  outline: 3px solid #d09ae5;
+  outline: 3px solid var(--accent-color);
   outline-offset: 4px;
 }
 
@@ -102,7 +102,7 @@
   }
 
   &.liked mat-icon {
-    color: #e91e63;
+    color: var(--accent-color);
   }
 }
 
@@ -329,9 +329,9 @@
   margin-left: 0;
 
   &:hover {
-    border-color: #a75bd0;
-    background-color: rgba(167, 91, 208, 0.12);
-    color: #d09ae5;
+    border-color: var(--accent-color);
+    background-color: color-mix(in srgb, var(--accent-color) 12%, transparent);
+    color: var(--accent-color);
   }
 }
 
@@ -371,7 +371,7 @@
 
 .track-grid-item.current-track .track-name,
 .track-grid-item.current-track .track-artist-link {
-  color: #d09ae5;
+  color: var(--accent-color);
 }
 
 .track-index-cell {
@@ -413,7 +413,7 @@
 }
 
 .track-index-play:hover {
-  color: #d09ae5;
+  color: var(--accent-color);
 }
 
 .playing-indicator {

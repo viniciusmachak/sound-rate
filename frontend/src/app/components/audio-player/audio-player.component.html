@@ -67,7 +67,9 @@
         </span>
         <span class="track-title">{{ track.title }}</span>
         <div class="track-secondary-info">
-          <span class="track-artist">{{ track.artist.name }}</span>
+          <a class="track-artist" [routerLink]="['/artist', track.artist.id]">
+            {{ track.artist.name }}
+          </a>
           <span aria-hidden="true">·</span>
           <a class="album-link" [routerLink]="['/album', track.album.id]">
             {{ track.album.title }}

@@ -1,5 +1,5 @@
 import { ChangeDetectorRef, Component, DestroyRef, OnInit } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 import { BehaviorSubject, distinctUntilChanged, map, Observable, shareReplay, switchMap, tap } from 'rxjs';
 import { ApiService } from '../../services/api.service';
 import { CommonModule } from '@angular/common';
@@ -16,18 +16,28 @@ import { AuthService } from '../../services/auth.service';
 import { AudioService } from '../../services/audio.service';
 import { DeezerTrack } from '../../models/deezer.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { StarRatingComponent } from '../../components/star-rating/star-rating.component';
 
 interface Pageable {
   page: number;
   size: number;
+  category: DiscographyCategory;
+  sort: DiscographySort;
+  direction: DiscographyDirection;
 }
+
+type DiscographyCategory = 'popular' | 'albums' | 'singles' | 'compilations';
+type DiscographySort = 'release' | 'popularity' | 'community';
+type DiscographyDirection = 'asc' | 'desc';
 
 @Component({
   selector: 'app-artist-details-page',
   standalone: true,
   imports: [
     CommonModule,
+    RouterLink,
     AlbumCardComponent,
+    StarRatingComponent,
     MatIconModule,
     MatPaginatorModule,
     MatButtonModule,
@@ -40,12 +50,21 @@ interface Pageable {
 })
 export class ArtistDetailsPageComponent implements OnInit {
   artistPage$!: Observable<ArtistPage>;
-  private pageableSubject = new BehaviorSubject<Pageable>({ page: 0, size: 12 });
+  private pageableSubject = new BehaviorSubject<Pageable>({
+    page: 0,
+    size: 12,
+    category: 'popular',
+    sort: 'popularity',
+    direction: 'desc'
+  });
   private accentColorRequest = 0;
   artistAccentColor = '#5e1c7c';
   isFollowed = false;
   followersCount = 0;
   followRequestPending = false;
+  selectedCategory: DiscographyCategory = 'popular';
+  selectedSort: DiscographySort = 'popularity';
+  selectedDirection: DiscographyDirection = 'desc';
 
   constructor(
     private route: ActivatedRoute,
@@ -62,9 +81,25 @@ export class ArtistDetailsPageComponent implements OnInit {
       map(params => Number(params.get('id'))),
       distinctUntilChanged(),
       switchMap(artistId => {
-        this.pageableSubject.next({ page: 0, size: 12 });
+        this.selectedCategory = 'popular';
+        this.selectedSort = 'popularity';
+        this.selectedDirection = 'desc';
+        this.pageableSubject.next({
+          page: 0,
+          size: 12,
+          category: 'popular',
+          sort: 'popularity',
+          direction: 'desc'
+        });
         return this.pageableSubject.pipe(
-          switchMap(pageable => this.apiService.getArtistPage(artistId, pageable.page, pageable.size)),
+          switchMap(pageable => this.apiService.getArtistPage(
+            artistId,
+            pageable.page,
+            pageable.size,
+            pageable.category,
+            pageable.sort,
+            pageable.direction
+          )),
           tap(page => {
             this.isFollowed = page.isFollowedByCurrentUser;
             this.followersCount = page.followersCount;
@@ -79,9 +114,53 @@ export class ArtistDetailsPageComponent implements OnInit {
   onPageChange(event: PageEvent): void {
     const newPageable: Pageable = {
       page: event.pageIndex,
-      size: event.pageSize
+      size: event.pageSize,
+      category: this.selectedCategory,
+      sort: this.selectedSort,
+      direction: this.selectedDirection
     };
     this.pageableSubject.next(newPageable);
+  }
+
+  selectCategory(category: DiscographyCategory): void {
+    if (category === this.selectedCategory) return;
+    this.selectedCategory = category;
+    this.updateDiscographyQuery();
+  }
+
+  onSortChange(sort: DiscographySort): void {
+    if (sort === this.selectedSort) return;
+    this.selectedSort = sort;
+    this.updateDiscographyQuery();
+  }
+
+  toggleSortDirection(): void {
+    this.selectedDirection = this.selectedDirection === 'desc' ? 'asc' : 'desc';
+    this.updateDiscographyQuery();
+  }
+
+  get categoryTitle(): string {
+    return {
+      popular: 'Popular',
+      albums: 'Albums',
+      singles: 'Singles & EPs',
+      compilations: 'Compilations'
+    }[this.selectedCategory];
+  }
+
+  releaseYear(releaseDate?: string): string | null {
+    return releaseDate?.slice(0, 4) || null;
+  }
+
+  formatRecordType(recordType?: string): string {
+    const labels: Record<string, string> = {
+      album: 'Album',
+      single: 'Single',
+      ep: 'EP',
+      compile: 'Compilation',
+      compilation: 'Compilation'
+    };
+    return labels[recordType?.toLowerCase() ?? ''] ?? 'Release';
   }
 
   togglePopularPlayback(tracks: DeezerTrack[]): void {
@@ -124,8 +203,8 @@ export class ArtistDetailsPageComponent implements OnInit {
 
   async shareArtist(name: string): Promise<void> {
     const shareData = {
-      title: `${name} on Sound Rate`,
-      text: `See ${name} on Sound Rate`,
+      title: `${name} on Soundrate`,
+      text: `See ${name} on Soundrate`,
       url: window.location.href
     };
 
@@ -149,6 +228,17 @@ export class ArtistDetailsPageComponent implements OnInit {
       notation: 'compact',
       maximumFractionDigits: 1
     }).format(value);
+  }
+
+  private updateDiscographyQuery(): void {
+    const current = this.pageableSubject.value;
+    this.pageableSubject.next({
+      page: 0,
+      size: current.size,
+      category: this.selectedCategory,
+      sort: this.selectedSort,
+      direction: this.selectedDirection
+    });
   }
 
   private updateArtistAccent(imageUrl: string): void {

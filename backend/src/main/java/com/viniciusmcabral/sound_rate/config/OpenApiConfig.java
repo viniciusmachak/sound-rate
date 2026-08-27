@@ -17,9 +17,9 @@ public class OpenApiConfig {
 	public OpenAPI customOpenAPI() {
 		final String securitySchemeName = "bearerAuth";
 		return new OpenAPI()
-				.info(new Info().title("SoundRate API")
+				.info(new Info().title("Soundrate API")
 						.description(
-								"REST API for the SoundRate application, a music rating app inspired by Letterboxd.")
+								"REST API for the Soundrate application, a music rating app inspired by Letterboxd.")
 						.version("v1.0"))
 				.components(new Components().addSecuritySchemes(securitySchemeName,
 						new SecurityScheme().type(SecurityScheme.Type.HTTP).scheme("bearer").bearerFormat("JWT")));

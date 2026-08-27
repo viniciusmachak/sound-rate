@@ -16,4 +16,3 @@ export interface AlbumReview {
   likesCount: number;
   isLikedByCurrentUser: boolean;
 }
-

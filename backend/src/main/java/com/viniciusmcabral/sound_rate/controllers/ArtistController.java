@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -34,8 +35,11 @@ public class ArtistController {
 
 	@GetMapping("/{artistId}")
 	public ArtistPageDTO getArtistPage(@PathVariable @NotBlank String artistId,
+			@RequestParam(defaultValue = "popular") String category,
+			@RequestParam(defaultValue = "popularity") String order,
+			@RequestParam(defaultValue = "desc") String direction,
 			@PageableDefault(size = 20) Pageable pageable) {
-		return artistService.getArtistPageDetails(artistId, pageable);
+		return artistService.getArtistPageDetails(artistId, category, order, direction, pageable);
 	}
 
 	@PostMapping("/{artistId}/follow")

@@ -35,7 +35,7 @@
 }
 
 .album-cover-button:focus-visible {
-    outline: 3px solid #d09ae5;
+    outline: 3px solid var(--accent-color);
     outline-offset: -3px;
 }
 

@@ -1,6 +1,6 @@
-# SoundRate Backend
+# Soundrate Backend
 
-This module contains the Spring Boot API for SoundRate.
+This module contains the Spring Boot API for Soundrate.
 
 ## What The Backend Does
 

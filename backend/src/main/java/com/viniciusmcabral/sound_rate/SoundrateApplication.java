@@ -6,9 +6,9 @@ import org.springframework.scheduling.annotation.EnableAsync;
 
 @SpringBootApplication
 @EnableAsync
-public class SoundRateApplication {
+public class SoundrateApplication {
 
 	public static void main(String[] args) {
-		SpringApplication.run(SoundRateApplication.class, args);
+		SpringApplication.run(SoundrateApplication.class, args);
 	}
 }

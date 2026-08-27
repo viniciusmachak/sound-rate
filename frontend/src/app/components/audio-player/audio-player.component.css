@@ -56,7 +56,7 @@
 
 .preview-label {
     margin-bottom: 2px;
-    color: #d09ae5;
+    color: var(--accent-color);
     font-size: 0.65rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -89,15 +89,18 @@
     white-space: nowrap;
 }
 
+.track-artist,
 .album-link {
     color: var(--secondary-text);
     text-decoration: none;
     transition: color 0.18s ease;
 }
 
+.track-artist:hover,
+.track-artist:focus-visible,
 .album-link:hover,
 .album-link:focus-visible {
-    color: #d09ae5;
+    color: var(--accent-color);
     text-decoration: underline;
 }
 
@@ -125,7 +128,7 @@
     padding: 0;
     border: 0;
     background: transparent;
-    color: #d09ae5;
+    color: var(--accent-color);
     font: inherit;
     font-weight: 700;
     cursor: pointer;
@@ -156,8 +159,8 @@
 
 .secondary-player-control:hover:not(:disabled),
 .close-control:hover {
-    background-color: rgba(208, 154, 229, 0.12);
-    color: #d09ae5;
+    background-color: color-mix(in srgb, var(--accent-color) 12%, transparent);
+    color: var(--accent-color);
 }
 
 .secondary-player-control mat-icon,
@@ -231,13 +234,13 @@
 
 .volume-slider,
 .track-progress-slider {
-    accent-color: #a75bd0;
+    accent-color: var(--accent-color);
     cursor: pointer;
 }
 
 .volume-slider:focus-visible,
 .track-progress-slider:focus-visible {
-    outline: 2px solid #d09ae5;
+    outline: 2px solid var(--accent-color);
     outline-offset: 2px;
 }
 
@@ -272,8 +275,8 @@
     height: 4px;
     background: linear-gradient(
         to right,
-        #a75bd0 0,
-        #a75bd0 var(--seek-progress),
+        var(--accent-color) 0,
+        var(--accent-color) var(--seek-progress),
         rgba(255, 255, 255, 0.2) var(--seek-progress),
         rgba(255, 255, 255, 0.2) 100%
     );
@@ -286,7 +289,7 @@
     border: 0;
     border-radius: 50%;
     appearance: none;
-    background-color: #d09ae5;
+    background-color: var(--accent-color);
     opacity: 0;
     transition: opacity 0.18s ease;
 }
@@ -303,7 +306,7 @@
 
 .track-progress-slider::-moz-range-progress {
     height: 4px;
-    background-color: #a75bd0;
+    background-color: var(--accent-color);
 }
 
 .track-progress-slider::-moz-range-thumb {
@@ -311,7 +314,7 @@
     height: 14px;
     border: 0;
     border-radius: 50%;
-    background-color: #d09ae5;
+    background-color: var(--accent-color);
 }
 
 .track-progress-slider:disabled,
@@ -345,7 +348,7 @@
 }
 
 .queue-eyebrow {
-    color: #d09ae5;
+    color: var(--accent-color);
     font-size: 0.64rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -388,7 +391,7 @@
 }
 
 .queue-track.active {
-    background-color: rgba(167, 91, 208, 0.14);
+    background-color: color-mix(in srgb, var(--accent-color) 14%, transparent);
 }
 
 .queue-track-index {
@@ -399,7 +402,7 @@
 }
 
 .queue-track.active .queue-track-index {
-    color: #d09ae5;
+    color: var(--accent-color);
 }
 
 .queue-track-index mat-icon {

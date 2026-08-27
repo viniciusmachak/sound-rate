@@ -16,6 +16,7 @@ import { AlbumCoverDialogComponent } from '../album-cover-dialog/album-cover-dia
 })
 export class AlbumCardComponent {
   @Input() album!: DeezerAlbum | AlbumDashboard;
+  @Input() artistNameOverride?: string;
 
   constructor(private dialog: MatDialog) {}
 
@@ -38,6 +39,10 @@ export class AlbumCardComponent {
   }
 
   get artistName(): string {
+    if (this.artistNameOverride) {
+      return this.artistNameOverride;
+    }
+
     if ('artist' in this.album && this.album.artist) {
       return this.album.artist.name;
     }

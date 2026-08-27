@@ -35,6 +35,14 @@ public interface AlbumReviewRepository extends JpaRepository<AlbumReviewModel, L
 	@Query("SELECT r FROM AlbumReview r WHERE r.albumId = :albumId AND r.user.active = true")
 	Page<AlbumReviewModel> findActiveReviewsByAlbumId(@Param("albumId") String albumId, Pageable pageable);
 
+	@EntityGraph(attributePaths = "user")
+	@Query("SELECT r FROM AlbumReview r WHERE r.albumId IN :albumIds AND r.user.active = true ORDER BY r.createdAt DESC")
+	List<AlbumReviewModel> findRecentActiveReviewsByAlbumIds(@Param("albumIds") List<String> albumIds,
+			Pageable pageable);
+
+	@Query("SELECT COUNT(r) FROM AlbumReview r WHERE r.albumId IN :albumIds AND r.user.active = true")
+	long countActiveReviewsByAlbumIds(@Param("albumIds") List<String> albumIds);
+
 	@Query("SELECT r.albumId AS albumId, r.text AS text FROM AlbumReview r WHERE r.user = :user AND r.albumId IN :albumIds")
 	List<AlbumReviewTextProjection> findReviewTextsByUserAndAlbumIds(@Param("user") UserModel user,
 			@Param("albumIds") List<String> albumIds);
