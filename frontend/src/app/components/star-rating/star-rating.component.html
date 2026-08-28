@@ -1,8 +1,19 @@
-<div class="star-container">
-  @for (star of stars; track star) {
-    <button mat-icon-button [disableRipple]="true" [disabled]="readonly" (click)="rate(star, $event)"
-      (mousemove)="setHoverRating(star, $event)" (mouseleave)="clearHoverRating()">
-      <mat-icon>{{ getStarIcon(star) }}</mat-icon>
-    </button>
-  }
-</div>
+@if (readonly) {
+  <div class="star-container readonly-stars" role="img"
+    [attr.aria-label]="label + ': ' + rating + ' out of 5'">
+    @for (star of stars; track star) {
+      <mat-icon class="star-icon-display" aria-hidden="true">{{ getStarIcon(star) }}</mat-icon>
+    }
+  </div>
+} @else {
+  <div class="star-container" role="group" [attr.aria-label]="label">
+    @for (star of stars; track star) {
+      <button mat-icon-button type="button" [disableRipple]="true"
+        [attr.aria-label]="'Set ' + label.toLowerCase() + ' to ' + star + ' out of 5'"
+        (click)="rate(star, $event)" (mousemove)="setHoverRating(star, $event)"
+        (mouseleave)="clearHoverRating()">
+        <mat-icon aria-hidden="true">{{ getStarIcon(star) }}</mat-icon>
+      </button>
+    }
+  </div>
+}

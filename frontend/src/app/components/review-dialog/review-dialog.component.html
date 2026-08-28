@@ -1,18 +1,31 @@
-<h1 mat-dialog-title>Your Review</h1>
-<div mat-dialog-content [formGroup]="form">
-  <mat-form-field appearance="outline" class="review-textarea">
-    <mat-label>Write your opinion about the album</mat-label>
-    <textarea matInput formControlName="text" rows="10"></textarea>
-    @if (form.get('text')?.hasError('required')) {
-      <mat-error>Text is required</mat-error>
-    }
-    @if (form.get('text')?.hasError('minlength')) {
-      <mat-error>The review must be at least 10 characters
-      long</mat-error>
-    }
-  </mat-form-field>
-</div>
-<div mat-dialog-actions align="end">
-  <button mat-button (click)="onCancel()">Cancel</button>
-  <button mat-raised-button color="primary" (click)="onSave()" [disabled]="form.invalid">Save</button>
-</div>
+<header mat-dialog-title class="review-dialog-heading">
+  <span>Soundrate review</span>
+  <h1>{{ isEditing ? 'Edit your review' : 'Write your review' }}</h1>
+  <p>Share what stood out to you about this album.</p>
+</header>
+
+<form [formGroup]="form" (ngSubmit)="onSave()">
+  <div mat-dialog-content>
+    <mat-form-field appearance="outline" class="review-textarea">
+      <mat-label>Your thoughts</mat-label>
+      <textarea matInput formControlName="text" rows="9" [maxlength]="maxReviewLength"
+        aria-describedby="review-writing-guidance"></textarea>
+      <mat-hint id="review-writing-guidance">At least 10 characters</mat-hint>
+      <mat-hint align="end">{{ reviewLength }}/{{ maxReviewLength }}</mat-hint>
+      @if (form.get('text')?.hasError('required') || form.get('text')?.hasError('pattern')) {
+        <mat-error>Write something about the album</mat-error>
+      } @else if (form.get('text')?.hasError('minlength')) {
+        <mat-error>The review must be at least 10 characters long</mat-error>
+      } @else if (form.get('text')?.hasError('maxlength')) {
+        <mat-error>The review cannot exceed {{ maxReviewLength }} characters</mat-error>
+      }
+    </mat-form-field>
+  </div>
+
+  <div mat-dialog-actions align="end">
+    <button mat-button type="button" class="review-cancel-button" (click)="onCancel()">Cancel</button>
+    <button mat-flat-button type="submit" class="review-save-button" [disabled]="form.invalid">
+      {{ isEditing ? 'Save changes' : 'Publish review' }}
+    </button>
+  </div>
+</form>

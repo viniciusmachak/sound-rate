@@ -46,6 +46,7 @@
             <button mat-stroked-button type="button" class="artist-secondary-button"
               [class.following]="isFollowed"
               [disabled]="followRequestPending"
+              [attr.aria-busy]="followRequestPending"
               (click)="toggleFollow(page.artistDetails.id)">
               <mat-icon>{{ isFollowed ? 'check' : 'person_add' }}</mat-icon>
               {{ isFollowed ? 'Following' : 'Follow' }}
@@ -245,7 +246,7 @@
 
       @if (page.albums && page.albums.content.length > 0) {
         <div class="albums-grid">
-          @for (album of page.albums.content; track album) {
+          @for (album of page.albums.content; track album.id) {
             <article class="discography-release">
               <app-album-card [album]="album" [artistNameOverride]="page.artistDetails.name" />
               <div class="release-metadata">

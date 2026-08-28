@@ -12,15 +12,22 @@ import { MatButtonModule } from '@angular/material/button';
       <p>{{ data.message }}</p>
     </div>
     <div mat-dialog-actions align="end">
-      <button mat-button (click)="onNoClick()">Cancel</button>
-      <button mat-flat-button color="warn" [mat-dialog-close]="true" cdkFocusInitial>Delete</button>
+      <button mat-button (click)="onNoClick()" cdkFocusInitial>{{ data.cancelLabel || 'Cancel' }}</button>
+      <button mat-flat-button color="warn" [mat-dialog-close]="true">
+        {{ data.confirmLabel || 'Delete' }}
+      </button>
     </div>
   `
 })
 export class ConfirmationDialogComponent {
   constructor(
     public dialogRef: MatDialogRef<ConfirmationDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { title: string, message: string }
+    @Inject(MAT_DIALOG_DATA) public data: {
+      title: string;
+      message: string;
+      confirmLabel?: string;
+      cancelLabel?: string;
+    }
   ) {}
 
   onNoClick(): void {

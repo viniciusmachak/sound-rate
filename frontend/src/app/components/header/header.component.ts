@@ -173,4 +173,9 @@ export class HeaderComponent {
     if (result.artist) return 'Artist';
     return 'User';
   }
+
+  resultKey(result: SearchResult): string {
+    const id = result.album?.id ?? result.artist?.id ?? result.user?.id;
+    return `${result.type}:${id}`;
+  }
 }

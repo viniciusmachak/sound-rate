@@ -15,11 +15,12 @@ import { MatInputModule } from '@angular/material/input';
     MatFormFieldModule,
     MatInputModule,
     MatButtonModule
-],
+  ],
   templateUrl: './review-dialog.component.html',
   styleUrl: './review-dialog.component.css'
 })
 export class ReviewDialogComponent {
+  readonly maxReviewLength = 2000;
   form: FormGroup;
 
   constructor(
@@ -28,8 +29,21 @@ export class ReviewDialogComponent {
     @Inject(MAT_DIALOG_DATA) public data: { existingText?: string }
   ) {
     this.form = this.fb.group({
-      text: [data?.existingText || '', [Validators.required, Validators.minLength(10)]]
+      text: [data?.existingText || '', [
+        Validators.required,
+        Validators.minLength(10),
+        Validators.maxLength(this.maxReviewLength),
+        Validators.pattern(/\S/)
+      ]]
     });
+  }
+
+  get isEditing(): boolean {
+    return this.data.existingText !== undefined;
+  }
+
+  get reviewLength(): number {
+    return this.form.get('text')?.value?.length ?? 0;
   }
 
   onCancel(): void {
@@ -38,7 +52,7 @@ export class ReviewDialogComponent {
 
   onSave(): void {
     if (this.form.valid) {
-      this.dialogRef.close({ text: this.form.value.text });
+      this.dialogRef.close({ text: this.form.value.text.trim() });
     }
   }
 }

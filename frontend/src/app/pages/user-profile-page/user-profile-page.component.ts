@@ -17,7 +17,6 @@ import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { AlbumCardComponent } from '../../components/album-card/album-card.component';
-import { ReviewDisplayDialogComponent } from '../../components/review-display-dialog/review-display-dialog.component';
 import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skeleton-loader.component';
 import { StarRatingComponent } from '../../components/star-rating/star-rating.component';
 import { UserListComponent } from '../../components/user-list/user-list.component';
@@ -99,6 +98,7 @@ export class UserProfilePageComponent implements OnInit {
   currentLikedAlbumsPage = 0;
   likedAlbumsState: ContentState = 'idle';
   isPaginatingLikedAlbums = false;
+  readonly removingLikedAlbumIds = new Set<number>();
 
   private readonly listenLaterSubject = new BehaviorSubject<DeezerAlbum[]>([]);
   readonly listenLater$ = this.listenLaterSubject.asObservable();
@@ -107,6 +107,7 @@ export class UserProfilePageComponent implements OnInit {
   currentListenLaterPage = 0;
   listenLaterState: ContentState = 'idle';
   isPaginatingListenLater = false;
+  readonly removingListenLaterAlbumIds = new Set<number>();
 
   constructor(
     private readonly route: ActivatedRoute,
@@ -326,8 +327,11 @@ export class UserProfilePageComponent implements OnInit {
   unlikeAlbum(albumId: number, event: MouseEvent): void {
     event.stopPropagation();
     event.preventDefault();
+    if (this.removingLikedAlbumIds.has(albumId)) return;
+
     const currentLikedAlbums = this.likedAlbumsSubject.getValue();
     const currentActivity = this.activitySubject.getValue();
+    this.removingLikedAlbumIds.add(albumId);
     this.likedAlbumsSubject.next(currentLikedAlbums.filter(album => album.id !== albumId));
     if (currentActivity) {
       this.activitySubject.next({
@@ -343,9 +347,12 @@ export class UserProfilePageComponent implements OnInit {
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
+          this.removingLikedAlbumIds.delete(albumId);
           this.snackBar.open('Album removed from likes.', 'Close', { duration: 2000 });
+          this.reloadLikedAlbumsAfterRemoval();
         },
         error: () => {
+          this.removingLikedAlbumIds.delete(albumId);
           this.likedAlbumsSubject.next(currentLikedAlbums);
           if (currentActivity) this.activitySubject.next(currentActivity);
           this.totalLikedAlbums++;
@@ -358,25 +365,24 @@ export class UserProfilePageComponent implements OnInit {
   removeFromListenLater(albumId: number, event: MouseEvent): void {
     event.stopPropagation();
     event.preventDefault();
+    if (this.removingListenLaterAlbumIds.has(albumId)) return;
 
     const currentList = this.listenLaterSubject.getValue();
-    const updatedList = currentList.filter(album => album.id !== albumId);
-    this.listenLaterSubject.next(updatedList);
+    this.removingListenLaterAlbumIds.add(albumId);
+    this.listenLaterSubject.next(currentList.filter(album => album.id !== albumId));
     this.totalListenLater = Math.max(0, this.totalListenLater - 1);
-
-    if (updatedList.length === 0 && this.currentListenLaterPage > 0) {
-      this.currentListenLaterPage--;
-      this.loadListenLater();
-    }
 
     this.apiService
       .removeFromListenLater(albumId.toString())
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
+          this.removingListenLaterAlbumIds.delete(albumId);
           this.snackBar.open('Album removed from Listen Later list.', 'Close', { duration: 2000 });
+          this.reloadListenLaterAfterRemoval();
         },
         error: () => {
+          this.removingListenLaterAlbumIds.delete(albumId);
           this.listenLaterSubject.next(currentList);
           this.totalListenLater++;
           this.snackBar.open('Error removing album. Please try again.', 'Close', { duration: 3000 });
@@ -566,19 +572,6 @@ export class UserProfilePageComponent implements OnInit {
       });
   }
 
-  showReview(rating: UserRating): void {
-    if (!rating.reviewText) return;
-
-    this.dialog.open(ReviewDisplayDialogComponent, {
-      width: '600px',
-      panelClass: 'review-dialog-container',
-      data: {
-        albumTitle: rating.album.title,
-        reviewText: rating.reviewText
-      }
-    });
-  }
-
   onRatingsPageChange(event: PageEvent): void {
     this.loadRatedAlbums(event.pageIndex, event.pageSize);
   }
@@ -628,6 +621,8 @@ export class UserProfilePageComponent implements OnInit {
     this.isPaginatingReviews = false;
     this.isPaginatingLikedAlbums = false;
     this.isPaginatingListenLater = false;
+    this.removingLikedAlbumIds.clear();
+    this.removingListenLaterAlbumIds.clear();
 
     this.hasLoadedActivity = false;
     this.followRequestPending = false;
@@ -635,6 +630,16 @@ export class UserProfilePageComponent implements OnInit {
 
   private updateActivity(update: Partial<UserActivity>): void {
     this.activitySubject.next({ ...this.activitySubject.getValue(), ...update });
+  }
+
+  private reloadLikedAlbumsAfterRemoval(): void {
+    const lastPage = Math.max(0, Math.ceil(this.totalLikedAlbums / this.likedAlbumsPageSize) - 1);
+    this.loadLikedAlbums(Math.min(this.currentLikedAlbumsPage, lastPage), this.likedAlbumsPageSize);
+  }
+
+  private reloadListenLaterAfterRemoval(): void {
+    const lastPage = Math.max(0, Math.ceil(this.totalListenLater / this.listenLaterPageSize) - 1);
+    this.loadListenLater(Math.min(this.currentListenLaterPage, lastPage), this.listenLaterPageSize);
   }
 
   private showPaginationError(contentName: string, retry: () => void): void {

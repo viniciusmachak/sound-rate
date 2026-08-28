@@ -17,7 +17,7 @@
           } @else if (isOwnProfile) {
             <a class="profile-bio profile-bio-empty" routerLink="/settings">Add a short bio about your music taste</a>
           } @else {
-            <p class="profile-bio profile-bio-empty">This listener hasn't added a bio yet.</p>
+            <p class="profile-bio profile-bio-empty">This user hasn't added a bio yet.</p>
           }
 
           <div class="profile-metadata" aria-label="Profile information">
@@ -40,6 +40,7 @@
             @if (authService.isAuthenticated() && !isOwnProfile) {
               <button mat-raised-button type="button" class="profile-primary-button"
                 [class.following]="profile.isFollowedByCurrentUser" [disabled]="followRequestPending"
+                [attr.aria-busy]="followRequestPending"
                 (click)="toggleFollow()">
                 <mat-icon>{{ profile.isFollowedByCurrentUser ? 'check' : 'person_add' }}</mat-icon>
                 {{ profile.isFollowedByCurrentUser ? 'Following' : 'Follow' }}
@@ -110,7 +111,7 @@
               <mat-icon>album</mat-icon>
               <div>
                 <span>Highest-rated album</span>
-                <h2>Waiting for a rating</h2>
+                <h2>{{ isOwnProfile ? 'Waiting for your first rating' : "Waiting for this user's first rating" }}</h2>
               </div>
             </div>
           }
@@ -137,7 +138,7 @@
                 @if (isOwnProfile) {
                   <p>A snapshot of your ratings, reviews, likes, and recently followed artists.</p>
                 } @else {
-                  <p>A snapshot of this listener's ratings, reviews, likes, and recently followed artists.</p>
+                  <p>A snapshot of this user's ratings, reviews, likes, and recently followed artists.</p>
                 }
               </header>
 
@@ -169,7 +170,9 @@
                           <span class="activity-score"><mat-icon>star</mat-icon>{{ rating.rating | number:'1.1-1' }}</span>
                         </a>
                       } @empty {
-                        <p class="activity-empty">No ratings yet.</p>
+                        <p class="activity-empty">
+                          {{ isOwnProfile ? 'You have no recent ratings yet.' : 'This user has no recent ratings yet.' }}
+                        </p>
                       }
                     }
                   </div>
@@ -201,7 +204,9 @@
                           </div>
                         </a>
                       } @empty {
-                        <p class="activity-empty">No reviews yet.</p>
+                        <p class="activity-empty">
+                          {{ isOwnProfile ? 'You have no recent reviews yet.' : 'This user has no recent reviews yet.' }}
+                        </p>
                       }
                     }
                   </div>
@@ -234,7 +239,9 @@
                           <mat-icon class="activity-end-icon">favorite</mat-icon>
                         </a>
                       } @empty {
-                        <p class="activity-empty">No liked albums yet.</p>
+                        <p class="activity-empty">
+                          {{ isOwnProfile ? 'You have no recent likes yet.' : 'This user has no recent likes yet.' }}
+                        </p>
                       }
                     }
                   </div>
@@ -268,7 +275,9 @@
                           <mat-icon class="activity-end-icon">arrow_forward</mat-icon>
                         </a>
                       } @empty {
-                        <p class="activity-empty">No followed artists yet.</p>
+                        <p class="activity-empty">
+                          {{ isOwnProfile ? 'You have no recently followed artists.' : 'This user has no recently followed artists.' }}
+                        </p>
                       }
                     }
                   </div>
@@ -300,15 +309,11 @@
                     <app-album-card [album]="rating.album"></app-album-card>
                     <div class="rating-info">
                       <app-star-rating [rating]="rating.rating" [readonly]="true"></app-star-rating>
-                      <button mat-icon-button [disabled]="!rating.reviewText" (click)="showReview(rating)"
-                        title="View review">
-                        <mat-icon>comment</mat-icon>
-                      </button>
                     </div>
                   </div>
                 } @empty {
                   <p class="no-content-message grid-empty">
-                    {{ isOwnProfile ? "You haven't rated any albums yet." : "This listener hasn't rated any albums yet." }}
+                    {{ isOwnProfile ? "You haven't rated any albums yet." : "This user hasn't rated any albums yet." }}
                   </p>
                 }
               </div>
@@ -364,7 +369,7 @@
                     <mat-icon>rate_review</mat-icon>
                     <h2>No reviews yet</h2>
                     <p>
-                      {{ isOwnProfile ? "You haven't written an album review yet." : "This listener hasn't written an album review yet." }}
+                      {{ isOwnProfile ? "You haven't written an album review yet." : "This user hasn't written an album review yet." }}
                     </p>
                   </div>
                 }
@@ -404,6 +409,8 @@
                     <app-album-card [album]="album"></app-album-card>
                     @if (isOwnProfile) {
                       <button mat-icon-button class="like-button" title="Remove from likes"
+                        aria-label="Remove album from likes"
+                        [disabled]="removingLikedAlbumIds.size > 0 || isPaginatingLikedAlbums"
                         (click)="unlikeAlbum(album.id, $event)">
                         <mat-icon>favorite</mat-icon>
                       </button>
@@ -411,7 +418,7 @@
                   </div>
                 } @empty {
                   <p class="no-content-message grid-empty">
-                    {{ isOwnProfile ? "You haven't liked any albums yet." : "This listener hasn't liked any albums yet." }}
+                    {{ isOwnProfile ? "You haven't liked any albums yet." : "This user hasn't liked any albums yet." }}
                   </p>
                 }
               </div>
@@ -450,6 +457,8 @@
                     <div class="album-card-container">
                       <app-album-card [album]="album"></app-album-card>
                       <button mat-icon-button class="listen-later-button" title="Remove from Listen Later"
+                        aria-label="Remove album from Listen Later"
+                        [disabled]="removingListenLaterAlbumIds.size > 0 || isPaginatingListenLater"
                         (click)="removeFromListenLater(album.id, $event)">
                         <mat-icon>bookmark_remove</mat-icon>
                       </button>
@@ -478,7 +487,7 @@
   <div class="tab-state profile-load-error">
     <mat-icon>cloud_off</mat-icon>
     <h2>Profile unavailable</h2>
-    <p>We couldn't load this listener's profile.</p>
+    <p>We couldn't load this user's profile.</p>
     <button mat-stroked-button type="button" (click)="loadProfile()">Try again</button>
   </div>
 } @else {

@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, DestroyRef, OnInit } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { BehaviorSubject, switchMap } from 'rxjs';
+import { BehaviorSubject, finalize, switchMap } from 'rxjs';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { AlbumDetails } from '../../models/album-details.model';
 import { ApiService } from '../../services/api.service';
@@ -23,6 +23,7 @@ import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skelet
 import { AlbumCoverDialogComponent } from '../../components/album-cover-dialog/album-cover-dialog.component';
 import { DeezerButtonComponent } from '../../components/deezer-button/deezer-button.component';
 import { DeezerAlbum, DeezerContributor, DeezerTrack } from '../../models/deezer.model';
+import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 
 interface AlbumParticipant {
   id: number | null;
@@ -53,6 +54,8 @@ export class AlbumDetailsPageComponent implements OnInit {
   albumId!: string;
   albumAccentColor = '#5e1c7c';
   albumContributors: AlbumParticipant[] = [];
+  deletingReviewIds: ReadonlySet<number> = new Set<number>();
+  isSavingReview = false;
 
   constructor(
     private route: ActivatedRoute,
@@ -190,7 +193,7 @@ export class AlbumDetailsPageComponent implements OnInit {
 
   openReviewDialog(reviewToEdit?: AlbumReview): void {
     const currentDetails = this.albumDetailsSubject.getValue();
-    if (!currentDetails) return;
+    if (!currentDetails || this.isSavingReview) return;
 
     if (!currentDetails.currentUserRating || currentDetails.currentUserRating === 0) {
       this.snackBar.open('You must rate the album before writing a review.', 'Close', { duration: 3000 });
@@ -199,13 +202,16 @@ export class AlbumDetailsPageComponent implements OnInit {
 
     const dialogRef = this.dialog.open(ReviewDialogComponent, {
       width: '600px',
+      maxWidth: 'calc(100vw - 32px)',
       panelClass: 'review-dialog-container',
       data: {
         existingText: reviewToEdit?.text,
       }
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(result => {
       if (result && result.text !== undefined) {
 
         const request = {
@@ -216,24 +222,68 @@ export class AlbumDetailsPageComponent implements OnInit {
 
         const apiCall = reviewToEdit ? this.apiService.updateReview(reviewToEdit.id, request) : this.apiService.createReview(request);
 
-        apiCall.subscribe({
+        this.isSavingReview = true;
+        this.changeDetectorRef.markForCheck();
+        const savingFeedback = this.snackBar.open(
+          reviewToEdit ? 'Saving review changes…' : 'Publishing review…'
+        );
+
+        apiCall.pipe(
+          finalize(() => {
+            savingFeedback.dismiss();
+            this.isSavingReview = false;
+            this.changeDetectorRef.markForCheck();
+          }),
+          takeUntilDestroyed(this.destroyRef)
+        ).subscribe({
           next: () => {
             this.snackBar.open('Review saved successfully!', 'Close', { duration: 3000 });
             this.loadAlbumDetails();
           },
-          error: (err) => this.snackBar.open('Error saving the review.', 'Close', { duration: 3000 })
+          error: () => this.snackBar.open('Error saving the review.', 'Close', { duration: 3000 })
         });
       }
     });
   }
 
   onDeleteReview(reviewId: number): void {
-    this.apiService.deleteReview(reviewId).subscribe({
-      next: () => {
-        this.snackBar.open('Review deleted successfully!', 'Close', { duration: 3000 });
-        this.loadAlbumDetails();
-      },
-      error: (err) => this.snackBar.open('Error deleting the review.', 'Close', { duration: 3000 })
+    if (this.deletingReviewIds.has(reviewId)) return;
+
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '420px',
+      maxWidth: 'calc(100vw - 32px)',
+      panelClass: ['review-dialog-container', 'review-confirmation-dialog'],
+      data: {
+        title: 'Delete review?',
+        message: 'This review will be permanently removed. This action cannot be undone.',
+        confirmLabel: 'Delete review'
+      }
+    });
+
+    dialogRef.afterClosed().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe(confirmed => {
+      if (!confirmed) return;
+
+      this.deletingReviewIds = new Set([...this.deletingReviewIds, reviewId]);
+      const deletingFeedback = this.snackBar.open('Deleting review…');
+
+      this.apiService.deleteReview(reviewId).pipe(
+        finalize(() => {
+          deletingFeedback.dismiss();
+          const pendingIds = new Set(this.deletingReviewIds);
+          pendingIds.delete(reviewId);
+          this.deletingReviewIds = pendingIds;
+          this.changeDetectorRef.markForCheck();
+        }),
+        takeUntilDestroyed(this.destroyRef)
+      ).subscribe({
+        next: () => {
+          this.snackBar.open('Review deleted successfully!', 'Close', { duration: 3000 });
+          this.loadAlbumDetails();
+        },
+        error: () => this.snackBar.open('Error deleting the review.', 'Close', { duration: 3000 })
+      });
     });
   }
 

@@ -10,6 +10,11 @@
   outline: none;
 }
 
+.card-link:focus-visible {
+  outline: 3px solid var(--accent-color);
+  outline-offset: 3px;
+}
+
 .artist-card,
 .user-card {
   width: 100%;

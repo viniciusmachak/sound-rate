@@ -24,7 +24,32 @@
   font-size: 28px;
 }
 
+.readonly-stars {
+  gap: 4px;
+  flex-wrap: nowrap;
+  color: #ffca28;
+}
+
+.star-icon-display {
+  width: 32px;
+  height: 32px;
+  font-size: 28px;
+  line-height: 32px;
+  text-align: center;
+}
+
 .star-container button:not([disabled]):hover {
   background-color: transparent;
   transform: scale(1.15);
+}
+
+@media (max-width: 380px) {
+  .readonly-stars {
+    gap: 0;
+  }
+
+  .star-icon-display {
+    width: 28px;
+    font-size: 26px;
+  }
 }

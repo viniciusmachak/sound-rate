@@ -1,36 +1,100 @@
 :host {
   display: block;
-  background-color: var(--background-dark);
   color: var(--primary-text);
 }
 
-[mat-dialog-title] {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-  color: var(--primary-text);
+.review-dialog-heading {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin: 0;
+  padding: 24px 24px 18px;
+  border-bottom: 1px solid rgba(94, 28, 124, 0.55);
+
+  > span {
+    color: color-mix(in srgb, var(--accent-color) 58%, white);
+    font-size: 0.72rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+  }
+
+  h1 {
+    margin: 0;
+    color: var(--primary-text);
+    font: inherit;
+    font-size: 1.45rem;
+    font-weight: 700;
+  }
+
+  p {
+    margin: 0;
+    color: var(--secondary-text);
+    font-size: 0.85rem;
+    line-height: 1.5;
+  }
 }
 
 [mat-dialog-content] {
-  padding-top: 20px;
+  padding: 22px 24px 10px;
 }
 
 .review-textarea {
+  --mdc-outlined-text-field-outline-color: rgba(94, 28, 124, 0.65);
+  --mdc-outlined-text-field-hover-outline-color: color-mix(in srgb, var(--accent-color) 65%, white);
+  --mdc-outlined-text-field-focus-outline-color: var(--accent-color);
+  --mdc-outlined-text-field-caret-color: color-mix(in srgb, var(--accent-color) 58%, white);
+  --mdc-outlined-text-field-label-text-color: var(--secondary-text);
+  --mdc-outlined-text-field-focus-label-text-color: color-mix(in srgb, var(--accent-color) 58%, white);
   width: 100%;
-
-  .mat-mdc-form-field-label {
-    color: var(--secondary-text);
-  }
-
-  .mdc-notched-outline__leading,
-  .mdc-notched-outline__notch,
-  .mdc-notched-outline__trailing {
-    border-color: rgba(255, 255, 255, 0.3);
-  }
 
   textarea {
     color: var(--primary-text);
+    line-height: 1.55;
+    resize: vertical;
   }
 }
 
 [mat-dialog-actions] {
-  padding: 8px 24px;
+  gap: 10px;
+  padding: 12px 24px 20px;
+  border-top: 1px solid rgba(94, 28, 124, 0.35);
+}
+
+.review-cancel-button {
+  color: var(--secondary-text);
+
+  &:hover {
+    color: var(--primary-text);
+    background-color: rgba(255, 255, 255, 0.06);
+  }
+}
+
+.review-save-button {
+  --mdc-filled-button-container-color: var(--accent-color);
+  --mdc-filled-button-label-text-color: #fff;
+  min-width: 132px;
+  background-color: var(--accent-color);
+  color: #fff;
+  font-weight: 700;
+
+  &:not(:disabled):hover {
+    background-color: color-mix(in srgb, var(--accent-color) 82%, white);
+  }
+}
+
+@media (max-width: 480px) {
+  .review-dialog-heading,
+  [mat-dialog-content],
+  [mat-dialog-actions] {
+    padding-inline: 18px;
+  }
+
+  [mat-dialog-actions] {
+    justify-content: stretch;
+
+    button {
+      flex: 1;
+    }
+  }
 }

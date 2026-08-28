@@ -10,12 +10,12 @@
     <div>
       @if ((albums$ | async); as albums) {
         <div class="album-grid">
-          @for (album of albums; track album) {
+          @for (album of albums; track album.id) {
             <app-album-card [album]="album"></app-album-card>
+          } @empty {
+            <p class="info-message grid-empty">Your Listen Later list is empty.</p>
           }
         </div>
-      } @else {
-        <p class="info-message">Your listen later list is empty</p>
       }
       @if (totalAlbums > pageSize) {
         <mat-paginator [length]="totalAlbums" [pageSize]="pageSize"

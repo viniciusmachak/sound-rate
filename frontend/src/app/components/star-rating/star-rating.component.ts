@@ -14,6 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 export class StarRatingComponent {
   @Input() rating: number = 0;
   @Input() readonly: boolean = false;
+  @Input() label: string = 'Rating';
   @Output() ratingChange = new EventEmitter<number | null>();
 
   readonly stars = [1, 2, 3, 4, 5];
@@ -36,9 +37,10 @@ export class StarRatingComponent {
   rate(star: number, event: MouseEvent): void {
     if (this.readonly) return;
 
-    const target = event.target as HTMLElement;
+    const target = event.currentTarget as HTMLElement;
     const rect = target.getBoundingClientRect();
-    const isHalf = (event.clientX - rect.left) < (rect.width / 2);
+    const isKeyboardActivation = event.detail === 0;
+    const isHalf = !isKeyboardActivation && (event.clientX - rect.left) < (rect.width / 2);
     const newRating = isHalf ? star - 0.5 : star;
 
     if (newRating === this.rating) {
@@ -51,7 +53,7 @@ export class StarRatingComponent {
   setHoverRating(star: number, event: MouseEvent): void {
     if (this.readonly) return;
 
-    const target = event.target as HTMLElement;
+    const target = event.currentTarget as HTMLElement;
     const rect = target.getBoundingClientRect();
     const isHalf = (event.clientX - rect.left) < (rect.width / 2);
     this.hoverRating = isHalf ? star - 0.5 : star;

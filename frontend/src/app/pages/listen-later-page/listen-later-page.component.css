@@ -9,32 +9,22 @@
 
 .album-grid {
   display: grid;
-  grid-template-columns: repeat(5, 220px);
+  grid-template-columns: repeat(auto-fit, minmax(min(220px, 100%), 220px));
   justify-content: center;
   gap: 24px;
 }
 
-@media (max-width: 1244px) {
-  .album-grid {
-    grid-template-columns: repeat(4, 220px);
-  }
+.album-grid app-album-card {
+  overflow: clip;
+  border-radius: 8px;
 }
 
-@media (max-width: 1000px) {
-  .album-grid {
-    grid-template-columns: repeat(3, 220px);
-  }
-}
-
-@media (max-width: 756px) {
-  .album-grid {
-    grid-template-columns: repeat(2, 220px);
-    gap: 16px;
-  }
+.grid-empty {
+  grid-column: 1 / -1;
 }
 
 @media (max-width: 500px) {
   .album-grid {
-    grid-template-columns: 220px;
+    gap: 16px;
   }
 }

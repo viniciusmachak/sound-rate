@@ -387,7 +387,11 @@
 .queue-track:hover,
 .queue-track:focus-visible {
     background-color: rgba(255, 255, 255, 0.06);
-    outline: none;
+}
+
+.queue-track:focus-visible {
+    outline: 3px solid var(--accent-color);
+    outline-offset: -3px;
 }
 
 .queue-track.active {

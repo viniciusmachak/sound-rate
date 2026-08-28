@@ -45,6 +45,7 @@
               @if (canFollowUser(user)) {
                 <button mat-stroked-button matListItemMeta type="button" class="follow-action"
                   [class.is-following]="user.isFollowedByCurrentUser" [disabled]="isUpdatingUser(user.id)"
+                  [attr.aria-busy]="isUpdatingUser(user.id)"
                   [attr.aria-label]="(user.isFollowedByCurrentUser ? 'Unfollow ' : 'Follow ') + user.username"
                   (click)="toggleUserFollow(user)">
                   @if (user.isFollowedByCurrentUser) {

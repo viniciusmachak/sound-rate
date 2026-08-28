@@ -20,7 +20,7 @@
           }
           @if (data.filteredResults.length > 0) {
             <div class="results-grid">
-              @for (result of data.filteredResults; track result) {
+              @for (result of data.filteredResults; track resultKey(result)) {
                 <div class="result-item" [class.artist-result]="result.type === 'artist'">
                   @switch (result.type) {
                     @case ('album') {
@@ -73,7 +73,7 @@
               }
               @if (albums.length > 0) {
                 <div class="album-grid">
-                  @for (album of albums; track album) {
+                  @for (album of albums; track album.id) {
                     <app-album-card [album]="album"></app-album-card>
                   }
                 </div>

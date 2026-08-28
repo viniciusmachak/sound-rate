@@ -50,6 +50,11 @@ export class HomePageComponent implements OnInit {
     private route: ActivatedRoute
   ) { }
 
+  resultKey(result: SearchResult): string {
+    const id = result.album?.id ?? result.artist?.id ?? result.user?.id;
+    return `${result.type}:${id}`;
+  }
+
   ngOnInit(): void {
     this.highestRatedAlbums$ = this.apiService.getHighestRatedAlbums().pipe(
       catchError(() => of([])),

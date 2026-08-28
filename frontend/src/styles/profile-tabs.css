@@ -2,6 +2,10 @@
   gap: 7px;
 }
 
+.profile-content .mat-mdc-tab-body-content {
+  overflow: hidden;
+}
+
 .profile-content .tab-count {
   display: inline-flex;
   align-items: center;

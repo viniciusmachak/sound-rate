@@ -74,6 +74,7 @@
                 <span class="rating-label">Your rating</span>
                 <div class="rating-value">
                   <app-star-rating [rating]="details.currentUserRating || 0"
+                    [label]="'Your rating for ' + details.deezerDetails.title"
                     (ratingChange)="onAlbumRatingChanged($event)">
                   </app-star-rating>
                   @if (details.currentUserRating) {
@@ -91,7 +92,8 @@
             <div class="rating-box">
               <span class="rating-label">Community</span>
               <div class="rating-value">
-                <app-star-rating [rating]="details.communityScore || 0" [readonly]="true" />
+                <app-star-rating [rating]="details.communityScore || 0" [readonly]="true"
+                  [label]="'Community rating for ' + details.deezerDetails.title" />
                 <span class="average-score">{{ details.communityScore | number:'1.1-1' }}</span>
                 @if (details.ratingsCount > 0) {
                   <span class="ratings-count">
@@ -135,7 +137,8 @@
               <span id="soundrate-actions-title" class="action-group-label">On Soundrate</span>
               <div class="action-buttons">
                 @if (!details.currentUserReview) {
-                  <button mat-raised-button class="custom-accent" (click)="openReviewDialog()">
+                  <button mat-raised-button class="custom-accent" (click)="openReviewDialog()"
+                    [disabled]="isSavingReview" [attr.aria-busy]="isSavingReview">
                     <mat-icon>edit</mat-icon>
                     Write a Review
                   </button>
@@ -203,6 +206,7 @@
                   @if (authService.isAuthenticated()) {
                     <app-star-rating [id]="'track-rating-' + track.id"
                       [rating]="getUserRatingForTrack(track.id.toString())"
+                      [label]="'Rating for ' + track.title"
                       (ratingChange)="onTrackRatingChanged($event, track.id.toString())">
                     </app-star-rating>
                   }
@@ -230,8 +234,8 @@
         <span class="tab-count">{{ details.userReviews.length }}</span>
       </ng-template>
       <app-review-list [reviews]="details.userReviews" [currentUser]="authService.currentUserValue"
-        (edit)="openReviewDialog($event)" (delete)="onDeleteReview($event)"
-        (ratingChanged)="onAlbumRatingChanged($event)">
+        [deletingReviewIds]="deletingReviewIds" [reviewMutationPending]="isSavingReview"
+        (edit)="openReviewDialog($event)" (delete)="onDeleteReview($event)">
       </app-review-list>
     </mat-tab>
   </mat-tab-group>
