@@ -52,7 +52,10 @@ export class SettingsPageComponent implements OnInit {
   isDeletingAccount = false;
 
   get hasProfileChanges(): boolean {
-    return this.profileForm?.get('email')?.value !== (this.currentUser?.email || '');
+    if (!this.profileForm) return false;
+
+    return this.profileForm.get('email')?.value !== (this.currentUser?.email || '')
+      || this.normalizeBio(this.profileForm.get('bio')?.value) !== this.normalizeBio(this.currentUser?.bio);
   }
 
   constructor(
@@ -68,7 +71,8 @@ export class SettingsPageComponent implements OnInit {
     this.imagePreview = this.currentUser?.avatarUrl || null;
 
     this.profileForm = this.fb.group({
-      email: [this.currentUser?.email || '', [Validators.required, Validators.email]]
+      email: [this.currentUser?.email || '', [Validators.required, Validators.email]],
+      bio: [this.currentUser?.bio || '', [Validators.maxLength(280)]]
     });
 
     this.passwordForm = this.fb.group({
@@ -76,6 +80,10 @@ export class SettingsPageComponent implements OnInit {
       newPassword: ['', [Validators.required, Validators.minLength(6)]],
       confirmPassword: ['', Validators.required]
     }, { validators: passwordMatchValidator });
+  }
+
+  private normalizeBio(bio: string | null | undefined): string {
+    return bio?.trim() || '';
   }
 
   onUpdateProfile(): void {

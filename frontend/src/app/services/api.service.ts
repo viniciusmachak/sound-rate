@@ -13,6 +13,9 @@ import { SearchResult } from '../models/search-result.model';
 import { ArtistPage } from '../models/artist-page.model';
 import { AlbumDashboard } from '../models/album-details.model';
 import { environment } from '../../environments/environment';
+import { FollowedArtist } from '../models/followed-artist.model';
+import { SocialUser } from '../models/social-user.model';
+import { UserReview } from '../models/user-review.model';
 
 export interface ResetPasswordRequest {
   token: string;
@@ -65,14 +68,43 @@ export class ApiService {
     return this.http.delete<void>(`${this.apiUrl}/artists/${artistId}/follow`);
   }
 
-  getFollowers(username: string, page: number, size: number): Observable<Page<User>> {
-    const params = new HttpParams().set('page', page.toString()).set('size', size.toString());
-    return this.http.get<Page<User>>(`${this.apiUrl}/users/${username}/followers`, { params });
+  getFollowers(
+    username: string,
+    page: number,
+    size: number,
+    query = ''
+  ): Observable<Page<SocialUser>> {
+    let params = new HttpParams().set('page', page.toString()).set('size', size.toString());
+    if (query) params = params.set('query', query);
+    return this.http.get<Page<SocialUser>>(`${this.apiUrl}/users/${username}/followers`, { params });
   }
 
-  getFollowing(username: string, page: number, size: number): Observable<Page<User>> {
-    const params = new HttpParams().set('page', page.toString()).set('size', size.toString());
-    return this.http.get<Page<User>>(`${this.apiUrl}/users/${username}/following`, { params });
+  getFollowing(
+    username: string,
+    page: number,
+    size: number,
+    query = ''
+  ): Observable<Page<SocialUser>> {
+    let params = new HttpParams().set('page', page.toString()).set('size', size.toString());
+    if (query) params = params.set('query', query);
+    return this.http.get<Page<SocialUser>>(`${this.apiUrl}/users/${username}/following`, { params });
+  }
+
+  getFollowingArtists(
+    username: string,
+    page: number,
+    size: number,
+    query = ''
+  ): Observable<Page<FollowedArtist>> {
+    let params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sort', 'createdAt,desc');
+    if (query) params = params.set('query', query);
+    return this.http.get<Page<FollowedArtist>>(
+      `${this.apiUrl}/users/${username}/following/artists`,
+      { params }
+    );
   }
 
   rateAlbumOrTrack(ratingData: RatingRequest): Observable<void> {
@@ -130,8 +162,16 @@ export class ApiService {
     return this.http.get<Page<UserRating>>(`${this.apiUrl}/users/${username}/ratings`, { params });
   }
 
-  getLikedAlbums(username: string, page: number, size: number): Observable<Page<DeezerAlbum>> {
+  getUserReviews(username: string, page: number, size: number): Observable<Page<UserReview>> {
     const params = new HttpParams().set('page', page.toString()).set('size', size.toString());
+    return this.http.get<Page<UserReview>>(`${this.apiUrl}/users/${username}/reviews`, { params });
+  }
+
+  getLikedAlbums(username: string, page: number, size: number): Observable<Page<DeezerAlbum>> {
+    const params = new HttpParams()
+      .set('page', page.toString())
+      .set('size', size.toString())
+      .set('sort', 'id,desc');
     return this.http.get<Page<DeezerAlbum>>(`${this.apiUrl}/users/${username}/likes`, { params });
   }
 
@@ -160,7 +200,7 @@ export class ApiService {
     return this.http.delete<void>(`${this.apiUrl}/users/me`);
   }
 
-  updateProfile(data: { email: string }): Observable<User> {
+  updateProfile(data: { email: string; bio: string | null }): Observable<User> {
     return this.http.put<User>(`${this.apiUrl}/users/me/profile`, data);
   }
 

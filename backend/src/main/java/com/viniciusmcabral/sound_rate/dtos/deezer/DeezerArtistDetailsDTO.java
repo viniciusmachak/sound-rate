@@ -7,6 +7,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record DeezerArtistDetailsDTO(long id, String name, String link, @JsonProperty("picture_xl") String pictureXl,
-		@JsonProperty("nb_album") int numberOfAlbums, @JsonProperty("nb_fan") int numberOfFans,
-		Page<DeezerAlbumDTO> albums) {
+		@JsonProperty("picture_medium") String pictureMedium, @JsonProperty("nb_album") int numberOfAlbums,
+		@JsonProperty("nb_fan") int numberOfFans, Page<DeezerAlbumDTO> albums) {
 }

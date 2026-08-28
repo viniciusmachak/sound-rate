@@ -26,6 +26,8 @@ public interface AlbumReviewRepository extends JpaRepository<AlbumReviewModel, L
 
 	List<AlbumReviewModel> findAllByUser(UserModel user, Pageable pageable);
 
+	Page<AlbumReviewModel> findByUser(UserModel user, Pageable pageable);
+
 	long countByUser(UserModel user);
 
 	@Query("SELECT r.albumId FROM AlbumReview r WHERE r.user = :user ORDER BY r.createdAt DESC")

@@ -23,6 +23,7 @@ import com.viniciusmcabral.sound_rate.dtos.request.UpdateProfileDTO;
 import com.viniciusmcabral.sound_rate.dtos.response.UserDTO;
 import com.viniciusmcabral.sound_rate.dtos.response.UserProfileDTO;
 import com.viniciusmcabral.sound_rate.dtos.response.UserRatingDTO;
+import com.viniciusmcabral.sound_rate.dtos.response.UserReviewDTO;
 import com.viniciusmcabral.sound_rate.models.UserModel;
 import com.viniciusmcabral.sound_rate.services.UserService;
 
@@ -55,6 +56,12 @@ public class UserController {
 	public Page<UserRatingDTO> getRatedAlbums(@PathVariable @NotBlank String username,
 			@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 		return userService.getRatedAlbumsPage(username, pageable);
+	}
+
+	@GetMapping("/{username}/reviews")
+	public Page<UserReviewDTO> getReviews(@PathVariable @NotBlank String username,
+			@PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+		return userService.getReviewsPage(username, pageable);
 	}
 
 	@DeleteMapping("/me")

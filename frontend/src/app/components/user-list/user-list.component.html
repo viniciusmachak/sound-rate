@@ -1,33 +1,136 @@
 <h2 mat-dialog-title>{{ title }}</h2>
 
 <mat-dialog-content>
-  @if (isLoading && (users$ | async)?.length === 0) {
-    <app-skeleton-loader variant="list" [count]="5" />
-  }
-
-  @if ((users$ | async); as users) {
-    <mat-list>
-      @for (user of users; track user) {
-        <mat-list-item>
-          <img matListItemAvatar [src]="user.avatarUrl" alt="Avatar of {{ user.username }}" class="user-avatar">
-          <div matListItemTitle>
-            <a [routerLink]="['/user', user.username]" mat-dialog-close class="username-link">{{ user.username
-            }}</a>
-          </div>
-        </mat-list-item>
-      }
-    </mat-list>
-
-    @if (isLoading && users.length > 0) {
-      <app-skeleton-loader variant="list" [count]="2" />
+  <mat-form-field appearance="outline" class="search-field" subscriptSizing="dynamic">
+    <mat-label>{{ searchLabel }}</mat-label>
+    <mat-icon matPrefix>search</mat-icon>
+    <input matInput [formControl]="searchControl" [attr.aria-label]="searchLabel">
+    @if (searchControl.value) {
+      <button mat-icon-button matSuffix type="button" aria-label="Clear search" (click)="clearSearch()">
+        <mat-icon>close</mat-icon>
+      </button>
     }
+  </mat-form-field>
+
+  @if (data.listType === 'following') {
+    <mat-tab-group animationDuration="0ms" (selectedIndexChange)="onTabChange($event)">
+      <mat-tab label="People">
+        <div class="tab-content">
+          <ng-container [ngTemplateOutlet]="peopleList" />
+        </div>
+      </mat-tab>
+      <mat-tab label="Artists">
+        <div class="tab-content">
+          <ng-container [ngTemplateOutlet]="artistsList" />
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  } @else {
+    <ng-container [ngTemplateOutlet]="peopleList" />
   }
 
-  @if (hasMore && !isLoading) {
-    <div class="load-more-container">
-      <button mat-stroked-button (click)="loadUsers()">Load More</button>
-    </div>
-  }
+  <ng-template #peopleList>
+    @if (showUsersSkeleton) {
+      <app-skeleton-loader variant="list" [count]="5" />
+    } @else if ((users$ | async); as users) {
+      @if (users.length > 0) {
+        <mat-list>
+          @for (user of users; track user.id) {
+            <mat-list-item>
+              <img matListItemAvatar [src]="user.avatarUrl" alt="Avatar of {{ user.username }}"
+                class="entity-avatar">
+              <a matListItemTitle [routerLink]="['/user', user.username]" mat-dialog-close class="entity-link">
+                {{ user.username }}
+              </a>
+              @if (canFollowUser(user)) {
+                <button mat-stroked-button matListItemMeta type="button" class="follow-action"
+                  [class.is-following]="user.isFollowedByCurrentUser" [disabled]="isUpdatingUser(user.id)"
+                  [attr.aria-label]="(user.isFollowedByCurrentUser ? 'Unfollow ' : 'Follow ') + user.username"
+                  (click)="toggleUserFollow(user)">
+                  @if (user.isFollowedByCurrentUser) {
+                    <span class="following-label">Following</span>
+                    <span class="unfollow-label">Unfollow</span>
+                  } @else {
+                    Follow
+                  }
+                </button>
+              }
+            </mat-list-item>
+          }
+        </mat-list>
+      }
+
+      @if (!isLoadingUsers && !usersError && users.length === 0) {
+        <div class="state-container empty-state">
+          <mat-icon>group_off</mat-icon>
+          <p>{{ peopleEmptyMessage }}</p>
+        </div>
+      }
+
+      @if (usersError) {
+        <div class="state-container error-state" role="alert">
+          <mat-icon>error_outline</mat-icon>
+          <p>We couldn't load the people in this list.</p>
+          <button mat-stroked-button type="button" (click)="retryUsers()">Try again</button>
+        </div>
+      }
+
+      @if (isLoadingUsers) {
+        <p class="loading-message" role="status">Loading people…</p>
+      } @else if (hasMoreUsers && !usersError) {
+        <div class="load-more-container">
+          <button mat-stroked-button type="button" (click)="loadUsers()">
+            Load more · {{ users.length }} of {{ usersTotal }}
+          </button>
+        </div>
+      }
+    }
+  </ng-template>
+
+  <ng-template #artistsList>
+    @if (showArtistsSkeleton) {
+      <app-skeleton-loader variant="list" [count]="5" />
+    } @else if ((artists$ | async); as artists) {
+      @if (artists.length > 0) {
+        <mat-list>
+          @for (artist of artists; track artist.id) {
+            <mat-list-item>
+              <img matListItemAvatar [src]="artist.picture_medium" alt="Picture of {{ artist.name }}"
+                class="entity-avatar">
+              <a matListItemTitle [routerLink]="['/artist', artist.id]" mat-dialog-close class="entity-link">
+                {{ artist.name }}
+              </a>
+            </mat-list-item>
+          }
+        </mat-list>
+      }
+
+      @if (!isLoadingArtists && !artistsError && artists.length === 0) {
+        <div class="state-container empty-state">
+          <mat-icon>library_music</mat-icon>
+          <p>{{ artistsEmptyMessage }}</p>
+        </div>
+      }
+
+      @if (artistsError) {
+        <div class="state-container error-state" role="alert">
+          <mat-icon>error_outline</mat-icon>
+          <p>We couldn't load the artists in this list.</p>
+          <button mat-stroked-button type="button" (click)="retryArtists()">Try again</button>
+        </div>
+      }
+
+      @if (isLoadingArtists) {
+        <p class="loading-message" role="status">Loading artists…</p>
+      } @else if (hasMoreArtists && !artistsError) {
+        <div class="load-more-container">
+          <button mat-stroked-button type="button" (click)="loadArtists()">
+            Load more · {{ artists.length }} of {{ artistsTotal }}
+          </button>
+        </div>
+      }
+    }
+  </ng-template>
 </mat-dialog-content>
 
 <mat-dialog-actions align="end">

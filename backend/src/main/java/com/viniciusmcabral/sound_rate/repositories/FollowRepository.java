@@ -1,5 +1,6 @@
 package com.viniciusmcabral.sound_rate.repositories;
 
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.domain.Page;
@@ -20,13 +21,21 @@ public interface FollowRepository extends JpaRepository<FollowModel, Long> {
 
 	void deleteByFollowerAndFollowing(UserModel follower, UserModel following);
 
+	@Query("SELECT f FROM Follow f WHERE f.following = :user AND f.follower.active = true "
+			+ "AND (:query IS NULL OR lower(f.follower.username) LIKE lower(concat('%', :query, '%')))")
 	@EntityGraph(attributePaths = "follower")
-	@Query("SELECT f FROM Follow f WHERE f.following = :user AND f.follower.active = true")
-	Page<FollowModel> findActiveFollowersByUser(UserModel user, Pageable pageable);
+	Page<FollowModel> findActiveFollowersByUser(@Param("user") UserModel user, @Param("query") String query,
+			Pageable pageable);
 
+	@Query("SELECT f FROM Follow f WHERE f.follower = :user AND f.following.active = true "
+			+ "AND (:query IS NULL OR lower(f.following.username) LIKE lower(concat('%', :query, '%')))")
 	@EntityGraph(attributePaths = "following")
-	@Query("SELECT f FROM Follow f WHERE f.follower = :user AND f.following.active = true")
-	Page<FollowModel> findActiveFollowingByUser(UserModel user, Pageable pageable);
+	Page<FollowModel> findActiveFollowingByUser(@Param("user") UserModel user, @Param("query") String query,
+			Pageable pageable);
+
+	@Query("SELECT f.following.id FROM Follow f WHERE f.follower = :currentUser AND f.following IN :users")
+	List<Long> findFollowingIds(@Param("currentUser") UserModel currentUser,
+			@Param("users") List<UserModel> users);
 
 	@Query("SELECT count(f) FROM Follow f WHERE f.following = :user AND f.follower.active = true")
 	long countActiveFollowersByUser(@Param("user") UserModel user);

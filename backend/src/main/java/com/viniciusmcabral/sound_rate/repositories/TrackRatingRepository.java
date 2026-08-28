@@ -21,6 +21,9 @@ public interface TrackRatingRepository extends JpaRepository<TrackRatingModel, L
 	@Query("SELECT AVG(tr.rating) FROM TrackRating tr WHERE tr.albumId = :albumId")
 	Optional<Double> findAverageRatingByAlbumId(String albumId);
 
+	@Query("SELECT AVG(tr.rating) FROM TrackRating tr WHERE tr.user = :user")
+	Optional<Double> findAverageRatingByUser(UserModel user);
+
 	void deleteByUserAndTrackId(UserModel user, String trackId);
 
 	void deleteAllByUserAndAlbumId(UserModel user, String albumId);

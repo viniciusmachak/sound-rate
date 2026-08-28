@@ -19,5 +19,7 @@ public interface AlbumLikeRepository extends JpaRepository<AlbumLikeModel, Long>
 
 	long countByAlbumId(String albumId);
 
+	long countByUser(UserModel user);
+
 	Page<AlbumLikeModel> findByUser(UserModel user, Pageable pageable);
 }

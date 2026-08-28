@@ -100,7 +100,9 @@ GET /api/v1/users/{username}                       [PUBLIC]
     username  not blank
   Success:
     200 OK
-    Returns profile data, review/rating counts, follower counts, and follow state.
+    Returns profile data, bio, join date, totals for activity/ratings/reviews/likes,
+    the private Listen Later total for the profile owner, follower counts, follow
+    state, combined average rating, and the user's highest-rated album.
 
 GET /api/v1/users/{username}/ratings               [PUBLIC]
   Purpose:
@@ -112,6 +114,17 @@ GET /api/v1/users/{username}/ratings               [PUBLIC]
   Success:
     200 OK
     Returns paginated rated-album entries.
+
+GET /api/v1/users/{username}/reviews               [PUBLIC]
+  Purpose:
+    List reviews written by the user with their album details.
+  Path params:
+    username  not blank
+  Query params:
+    page, size, sort
+  Success:
+    200 OK
+    Returns paginated review entries ordered by newest first by default.
 
 GET /api/v1/users/{username}/likes                 [PUBLIC]
   Purpose:
@@ -135,11 +148,12 @@ PUT /api/v1/users/me/profile                       [AUTH]
     Update the authenticated user's profile data.
   JSON body:
     {
-      "email": "valid email"
+      "email": "valid email",
+      "bio": "optional text, max 280 chars"
     }
   Success:
     200 OK
-    Returns updated user summary.
+    Returns the private updated user summary, including email and bio.
   Common errors:
     400 validation error
     409 email already used by another account
@@ -207,17 +221,25 @@ GET /api/v1/users/{username}/followers             [PUBLIC]
   Purpose:
     List followers of a user.
   Query params:
-    page, size, sort
+    page, size, sort, query
   Success:
-    200 OK
+    200 OK with isFollowedByCurrentUser on each user
 
 GET /api/v1/users/{username}/following             [PUBLIC]
   Purpose:
     List users followed by a user.
   Query params:
-    page, size, sort
+    page, size, sort, query
   Success:
-    200 OK
+    200 OK with isFollowedByCurrentUser on each user
+
+GET /api/v1/users/{username}/following/artists     [PUBLIC]
+  Purpose:
+    List artists followed by a user.
+  Query params:
+    page, size, sort, query
+  Success:
+    200 OK with artist id, name, picture_medium, and followedAt
 
 
 ========================

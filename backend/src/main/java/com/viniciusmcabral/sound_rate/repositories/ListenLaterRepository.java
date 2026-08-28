@@ -15,5 +15,7 @@ public interface ListenLaterRepository extends JpaRepository<ListenLaterModel, L
 
 	void deleteByUserAndAlbumId(UserModel user, String albumId);
 
+	long countByUser(UserModel user);
+
 	Page<ListenLaterModel> findByUser(UserModel user, Pageable pageable);
 }

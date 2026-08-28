@@ -87,6 +87,12 @@ class ProtectedEndpointsIntegrationTest extends AbstractIntegrationTest {
 				.andExpect(jsonPath("$.albumId").doesNotExist())
 				.andReturn();
 		long reviewId = objectMapper.readTree(reviewResponse.getResponse().getContentAsString()).path("id").asLong();
+		mockMvc.perform(get("/api/v1/users/listener/reviews"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.totalElements").value(1))
+				.andExpect(jsonPath("$.content[0].album.id").value(1001))
+				.andExpect(jsonPath("$.content[0].text").value("Review text long enough"))
+				.andExpect(jsonPath("$.content[0].rating").value(4.0));
 
 		mockMvc.perform(put("/api/v1/reviews/{id}", reviewId).header("Authorization", bearerToken(currentUser))
 				.contentType(APPLICATION_JSON)
@@ -97,9 +103,19 @@ class ProtectedEndpointsIntegrationTest extends AbstractIntegrationTest {
 				.andExpect(status().isNoContent());
 
 		mockMvc.perform(put("/api/v1/users/me/profile").header("Authorization", bearerToken(currentUser))
-				.contentType(APPLICATION_JSON).content(json(new UpdateProfileDTO("listener+new@example.com"))))
+				.contentType(APPLICATION_JSON)
+				.content(json(new UpdateProfileDTO("listener+new@example.com", "Vinyl collector and concert regular."))))
 				.andExpect(status().isOk())
-				.andExpect(jsonPath("$.avatarUrl").isString());
+				.andExpect(jsonPath("$.avatarUrl").isString())
+				.andExpect(jsonPath("$.email").value("listener+new@example.com"))
+				.andExpect(jsonPath("$.bio").value("Vinyl collector and concert regular."));
+		mockMvc.perform(get("/api/v1/users/listener"))
+				.andExpect(status().isOk())
+				.andExpect(jsonPath("$.user.email").doesNotExist())
+				.andExpect(jsonPath("$.bio").value("Vinyl collector and concert regular."))
+				.andExpect(jsonPath("$.joinedAt").isString())
+				.andExpect(jsonPath("$.averageRating").doesNotExist())
+				.andExpect(jsonPath("$.featuredAlbum").doesNotExist());
 		mockMvc.perform(put("/api/v1/users/me/password").header("Authorization", bearerToken(currentUser))
 				.contentType(APPLICATION_JSON).content(json(new UpdatePasswordDTO("secret123", "newsecret123"))))
 				.andExpect(status().isNoContent());

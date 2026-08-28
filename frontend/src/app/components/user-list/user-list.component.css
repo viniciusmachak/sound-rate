@@ -1,14 +1,93 @@
-.username-link {
+:host {
+    display: block;
+}
+
+.search-field {
+    margin: 4px 0 12px;
+    width: 100%;
+}
+
+.entity-link {
     color: var(--secondary-text);
     text-decoration: none;
 }
 
-.user-avatar {
+.entity-link:hover,
+.entity-link:focus-visible {
+    color: var(--primary-text);
+    text-decoration: underline;
+}
+
+.entity-avatar {
     border-radius: 50%;
+    height: 44px;
+    object-fit: cover;
+    width: 44px;
+}
+
+.tab-content {
+    padding-top: 8px;
+}
+
+.follow-action {
+    min-width: 6.5rem;
+}
+
+.unfollow-label {
+    display: none;
+}
+
+.follow-action.is-following:hover .following-label,
+.follow-action.is-following:focus-visible .following-label {
+    display: none;
+}
+
+.follow-action.is-following:hover .unfollow-label,
+.follow-action.is-following:focus-visible .unfollow-label {
+    display: inline;
+}
+
+.state-container {
+    align-items: center;
+    color: var(--secondary-text);
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    justify-content: center;
+    min-height: 180px;
+    padding: 24px;
+    text-align: center;
+}
+
+.state-container mat-icon {
+    height: 36px;
+    width: 36px;
+    font-size: 36px;
+}
+
+.state-container p {
+    margin: 0;
+}
+
+.error-state mat-icon {
+    color: var(--warn-color, #f44336);
+}
+
+.loading-message {
+    color: var(--secondary-text);
+    margin: 16px 0 4px;
+    text-align: center;
 }
 
 .load-more-container {
     display: flex;
     justify-content: center;
-    padding-top: 10px;
+    padding-top: 12px;
+}
+
+@media (max-width: 480px) {
+    .follow-action {
+        min-width: auto;
+        padding-inline: 10px;
+    }
 }

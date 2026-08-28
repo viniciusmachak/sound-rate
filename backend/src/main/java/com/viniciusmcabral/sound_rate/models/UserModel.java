@@ -31,6 +31,9 @@ public class UserModel extends AuditableEntityModel implements UserDetails, Seri
 	@Column(name = "avatar_url")
 	private String avatarUrl;
 
+	@Column(length = 280)
+	private String bio;
+
 	@Column(nullable = false)
 	private boolean active = true;
 
@@ -49,6 +52,14 @@ public class UserModel extends AuditableEntityModel implements UserDetails, Seri
 
 	public void setAvatarUrl(String avatarUrl) {
 		this.avatarUrl = avatarUrl;
+	}
+
+	public String getBio() {
+		return bio;
+	}
+
+	public void setBio(String bio) {
+		this.bio = bio;
 	}
 
 	public boolean isActive() {

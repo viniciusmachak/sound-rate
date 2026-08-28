@@ -44,7 +44,8 @@ class ArtistServiceTest {
 	@BeforeEach
 	void setUpArtist() {
 		when(deezerService.getArtistDetails("1"))
-				.thenReturn(new DeezerArtistDetailsDTO(1L, "Artist", "https://deezer.example/artist/1", null, 4, 1000, null));
+				.thenReturn(new DeezerArtistDetailsDTO(1L, "Artist", "https://deezer.example/artist/1", null,
+						null, 4, 1000, null));
 		when(deezerService.getArtistTopTracks("1")).thenReturn(List.of());
 	}
 

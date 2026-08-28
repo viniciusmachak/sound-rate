@@ -67,6 +67,16 @@
           }
         </mat-form-field>
 
+        <mat-form-field appearance="outline" class="full-width">
+          <mat-label>Bio</mat-label>
+          <textarea matInput formControlName="bio" rows="4" maxlength="280"
+            placeholder="Share a little about your taste in music"></textarea>
+          <mat-hint align="end">{{ profileForm.get('bio')?.value?.length || 0 }}/280</mat-hint>
+          @if (profileForm.get('bio')?.hasError('maxlength')) {
+            <mat-error>Bio must be at most 280 characters</mat-error>
+          }
+        </mat-form-field>
+
         <div class="settings-actions">
           <button mat-raised-button color="primary" type="submit"
             [disabled]="profileForm.invalid || !hasProfileChanges || isUpdatingProfile">

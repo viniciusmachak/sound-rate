@@ -69,7 +69,8 @@ public class AuthService implements UserDetailsService {
 		emailService.sendWelcomeEmail(newUser.getEmail(), newUser.getUsername());
 
 		String token = tokenService.generateToken(newUser);
-		UserDTO userDTO = new UserDTO(newUser.getId(), newUser.getUsername(), newUser.getAvatarUrl());
+		UserDTO userDTO = new UserDTO(newUser.getId(), newUser.getUsername(), newUser.getAvatarUrl(),
+				newUser.getEmail(), newUser.getBio());
 
 		return new AuthResponseDTO(token, userDTO);
 	}

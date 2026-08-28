@@ -32,6 +32,11 @@ public interface AlbumRatingRepository extends JpaRepository<AlbumRatingModel, L
 
 	long countByUser(UserModel user);
 
+	@Query("SELECT AVG(ar.rating) FROM AlbumRating ar WHERE ar.user = :user")
+	Optional<Double> findAverageRatingByUser(UserModel user);
+
+	Optional<AlbumRatingModel> findFirstByUserAndRatingIsNotNullOrderByRatingDescUpdatedAtDesc(UserModel user);
+
 	@Query("SELECT r.albumId FROM AlbumRating r WHERE r.user = :user ORDER BY r.id DESC")
 	List<String> findAllAlbumIdsByUser(UserModel user);
 

@@ -43,7 +43,7 @@ public class AuthController {
 		var authentication = manager.authenticate(authToken);
 		var user = (UserModel) authentication.getPrincipal();
 		var tokenJWT = tokenService.generateToken(user);
-		var userDto = new UserDTO(user.getId(), user.getUsername(), user.getAvatarUrl());
+		var userDto = new UserDTO(user.getId(), user.getUsername(), user.getAvatarUrl(), user.getEmail(), user.getBio());
 
 		return ResponseEntity.ok(new AuthResponseDTO(tokenJWT, userDto));
 	}
