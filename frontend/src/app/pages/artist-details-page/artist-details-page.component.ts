@@ -57,7 +57,7 @@ export class ArtistDetailsPageComponent implements OnInit {
     direction: 'desc'
   });
   private accentColorRequest = 0;
-  artistAccentColor = '#5e1c7c';
+  artistAccentColor = 'var(--accent-color)';
   isFollowed = false;
   followersCount = 0;
   followRequestPending = false;
@@ -254,7 +254,7 @@ export class ArtistDetailsPageComponent implements OnInit {
 
   private updateArtistAccent(imageUrl: string): void {
     const request = ++this.accentColorRequest;
-    this.artistAccentColor = '#5e1c7c';
+    this.artistAccentColor = 'var(--accent-color)';
     if (!imageUrl) return;
 
     const image = new Image();
@@ -298,12 +298,12 @@ export class ArtistDetailsPageComponent implements OnInit {
         this.artistAccentColor = `rgb(${Math.round(dominant.red / dominant.count)}, ${Math.round(dominant.green / dominant.count)}, ${Math.round(dominant.blue / dominant.count)})`;
         this.changeDetectorRef.markForCheck();
       } catch {
-        this.artistAccentColor = '#5e1c7c';
+        this.artistAccentColor = 'var(--accent-color)';
       }
     };
 
     image.onerror = () => {
-      if (request === this.accentColorRequest) this.artistAccentColor = '#5e1c7c';
+      if (request === this.accentColorRequest) this.artistAccentColor = 'var(--accent-color)';
     };
     image.src = imageUrl;
   }

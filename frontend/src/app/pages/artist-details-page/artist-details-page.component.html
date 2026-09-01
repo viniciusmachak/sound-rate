@@ -71,9 +71,7 @@
 
     <section class="community-section" aria-labelledby="community-title">
       <header class="community-heading">
-        <span class="section-eyebrow">Community</span>
         <h2 id="community-title">Listener pulse</h2>
-        <p>Ratings and reviews across {{ page.artistDetails.name }}'s discography on Soundrate.</p>
       </header>
 
       <div class="community-overview">
@@ -132,11 +130,7 @@
       @if (page.community.communityFavorites.length > 0) {
         <div class="community-content-block">
           <div class="community-block-heading">
-            <div>
-              <span>Top rated</span>
-              <h3>Community favorites</h3>
-            </div>
-            <small>Up to five albums</small>
+            <h3>Community favorites</h3>
           </div>
 
           <div class="community-favorites-grid">
@@ -156,11 +150,7 @@
       @if (page.community.recentReviews.length > 0) {
         <div class="community-content-block recent-reviews-block">
           <div class="community-block-heading">
-            <div>
-              <span>Latest activity</span>
-              <h3>Recent reviews</h3>
-            </div>
-            <small>Across this artist's albums</small>
+            <h3>Recent reviews</h3>
           </div>
 
           <div class="recent-reviews-list">
@@ -201,10 +191,7 @@
 
     <section class="discography-section" aria-labelledby="discography-title">
       <div class="discography-header">
-        <div>
-          <span class="section-eyebrow">Discography</span>
-          <h2 id="discography-title" class="section-title">{{ categoryTitle }}</h2>
-        </div>
+        <h2 id="discography-title" class="section-title">{{ categoryTitle }}</h2>
 
         <div class="discography-sort-controls">
           <label class="discography-sort">

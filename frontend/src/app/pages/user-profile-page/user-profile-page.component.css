@@ -76,7 +76,7 @@
 }
 
 .profile-eyebrow {
-  color: var(--accent-color);
+  color: var(--secondary-text);
   font-size: 0.72rem;
   font-weight: 800;
   letter-spacing: 0.1em;
@@ -107,7 +107,7 @@
 }
 
 a.profile-bio-empty:hover {
-  color: var(--accent-color);
+  color: var(--primary-text);
 }
 
 .profile-metadata {
@@ -141,12 +141,12 @@ a.profile-bio-empty:hover {
 }
 
 .profile-primary-button {
-  background-color: var(--accent-fill);
+  background-color: var(--accent-color);
   color: var(--on-accent);
 }
 
 .profile-primary-button:hover:not(:disabled) {
-  background-color: #76249a;
+  background-color: color-mix(in srgb, var(--accent-color) 90%, white);
 }
 
 .profile-primary-button.following {
@@ -162,7 +162,7 @@ a.profile-bio-empty:hover {
 .profile-secondary-button:hover:not(:disabled) {
   border-color: var(--accent-color);
   background-color: color-mix(in srgb, var(--accent-color) 14%, transparent);
-  color: var(--accent-color);
+  color: var(--primary-text);
 }
 
 .profile-primary-button:active:not(:disabled),
@@ -191,7 +191,7 @@ a.profile-bio-empty:hover {
   display: grid;
   grid-template-columns: repeat(5, minmax(88px, 1fr));
   min-height: 112px;
-  border-radius: 16px;
+  border-radius: 6px;
   overflow: hidden;
 }
 
@@ -240,7 +240,7 @@ a.profile-bio-empty:hover {
 
 .stat-button:hover {
   background-color: color-mix(in srgb, var(--accent-color) 14%, rgba(20, 22, 26, 0.82));
-  color: var(--accent-color);
+  color: var(--primary-text);
 }
 
 .stat-button:focus-visible {
@@ -259,7 +259,7 @@ a.profile-bio-empty:hover {
 .profile-rating-highlight,
 .featured-album {
   min-height: 112px;
-  border-radius: 16px;
+  border-radius: 6px;
   box-sizing: border-box;
 }
 

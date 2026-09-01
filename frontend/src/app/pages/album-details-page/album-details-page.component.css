@@ -166,7 +166,7 @@
   flex-wrap: wrap;
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 12px;
+  border-radius: 6px;
   background-color: var(--surface-dark);
 }
 
@@ -231,18 +231,18 @@
   padding: 0 1.25rem;
   border-radius: 12px;
   box-sizing: border-box;
-  background-color: var(--accent-fill);
+  background-color: var(--accent-color);
   color: var(--on-accent);
   font-weight: 700;
   box-shadow: none !important;
   transition: background-color 0.2s ease, transform 0.12s ease;
 
   &:not(:disabled):hover {
-    background-color: #76249a;
+    background-color: color-mix(in srgb, var(--accent-color) 90%, white);
   }
 
   &:not(:disabled):active {
-    background-color: #4d1766;
+    background-color: color-mix(in srgb, var(--accent-color) 82%, black);
     transform: scale(0.96);
   }
 
@@ -317,11 +317,11 @@
 }
 
 .custom-accent {
-  background-color: var(--accent-fill);
+  background-color: var(--accent-color);
   color: var(--on-accent);
 
   &:hover {
-    background-color: #76249a;
+    background-color: color-mix(in srgb, var(--accent-color) 90%, white);
   }
 }
 
@@ -331,7 +331,7 @@
   &:hover {
     border-color: var(--accent-color);
     background-color: color-mix(in srgb, var(--accent-color) 12%, transparent);
-    color: var(--accent-color);
+    color: var(--primary-text);
   }
 }
 
@@ -366,12 +366,12 @@
 }
 
 .track-grid-item.current-track {
-  background-color: rgba(94, 28, 124, 0.2);
+  background-color: color-mix(in srgb, var(--accent-color) 20%, transparent);
 }
 
 .track-grid-item.current-track .track-name,
 .track-grid-item.current-track .track-artist-link {
-  color: var(--accent-color);
+  color: var(--primary-text);
 }
 
 .track-index-cell {

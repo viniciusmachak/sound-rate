@@ -128,7 +128,7 @@
 }
 
 .eyebrow {
-  color: var(--accent-color);
+  color: var(--secondary-text);
   font-size: 0.73rem;
   font-weight: 800;
   letter-spacing: 0.11em;
@@ -145,7 +145,7 @@
 
 .primary-action {
   margin-top: 30px;
-  background: var(--accent-fill) !important;
+  background: var(--accent-color) !important;
   color: var(--on-accent) !important;
 }
 
@@ -347,7 +347,7 @@
 }
 
 .filter-toggle-group ::ng-deep .mat-button-toggle-checked {
-  background: var(--accent-fill);
+  background: var(--accent-color);
   color: var(--on-accent);
 }
 

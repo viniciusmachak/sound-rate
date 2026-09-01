@@ -131,15 +131,7 @@
           <div class="tab-content activity-content">
             @if (activity$ | async; as activity) {
               <header class="activity-heading">
-                <div>
-                  <span class="section-kicker">Latest activity</span>
-                  <h2>Recent listening moments</h2>
-                </div>
-                @if (isOwnProfile) {
-                  <p>A snapshot of your ratings, reviews, likes, and recently followed artists.</p>
-                } @else {
-                  <p>A snapshot of this user's ratings, reviews, likes, and recently followed artists.</p>
-                }
+                <h2>Recent listening moments</h2>
               </header>
 
               <div class="activity-grid">

@@ -3,10 +3,24 @@
   --surface-dark: #14181c;
   --primary-text: #e1e3e5;
   --secondary-text: #9ab;
-  --accent-color: #a27bb3;
-  --accent-fill: #5e1c7c;
+  --accent-color: #7066ff;
   --on-accent: #fff;
   --warn-color: #f44336;
+}
+
+.mat-mdc-tab-group,
+.mat-mdc-tab-nav-bar {
+  --mat-tab-active-label-text-color: var(--primary-text);
+  --mat-tab-active-focus-label-text-color: var(--primary-text);
+  --mat-tab-active-hover-label-text-color: var(--primary-text);
+  --mat-tab-inactive-label-text-color: var(--secondary-text);
+  --mat-tab-inactive-focus-label-text-color: var(--secondary-text);
+  --mat-tab-inactive-hover-label-text-color: var(--primary-text);
+  --mat-tab-active-indicator-color: var(--accent-color);
+  --mat-tab-active-focus-indicator-color: var(--accent-color);
+  --mat-tab-active-hover-indicator-color: var(--accent-color);
+  --mat-tab-active-ripple-color: var(--accent-color);
+  --mat-tab-inactive-ripple-color: var(--accent-color);
 }
 
 html,
@@ -71,7 +85,7 @@ body {
 
 .review-dialog-container .mat-mdc-dialog-container .mdc-dialog__surface {
   overflow: hidden;
-  border: 1px solid rgba(94, 28, 124, 0.72);
+  border: 1px solid color-mix(in srgb, var(--accent-color) 72%, transparent);
   border-radius: 16px;
   background: var(--background-dark);
   color: var(--primary-text);
@@ -82,7 +96,7 @@ body {
   --mat-menu-container-color: var(--surface-dark);
   min-width: 180px;
   overflow: hidden;
-  border: 1px solid rgba(94, 28, 124, 0.7);
+  border: 1px solid color-mix(in srgb, var(--accent-color) 70%, transparent);
   border-radius: 12px;
   background-color: var(--surface-dark);
   box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
@@ -101,7 +115,7 @@ body {
 
 .review-actions-menu .mat-mdc-menu-item:hover,
 .review-actions-menu .mat-mdc-menu-item:focus-visible {
-  background-color: rgba(94, 28, 124, 0.24);
+  background-color: color-mix(in srgb, var(--accent-color) 24%, transparent);
 }
 
 .review-actions-menu .mat-mdc-menu-item:focus-visible {
@@ -120,7 +134,7 @@ body {
 .review-confirmation-dialog [mat-dialog-title] {
   margin: 0;
   padding: 24px 24px 16px;
-  border-bottom: 1px solid rgba(94, 28, 124, 0.55);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-color) 55%, transparent);
   color: var(--primary-text);
 }
 
@@ -137,7 +151,7 @@ body {
 .review-confirmation-dialog [mat-dialog-actions] {
   gap: 10px;
   padding: 12px 24px 20px;
-  border-top: 1px solid rgba(94, 28, 124, 0.35);
+  border-top: 1px solid color-mix(in srgb, var(--accent-color) 35%, transparent);
 }
 
 mat-paginator {
@@ -302,20 +316,12 @@ app-album-details-page .album-credits {
   box-sizing: border-box;
 }
 
-app-album-details-page .credits-heading > span {
-  color: var(--accent-color);
-  font-size: 0.68rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
 app-album-details-page .editorial-item.genres-item > span {
-  color: var(--accent-color);
+  color: var(--secondary-text);
 }
 
 app-album-details-page .credits-heading h2 {
-  margin: 8px 0 28px;
+  margin: 0 0 28px;
   font-size: clamp(1.5rem, 3vw, 2.2rem);
 }
 
@@ -329,7 +335,7 @@ app-album-details-page .editorial-item {
   min-width: 0;
   padding: 16px;
   border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 12px;
+  border-radius: 6px;
   background-color: var(--surface-dark);
 }
 
@@ -460,17 +466,21 @@ app-album-details-page .contributor-copy small {
 }
 
 app-artist-details-page .recent-reviews-list {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
 }
 
 app-artist-details-page .artist-review-card {
   min-width: 0;
-  padding: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 14px;
-  background: #17191d;
+  padding: 20px 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+app-artist-details-page .artist-review-card:not(:last-child) {
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-color) 38%, transparent);
 }
 
 app-artist-details-page .reviewed-album {
@@ -525,12 +535,14 @@ app-artist-details-page .artist-review-author > a {
 }
 
 app-artist-details-page .artist-review-author > a:hover {
-  color: var(--accent-color);
+  color: var(--primary-text);
 }
 
 app-artist-details-page .artist-review-author img {
   width: 28px;
   height: 28px;
+  box-sizing: border-box;
+  border: 2px solid var(--accent-color);
   border-radius: 50%;
   object-fit: cover;
 }
@@ -543,8 +555,7 @@ app-artist-details-page .artist-review-author strong {
 
 app-artist-details-page .artist-review-card > p {
   display: -webkit-box;
-  min-height: 3.9em;
-  margin: 16px 0;
+  margin: 16px 0 6px;
   overflow: hidden;
   color: rgba(255, 255, 255, 0.78);
   font-size: 0.84rem;
@@ -572,10 +583,4 @@ app-artist-details-page .artist-review-card footer mat-icon {
   height: 14px;
   color: var(--accent-color);
   font-size: 14px;
-}
-
-@media (max-width: 720px) {
-  app-artist-details-page .recent-reviews-list {
-    grid-template-columns: 1fr;
-  }
 }

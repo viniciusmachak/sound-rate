@@ -56,7 +56,7 @@
 
 .preview-label {
     margin-bottom: 2px;
-    color: var(--accent-color);
+    color: var(--secondary-text);
     font-size: 0.65rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -100,7 +100,7 @@
 .track-artist:focus-visible,
 .album-link:hover,
 .album-link:focus-visible {
-    color: var(--accent-color);
+    color: var(--primary-text);
     text-decoration: underline;
 }
 
@@ -128,7 +128,7 @@
     padding: 0;
     border: 0;
     background: transparent;
-    color: var(--accent-color);
+    color: var(--primary-text);
     font: inherit;
     font-weight: 700;
     cursor: pointer;
@@ -187,18 +187,18 @@
     padding: 11px;
     border-radius: 50%;
     box-sizing: border-box;
-    background-color: var(--accent-fill);
+    background-color: var(--accent-color);
     color: var(--on-accent);
     box-shadow: none !important;
     transition: background-color 0.18s ease, transform 0.12s ease;
 }
 
 .main-play-control:hover {
-    background-color: #76249a;
+    background-color: color-mix(in srgb, var(--accent-color) 90%, white);
 }
 
 .main-play-control:active {
-    background-color: #4d1766;
+    background-color: color-mix(in srgb, var(--accent-color) 82%, black);
     transform: scale(0.92);
 }
 
@@ -348,7 +348,7 @@
 }
 
 .queue-eyebrow {
-    color: var(--accent-color);
+    color: var(--secondary-text);
     font-size: 0.64rem;
     font-weight: 700;
     letter-spacing: 0.08em;
@@ -406,7 +406,7 @@
 }
 
 .queue-track.active .queue-track-index {
-    color: var(--accent-color);
+    color: var(--primary-text);
 }
 
 .queue-track-index mat-icon {

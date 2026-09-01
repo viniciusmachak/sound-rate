@@ -51,7 +51,7 @@ The frontend uses loading indicators according to the shape and scope of the pen
 
 - use `SkeletonLoaderComponent` for route content and collections whose final layout is known, such as album grids, profiles, album details, artist pages, listen-later content, and user lists
 - use compact spinners inside buttons for form submissions and account operations; keep the surrounding form visible and disable the action while the request is pending
-- use small inline spinners for compact, indeterminate operations such as header search and recent sidebar ratings
+- use small inline spinners for compact, indeterminate operations such as header search and audio-player loading
 - use optimistic updates for reversible social actions such as likes, follows, ratings, and listen-later changes, restoring the previous state and showing feedback if the API request fails
 - avoid full-page spinners and avoid replacing already visible content during local actions
 - skeleton animations respect the user's `prefers-reduced-motion` setting
@@ -164,7 +164,7 @@ The main routes are:
 - successful login and registration store the JWT and current user in `localStorage`
 - `AuthService` exposes the current user as an RxJS observable
 - the JWT interceptor adds the Bearer token to outgoing HTTP requests
-- `401` and `403` API responses clear the local session and redirect to `/login`
+- a `401` response received while a token is stored clears the local session and redirects to `/login`; a `403` response preserves the session
 - the auth guard protects `/settings` and `/listen-later`
 
 Backend authorization remains authoritative; frontend route guards only control client-side navigation.

@@ -48,7 +48,7 @@
 
   .review-title a:hover,
   .review-title a:focus-visible {
-    color: color-mix(in srgb, var(--accent-color) 65%, white);
+    color: var(--primary-text);
     text-decoration: underline;
   }
 }
@@ -88,7 +88,7 @@
   color: color-mix(in srgb, var(--accent-color) 65%, white);
 
   &:hover {
-    background-color: rgba(94, 28, 124, 0.2);
+    background-color: color-mix(in srgb, var(--accent-color) 20%, transparent);
   }
 }
 
@@ -111,7 +111,7 @@
   }
 
   button:not(:disabled):hover {
-    background-color: rgba(94, 28, 124, 0.2);
+    background-color: color-mix(in srgb, var(--accent-color) 20%, transparent);
     color: var(--primary-text);
   }
 

@@ -30,7 +30,7 @@
   width: 100%;
   padding: clamp(28px, 4vw, 42px);
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 24px;
+  border-radius: 6px;
   background-color: var(--surface-dark);
   box-sizing: border-box;
   animation: authEnter 0.45s ease-out;
@@ -135,7 +135,7 @@
 
 .auth-links a:hover,
 .auth-links a:focus-visible {
-  color: var(--accent-color);
+  color: var(--primary-text);
   text-decoration: underline;
 }
 
@@ -168,7 +168,6 @@
 
   .auth-card {
     padding: 28px 22px;
-    border-radius: 18px;
   }
 }
 

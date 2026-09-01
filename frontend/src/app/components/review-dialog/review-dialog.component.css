@@ -9,10 +9,10 @@
   gap: 6px;
   margin: 0;
   padding: 24px 24px 18px;
-  border-bottom: 1px solid rgba(94, 28, 124, 0.55);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-color) 55%, transparent);
 
   > span {
-    color: color-mix(in srgb, var(--accent-color) 58%, white);
+    color: var(--secondary-text);
     font-size: 0.72rem;
     font-weight: 700;
     letter-spacing: 0.1em;
@@ -40,12 +40,12 @@
 }
 
 .review-textarea {
-  --mdc-outlined-text-field-outline-color: rgba(94, 28, 124, 0.65);
+  --mdc-outlined-text-field-outline-color: color-mix(in srgb, var(--accent-color) 65%, transparent);
   --mdc-outlined-text-field-hover-outline-color: color-mix(in srgb, var(--accent-color) 65%, white);
   --mdc-outlined-text-field-focus-outline-color: var(--accent-color);
   --mdc-outlined-text-field-caret-color: color-mix(in srgb, var(--accent-color) 58%, white);
   --mdc-outlined-text-field-label-text-color: var(--secondary-text);
-  --mdc-outlined-text-field-focus-label-text-color: color-mix(in srgb, var(--accent-color) 58%, white);
+  --mdc-outlined-text-field-focus-label-text-color: var(--secondary-text);
   width: 100%;
 
   textarea {
@@ -58,7 +58,7 @@
 [mat-dialog-actions] {
   gap: 10px;
   padding: 12px 24px 20px;
-  border-top: 1px solid rgba(94, 28, 124, 0.35);
+  border-top: 1px solid color-mix(in srgb, var(--accent-color) 35%, transparent);
 }
 
 .review-cancel-button {
@@ -71,15 +71,15 @@
 }
 
 .review-save-button {
-  --mdc-filled-button-container-color: var(--accent-fill);
+  --mdc-filled-button-container-color: var(--accent-color);
   --mdc-filled-button-label-text-color: var(--on-accent);
   min-width: 132px;
-  background-color: var(--accent-fill);
+  background-color: var(--accent-color);
   color: var(--on-accent);
   font-weight: 700;
 
   &:not(:disabled):hover {
-    background-color: #76249a;
+    background-color: color-mix(in srgb, var(--accent-color) 90%, white);
   }
 }
 

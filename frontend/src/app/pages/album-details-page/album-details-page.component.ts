@@ -52,7 +52,7 @@ export class AlbumDetailsPageComponent implements OnInit {
   private accentColorRequest = 0;
   albumDetails$ = this.albumDetailsSubject.asObservable();
   albumId!: string;
-  albumAccentColor = '#5e1c7c';
+  albumAccentColor = 'var(--accent-color)';
   albumContributors: AlbumParticipant[] = [];
   deletingReviewIds: ReadonlySet<number> = new Set<number>();
   isSavingReview = false;
@@ -466,7 +466,7 @@ export class AlbumDetailsPageComponent implements OnInit {
 
   private updateAlbumAccent(coverUrl: string): void {
     const request = ++this.accentColorRequest;
-    this.albumAccentColor = '#5e1c7c';
+    this.albumAccentColor = 'var(--accent-color)';
     const image = new Image();
     image.crossOrigin = 'anonymous';
     image.decoding = 'async';
@@ -512,14 +512,14 @@ export class AlbumDetailsPageComponent implements OnInit {
         this.albumAccentColor = `rgb(${red}, ${green}, ${blue})`;
         this.changeDetectorRef.markForCheck();
       } catch {
-        this.albumAccentColor = '#5e1c7c';
+        this.albumAccentColor = 'var(--accent-color)';
         this.changeDetectorRef.markForCheck();
       }
     };
 
     image.onerror = () => {
       if (request !== this.accentColorRequest) return;
-      this.albumAccentColor = '#5e1c7c';
+      this.albumAccentColor = 'var(--accent-color)';
       this.changeDetectorRef.markForCheck();
     };
 

@@ -18,7 +18,7 @@
 
 .eyebrow {
   display: block;
-  color: var(--accent-color);
+  color: var(--secondary-text);
   font-size: 0.76rem;
   font-weight: 700;
   letter-spacing: 0.13em;
@@ -30,7 +30,7 @@
   display: grid;
   min-height: min(720px, calc(100vh - 64px));
   overflow: hidden;
-  background-color: var(--accent-fill);
+  background-color: var(--accent-color);
   color: var(--on-accent);
 }
 
@@ -222,7 +222,7 @@
 }
 
 .technologies-heading .eyebrow {
-  color: var(--accent-color);
+  color: var(--secondary-text);
 }
 
 .technologies-heading p {
@@ -292,7 +292,7 @@
   width: clamp(150px, 14vw, 196px);
   height: 164px;
   border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 20px;
+  border-radius: 6px;
   background-color: var(--surface-dark);
   color: var(--primary-text);
   font-size: 0.82rem;

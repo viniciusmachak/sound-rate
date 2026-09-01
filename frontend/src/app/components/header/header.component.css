@@ -43,7 +43,7 @@
 }
 
 .app-title:hover {
-  color: var(--accent-color);
+  color: var(--primary-text);
 }
 
 .search-container {
@@ -218,7 +218,7 @@
 
 .register-btn {
   border-radius: 999px;
-  background-color: var(--accent-fill);
+  background-color: var(--accent-color);
   color: var(--on-accent);
 }
 

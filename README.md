@@ -80,7 +80,7 @@ SENDGRID_API_KEY=SG.xxxxx
 Notes:
 
 - The backend loads `.env` from the repository root in local development.
-- `CLOUDINARY_URL` and `SENDGRID_API_KEY` are required if you use avatar upload or email flows.
+- `CLOUDINARY_URL` and `SENDGRID_API_KEY` are currently required for the backend to start because both integrations are configured during application initialization.
 
 ## Running With Docker
 
