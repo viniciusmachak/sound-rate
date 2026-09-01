@@ -6,14 +6,17 @@
     }
   </div>
 } @else {
-  <div class="star-container" role="group" [attr.aria-label]="label">
+  <div class="star-container interactive-stars" role="slider" tabindex="0"
+    [attr.aria-label]="label"
+    aria-valuemin="0" aria-valuemax="5"
+    [attr.aria-valuenow]="rating"
+    [attr.aria-valuetext]="rating + ' out of 5'"
+    (keydown)="handleKeydown($event)" (mouseleave)="clearHoverRating()">
     @for (star of stars; track star) {
-      <button mat-icon-button type="button" [disableRipple]="true"
-        [attr.aria-label]="'Set ' + label.toLowerCase() + ' to ' + star + ' out of 5'"
-        (click)="rate(star, $event)" (mousemove)="setHoverRating(star, $event)"
-        (mouseleave)="clearHoverRating()">
+      <span class="star-hit-target" aria-hidden="true"
+        (click)="rate(star, $event)" (mousemove)="setHoverRating(star, $event)">
         <mat-icon aria-hidden="true">{{ getStarIcon(star) }}</mat-icon>
-      </button>
+      </span>
     }
   </div>
 }

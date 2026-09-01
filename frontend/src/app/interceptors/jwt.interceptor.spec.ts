@@ -3,19 +3,23 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { AuthService } from '../services/auth.service';
 import { jwtInterceptor } from './jwt.interceptor';
+import { FeedbackService } from '../services/feedback.service';
 
 describe('jwtInterceptor', () => {
   let httpTesting: HttpTestingController;
   let authService: jasmine.SpyObj<AuthService>;
+  let feedback: jasmine.SpyObj<FeedbackService>;
 
   beforeEach(() => {
     authService = jasmine.createSpyObj<AuthService>('AuthService', ['getToken', 'logout']);
+    feedback = jasmine.createSpyObj<FeedbackService>('FeedbackService', ['warning']);
 
     TestBed.configureTestingModule({
       providers: [
         provideHttpClient(withInterceptors([jwtInterceptor])),
         provideHttpClientTesting(),
-        { provide: AuthService, useValue: authService }
+        { provide: AuthService, useValue: authService },
+        { provide: FeedbackService, useValue: feedback }
       ]
     });
 
@@ -43,6 +47,10 @@ describe('jwtInterceptor', () => {
     httpTesting.expectOne('/api/v1/test').flush({}, { status: 401, statusText: 'Unauthorized' });
 
     expect(authService.logout).toHaveBeenCalledTimes(1);
+    expect(feedback.warning).toHaveBeenCalledWith(
+      'Your session expired',
+      'Sign in again to continue rating, reviewing and saving music.'
+    );
   });
 
   it('preserves the session after a forbidden response', () => {

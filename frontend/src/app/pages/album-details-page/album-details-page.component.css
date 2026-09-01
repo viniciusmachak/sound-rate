@@ -231,8 +231,8 @@
   padding: 0 1.25rem;
   border-radius: 12px;
   box-sizing: border-box;
-  background-color: var(--accent-color);
-  color: #fff;
+  background-color: var(--accent-fill);
+  color: var(--on-accent);
   font-weight: 700;
   box-shadow: none !important;
   transition: background-color 0.2s ease, transform 0.12s ease;
@@ -317,8 +317,8 @@
 }
 
 .custom-accent {
-  background-color: var(--accent-color);
-  color: #fff;
+  background-color: var(--accent-fill);
+  color: var(--on-accent);
 
   &:hover {
     background-color: #76249a;

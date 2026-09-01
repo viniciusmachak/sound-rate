@@ -1,89 +1,104 @@
-<div class="home-container">
-  <h1 class="headline">Find. Listen. Rate</h1>
-  <p class="subheadline">Your music diary</p>
-
+<div class="home-page">
   @if (resultsData$ | async; as data) {
-    <div class="results-container">
-      @if (data.isLoading) {
+    @if (data.query.length < 3) {
+      @if (highestRatedAlbums$ | async; as albums) {
+        <section class="hero-section" aria-labelledby="home-intro">
+          <img class="hero-wallpaper" src="/home-wallpaper.jpg" width="1024" height="768" alt=""
+            fetchpriority="high" decoding="async">
+          <p id="home-intro">
+            Soundrate is your music diary for discovering, rating and remembering the albums that move you.
+          </p>
+        </section>
+
+        <section id="top-rated" class="ranking-section" aria-labelledby="ranking-title">
+          <header class="section-heading">
+            <p id="ranking-title">Highest-rated albums.</p>
+          </header>
+
+          @if (albums.length > 0) {
+            <ol class="ranking-list">
+              @for (album of albums.slice(0, 6); track album.id; let rank = $index) {
+                <li>
+                  <a [routerLink]="['/album', album.id]"
+                    [attr.aria-label]="'Number ' + (rank + 1) + ': ' + album.title + ' by ' + album.artistName">
+                    <span class="rank-number" aria-hidden="true">{{ rank + 1 }}</span>
+                    <img [src]="album.coverUrl" alt="" loading="lazy" />
+                    <span class="album-copy">
+                      <strong>{{ album.title }}</strong>
+                      <small>{{ album.artistName }}</small>
+                    </span>
+                    <span class="album-score" [attr.aria-label]="album.averageRating + ' out of 5 stars'">
+                      <mat-icon aria-hidden="true">star</mat-icon>
+                      {{ album.averageRating | number:'1.1-1' }}
+                    </span>
+                    <mat-icon class="album-arrow" aria-hidden="true">arrow_forward</mat-icon>
+                  </a>
+                </li>
+              }
+            </ol>
+          } @else {
+            <div class="empty-state" role="status">
+              <mat-icon aria-hidden="true">album</mat-icon>
+              <div><strong>No ranked albums yet.</strong><p>Rate an album to help build the chart.</p></div>
+            </div>
+          }
+        </section>
+
+        <app-home-features />
+
+        <section class="final-cta" aria-labelledby="cta-title">
+          <p id="cta-title">Turn every listen into a collection of ratings, reviews and memories.</p>
+          <div class="cta-actions">
+            <a mat-flat-button class="primary-action" routerLink="/register">Create your diary</a>
+            <a mat-stroked-button class="secondary-action" href="#top-rated">Explore albums</a>
+          </div>
+        </section>
+      } @else {
         <app-skeleton-loader variant="cards" [count]="8" />
       }
-      @if (!data.isLoading) {
-        <div>
-          @if (data.query.length >= 3 && data.results.length > 0) {
-            <mat-button-toggle-group
-              [formControl]="filterControl" class="filter-toggle-group" [hideSingleSelectionIndicator]="true">
+    } @else {
+      <section class="search-results" aria-labelledby="search-results-title">
+        <header class="search-heading">
+          <span class="eyebrow">Search Soundrate</span>
+          <h1 id="search-results-title">Results for “{{ data.query }}”</h1>
+        </header>
+
+        @if (data.isLoading) {
+          <app-skeleton-loader variant="cards" [count]="8" />
+        } @else {
+          @if (data.results.length > 0) {
+            <mat-button-toggle-group [formControl]="filterControl" class="filter-toggle-group"
+              [hideSingleSelectionIndicator]="true" aria-label="Filter search results">
               <mat-button-toggle value="all">All</mat-button-toggle>
               <mat-button-toggle value="album">Albums</mat-button-toggle>
               <mat-button-toggle value="artist">Artists</mat-button-toggle>
               <mat-button-toggle value="user">Users</mat-button-toggle>
             </mat-button-toggle-group>
           }
+
           @if (data.filteredResults.length > 0) {
             <div class="results-grid">
               @for (result of data.filteredResults; track resultKey(result)) {
                 <div class="result-item" [class.artist-result]="result.type === 'artist'">
                   @switch (result.type) {
-                    @case ('album') {
-                      <app-album-card [album]="result.album!"></app-album-card>
-                    }
-                    @case ('artist') {
-                      <app-artist-card [artist]="result.artist!"></app-artist-card>
-                    }
-                    @case ('user') {
-                      <app-user-card [user]="result.user!"></app-user-card>
-                    }
+                    @case ('album') { <app-album-card [album]="result.album!" /> }
+                    @case ('artist') { <app-artist-card [artist]="result.artist!" /> }
+                    @case ('user') { <app-user-card [user]="result.user!" /> }
                   }
                 </div>
               }
             </div>
-          }
-          @if (data.query.length >= 3 && data.results.length === 0) {
-            <div class="info-message">
-              <mat-icon class="info-icon">{{ data.error ? 'error_outline' : 'search_off' }}</mat-icon>
-              @if (data.error) {
-                <p>{{ data.error }}</p>
-              } @else {
-                <p>No results found for "<strong>{{ data.query }}</strong>".</p>
-              }
-            </div>
-          }
-        </div>
-      }
-      @if (!data.isLoading && data.query.length < 3 && !highestRatedAlbums$) {
-        <div>
-          <div class="info-message">
-            <mat-icon class="info-icon">music_note</mat-icon>
-            <p>Start by searching for your favorite album, artist or friend.</p>
-          </div>
-        </div>
-      }
-      @if (data.query.length < 3) {
-        <div>
-          @if (highestRatedAlbums$ | async; as albums) {
-            <section class="dashboard-section">
-              <h2 class="section-title">The 15 Highest Rated Albums</h2>
-              @if (albums.length > 0) {
-                <div></div>
-              } @else {
-                <div class="info-message">
-                  <mat-icon class="info-icon">album</mat-icon>
-                  <p>No albums meet the criteria for the top-rated list yet.</p>
-                  <p class="subtle">Keep rating to help build the charts!</p>
-                </div>
-              }
-              @if (albums.length > 0) {
-                <div class="album-grid">
-                  @for (album of albums; track album.id) {
-                    <app-album-card [album]="album"></app-album-card>
-                  }
-                </div>
-              }
-            </section>
           } @else {
-            <app-skeleton-loader variant="cards" [count]="10" />
+            <div class="empty-state" role="status">
+              <mat-icon aria-hidden="true">{{ data.error ? 'error_outline' : 'search_off' }}</mat-icon>
+              <div>
+                <strong>{{ data.error ? 'Search unavailable' : 'No results found' }}</strong>
+                <p>{{ data.error || 'Try another album, artist or username.' }}</p>
+              </div>
+            </div>
           }
-        </div>
-      }
-    </div>
+        }
+      </section>
+    }
   }
 </div>

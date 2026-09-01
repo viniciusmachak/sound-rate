@@ -1,0 +1,22 @@
+<section
+  class="operation-feedback operation-feedback--{{ data.kind }}"
+>
+  <span class="feedback-icon" aria-hidden="true">
+    <mat-icon [class.is-spinning]="data.kind === 'loading'">{{ icon }}</mat-icon>
+  </span>
+
+  <span class="feedback-copy">
+    <strong>{{ data.title }}</strong>
+    <span>{{ data.message }}</span>
+  </span>
+
+  @if (data.actionLabel) {
+    <button type="button" class="feedback-action" (click)="runAction()">
+      {{ data.actionLabel }}
+    </button>
+  } @else if (data.dismissible) {
+    <button type="button" class="feedback-close" (click)="close()" aria-label="Dismiss notification">
+      <mat-icon>close</mat-icon>
+    </button>
+  }
+</section>

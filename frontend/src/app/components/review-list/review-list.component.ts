@@ -8,15 +8,15 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { ApiService } from '../../services/api.service';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { finalize } from 'rxjs';
+import { FeedbackService } from '../../services/feedback.service';
 
 @Component({
   selector: 'app-review-list',
   standalone: true,
   imports: [
     CommonModule, MatButtonModule, MatIconModule, MatMenuModule,
-    MatSnackBarModule, RouterLink, StarRatingComponent
+    RouterLink, StarRatingComponent
   ],
   templateUrl: './review-list.component.html',
   styleUrl: './review-list.component.css'
@@ -32,7 +32,7 @@ export class ReviewListComponent {
 
   constructor(
     private apiService: ApiService,
-    private snackBar: MatSnackBar
+    private feedback: FeedbackService
   ) { }
 
   isAuthor(review: AlbumReview): boolean {
@@ -51,12 +51,19 @@ export class ReviewListComponent {
     apiCall.pipe(
       finalize(() => this.updatingLikeIds.delete(review.id))
     ).subscribe({
+      next: () => this.feedback.success(
+        isCurrentlyLiked ? 'Reaction removed' : 'Review appreciated',
+        isCurrentlyLiked
+          ? `Your like was removed from @${review.author.username}’s review.`
+          : `Your support was added to @${review.author.username}’s review.`
+      ),
       error: () => {
         review.isLikedByCurrentUser = isCurrentlyLiked;
         review.likesCount += isCurrentlyLiked ? 1 : -1;
-        this.snackBar.open('Could not update the review like. Please try again.', 'Close', {
-          duration: 3000
-        });
+        this.feedback.error(
+          'Couldn’t update your reaction',
+          `@${review.author.username}’s review kept its previous like status.`
+        );
       }
     });
   }

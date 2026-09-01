@@ -5,14 +5,16 @@ import { catchError, distinctUntilChanged, map, shareReplay, startWith, switchMa
 import { SearchResult } from '../../models/search-result.model';
 import { ApiService } from '../../services/api.service';
 import { CommonModule } from '@angular/common';
+import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { AlbumCardComponent } from '../../components/album-card/album-card.component';
 import { ArtistCardComponent } from '../../components/artist-card/artist-card.component';
+import { HomeFeaturesComponent } from '../../components/home-features/home-features.component';
 import { UserCardComponent } from '../../components/user-card/user-card.component';
 import { AlbumDashboard } from '../../models/album-details.model';
 import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skeleton-loader.component';
-import { ActivatedRoute } from '@angular/router';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
 interface SearchState {
   isLoading: boolean;
@@ -25,9 +27,9 @@ interface SearchState {
   selector: 'app-home-page',
   standalone: true,
   imports: [
-    CommonModule, ReactiveFormsModule,
+    CommonModule, ReactiveFormsModule, RouterLink,
     MatIconModule, AlbumCardComponent, ArtistCardComponent, UserCardComponent,
-    MatButtonToggleModule, SkeletonLoaderComponent,
+    HomeFeaturesComponent, MatButtonModule, MatButtonToggleModule, SkeletonLoaderComponent,
   ],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.css'

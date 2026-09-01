@@ -141,8 +141,8 @@ a.profile-bio-empty:hover {
 }
 
 .profile-primary-button {
-  background-color: var(--accent-color);
-  color: #fff;
+  background-color: var(--accent-fill);
+  color: var(--on-accent);
 }
 
 .profile-primary-button:hover:not(:disabled) {
@@ -273,7 +273,7 @@ a.profile-bio-empty:hover {
 }
 
 .profile-rating-highlight > mat-icon {
-  color: #ffc107;
+  color: var(--accent-color);
 }
 
 .profile-rating-highlight span,
@@ -332,7 +332,7 @@ a.featured-album:hover {
 .featured-album strong mat-icon {
   width: 17px;
   height: 17px;
-  color: #ffc107;
+  color: var(--accent-color);
   font-size: 17px;
 }
 
@@ -461,7 +461,25 @@ a.featured-album:hover {
 }
 
 .like-button {
-  color: #f44336;
+  --mat-icon-button-state-layer-color: transparent;
+  --mat-icon-button-ripple-color: transparent;
+  background-color: transparent;
+  color: var(--accent-color);
+  box-shadow: none;
+}
+
+.like-button mat-icon {
+  color: var(--accent-color);
+  filter: drop-shadow(0 1px 3px rgba(0, 0, 0, 0.8));
+}
+
+.like-button:hover {
+  background-color: transparent;
+  color: color-mix(in srgb, var(--accent-color) 78%, white);
+}
+
+.like-button:hover mat-icon {
+  color: currentColor;
 }
 
 .listen-later-button {

@@ -30,8 +30,8 @@
   display: grid;
   min-height: min(720px, calc(100vh - 64px));
   overflow: hidden;
-  background-color: var(--accent-color);
-  color: #fff;
+  background-color: var(--accent-fill);
+  color: var(--on-accent);
 }
 
 .hero-layout {
@@ -229,6 +229,33 @@
   color: var(--secondary-text);
 }
 
+.marquee-toggle {
+  display: inline-flex;
+  align-items: center;
+  align-self: flex-start;
+  gap: 7px;
+  min-height: 40px;
+  margin-top: 6px;
+  padding: 8px 13px;
+  border: 1px solid var(--accent-color);
+  border-radius: 10px;
+  background: transparent;
+  color: var(--primary-text);
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.marquee-toggle mat-icon {
+  color: var(--accent-color);
+  font-size: 20px;
+}
+
+.marquee-toggle:hover {
+  background: color-mix(in srgb, var(--accent-color) 14%, transparent);
+}
+
 .technology-marquee {
   position: relative;
   overflow: hidden;
@@ -244,7 +271,8 @@
 }
 
 .technology-marquee:hover .technology-track,
-.technology-marquee:focus-within .technology-track {
+.technology-marquee:focus-within .technology-track,
+.technology-track.is-paused {
   animation-play-state: paused;
 }
 

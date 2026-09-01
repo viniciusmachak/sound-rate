@@ -42,7 +42,7 @@
 }
 
 .deezer-button:focus-visible {
-  outline: 3px solid color-mix(in srgb, var(--accent-color) 45%, transparent);
+  outline: 3px solid var(--accent-color);
   outline-offset: 2px;
 }
 

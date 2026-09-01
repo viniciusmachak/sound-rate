@@ -1,4 +1,5 @@
 import { CommonModule } from '@angular/common';
+import { A11yModule } from '@angular/cdk/a11y';
 import { Component, HostListener } from '@angular/core';
 import { FormControl, ReactiveFormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -7,12 +8,13 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { Router, RouterLink } from '@angular/router';
 import { concat, Observable, of } from 'rxjs';
-import { catchError, debounceTime, distinctUntilChanged, map, shareReplay, startWith, switchMap } from 'rxjs/operators';
+import { catchError, debounceTime, distinctUntilChanged, map, shareReplay, startWith, switchMap, tap } from 'rxjs/operators';
 import { SearchResult } from '../../models/search-result.model';
 import { User } from '../../models/user.model';
 import { UserRating } from '../../models/user-rating.model';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { FeedbackService } from '../../services/feedback.service';
 
 interface HeaderSearchState {
   isLoading: boolean;
@@ -32,6 +34,7 @@ interface RecentRatingsState {
   standalone: true,
   imports: [
     CommonModule,
+    A11yModule,
     ReactiveFormsModule,
     RouterLink,
     MatToolbarModule,
@@ -49,12 +52,24 @@ export class HeaderComponent {
   searchState$: Observable<HeaderSearchState>;
   readonly ratingStars = [1, 2, 3, 4, 5];
   isSearchFocused = false;
+  activeSearchIndex = -1;
   isSidebarOpen = false;
+  private latestSearchState: HeaderSearchState = {
+    isLoading: false,
+    query: '',
+    results: [],
+    error: false
+  };
+
+  get isSearchPopupOpen(): boolean {
+    return this.isSearchFocused && this.latestSearchState.query.length >= 3;
+  }
 
   constructor(
     private authService: AuthService,
     private apiService: ApiService,
-    private router: Router
+    private router: Router,
+    private feedback: FeedbackService
   ) {
     this.currentUser$ = this.authService.currentUser$;
     this.recentRatingsState$ = this.currentUser$.pipe(
@@ -105,13 +120,22 @@ export class HeaderComponent {
           )
         );
       }),
+      tap(state => {
+        this.latestSearchState = state;
+        this.activeSearchIndex = -1;
+      }),
       shareReplay({ bufferSize: 1, refCount: true })
     );
   }
 
   logout(): void {
+    const username = this.authService.currentUserValue?.username;
     this.closeSidebar();
     this.authService.logout();
+    this.feedback.info(
+      'Signed out safely',
+      username ? `See you next time, @${username}.` : 'See you next time.'
+    );
   }
 
   toggleSidebar(): void {
@@ -127,12 +151,40 @@ export class HeaderComponent {
   closeOverlays(): void {
     this.closeSidebar();
     this.isSearchFocused = false;
+    this.activeSearchIndex = -1;
   }
 
   closeSearch(): void {
     window.setTimeout(() => {
       this.isSearchFocused = false;
+      this.activeSearchIndex = -1;
     }, 150);
+  }
+
+  handleSearchKeydown(event: KeyboardEvent): void {
+    const results = this.latestSearchState.results;
+
+    if (event.key === 'Escape') {
+      event.preventDefault();
+      this.isSearchFocused = false;
+      this.activeSearchIndex = -1;
+      return;
+    }
+
+    if (results.length === 0) return;
+
+    if (event.key === 'ArrowDown') {
+      event.preventDefault();
+      this.activeSearchIndex = (this.activeSearchIndex + 1) % results.length;
+    } else if (event.key === 'ArrowUp') {
+      event.preventDefault();
+      this.activeSearchIndex = this.activeSearchIndex <= 0
+        ? results.length - 1
+        : this.activeSearchIndex - 1;
+    } else if (event.key === 'Enter' && this.activeSearchIndex >= 0) {
+      event.preventDefault();
+      this.selectResult(results[this.activeSearchIndex]);
+    }
   }
 
   submitSearch(event?: Event): void {
@@ -142,6 +194,7 @@ export class HeaderComponent {
     if (query.length < 3) return;
 
     this.isSearchFocused = false;
+    this.activeSearchIndex = -1;
     void this.router.navigate(['/'], { queryParams: { q: query } });
   }
 
@@ -156,6 +209,7 @@ export class HeaderComponent {
 
     this.searchControl.setValue('');
     this.isSearchFocused = false;
+    this.activeSearchIndex = -1;
   }
 
   resultImage(result: SearchResult): string {

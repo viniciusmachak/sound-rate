@@ -1,0 +1,112 @@
+:host {
+  display: block;
+}
+
+.operation-feedback {
+  --feedback-color: var(--accent-color);
+  display: grid;
+  grid-template-columns: 40px minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 12px;
+  width: min(420px, calc(100vw - 32px));
+  min-height: 74px;
+  padding: 12px 12px 12px 14px;
+  border-left: 3px solid var(--feedback-color);
+  box-sizing: border-box;
+  color: var(--primary-text);
+}
+
+.feedback-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  background: transparent;
+  color: var(--feedback-color);
+}
+
+.feedback-icon mat-icon {
+  width: 22px;
+  height: 22px;
+  font-size: 22px;
+}
+
+.feedback-copy {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 3px;
+  line-height: 1.35;
+}
+
+.feedback-copy strong {
+  color: var(--primary-text);
+  font-size: 0.86rem;
+  letter-spacing: -0.01em;
+}
+
+.feedback-copy > span {
+  color: var(--secondary-text);
+  font-size: 0.76rem;
+}
+
+.feedback-close,
+.feedback-action {
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 0;
+  border-radius: 9px;
+  background: transparent;
+  color: var(--accent-color);
+  cursor: pointer;
+  transition: background-color 0.18s ease, color 0.18s ease;
+}
+
+.feedback-action {
+  width: auto;
+  padding-inline: 11px;
+  border: 1px solid color-mix(in srgb, var(--feedback-color) 45%, transparent);
+  color: var(--feedback-color);
+  font: inherit;
+  font-size: 0.72rem;
+  font-weight: 800;
+}
+
+.feedback-close:hover,
+.feedback-close:focus-visible,
+.feedback-action:hover,
+.feedback-action:focus-visible {
+  background: color-mix(in srgb, var(--accent-color) 18%, transparent);
+  color: var(--primary-text);
+}
+
+.feedback-close mat-icon {
+  width: 19px;
+  height: 19px;
+  font-size: 19px;
+}
+
+.is-spinning {
+  animation: feedbackSpin 1s linear infinite;
+}
+
+@keyframes feedbackSpin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 520px) {
+  .operation-feedback {
+    width: calc(100vw - 20px);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .is-spinning {
+    animation: none;
+  }
+}

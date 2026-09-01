@@ -47,7 +47,7 @@
               [class.following]="isFollowed"
               [disabled]="followRequestPending"
               [attr.aria-busy]="followRequestPending"
-              (click)="toggleFollow(page.artistDetails.id)">
+              (click)="toggleFollow(page.artistDetails.id, page.artistDetails.name)">
               <mat-icon>{{ isFollowed ? 'check' : 'person_add' }}</mat-icon>
               {{ isFollowed ? 'Following' : 'Follow' }}
             </button>

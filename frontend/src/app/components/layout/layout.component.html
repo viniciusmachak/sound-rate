@@ -1,7 +1,16 @@
+<a class="skip-link" href="#main-content">Skip to main content</a>
+
 <app-header />
 
-<main class="main-content">
+<main id="main-content" class="main-content" [class.home-route]="isHomePage" tabindex="-1">
   <router-outlet></router-outlet>
 </main>
 
 <app-footer />
+
+@if (showBackToTop) {
+  <button class="back-to-top" type="button" aria-label="Back to top" title="Back to top"
+    (click)="scrollToTop()">
+    <span aria-hidden="true">↑</span>
+  </button>
+}

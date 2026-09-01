@@ -58,11 +58,17 @@
         <span class="eyebrow">Under the hood</span>
         <h2 id="technologies-title">The technology behind Soundrate.</h2>
         <p>A full-stack project built with a modern, production-ready toolset.</p>
+        <button type="button" class="marquee-toggle"
+          [attr.aria-pressed]="isTechnologyMarqueePaused"
+          (click)="toggleTechnologyMarquee()">
+          <mat-icon aria-hidden="true">{{ isTechnologyMarqueePaused ? 'play_arrow' : 'pause' }}</mat-icon>
+          <span>{{ isTechnologyMarqueePaused ? 'Resume technologies' : 'Pause technologies' }}</span>
+        </button>
       </header>
     </div>
 
     <div class="technology-marquee" aria-label="Technologies used by Soundrate">
-      <div class="technology-track">
+      <div class="technology-track" [class.is-paused]="isTechnologyMarqueePaused">
         <ul class="technology-group">
           @for (technology of technologies; track technology.name) {
             <li class="technology-card">

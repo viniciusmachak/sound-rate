@@ -122,8 +122,8 @@
 
 .popular-play-button {
   min-width: 170px;
-  background-color: var(--accent-color);
-  color: #fff;
+  background-color: var(--accent-fill);
+  color: var(--on-accent);
 }
 
 .popular-play-button:hover:not(:disabled) {

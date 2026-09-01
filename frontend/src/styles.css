@@ -3,7 +3,9 @@
   --surface-dark: #14181c;
   --primary-text: #e1e3e5;
   --secondary-text: #9ab;
-  --accent-color: #5e1c7c;
+  --accent-color: #a27bb3;
+  --accent-fill: #5e1c7c;
+  --on-accent: #fff;
   --warn-color: #f44336;
 }
 
@@ -11,17 +13,47 @@ html,
 body {
   height: 100%;
   margin: 0;
+  overflow-x: clip;
 }
 
 body {
-  font-family: 'Courier New', Courier, monospace;
+  font-family: GraphikWeb, -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
   background-color: var(--background-dark);
   color: var(--primary-text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 3px solid var(--accent-color);
   outline-offset: 3px;
+}
+
+.soundrate-feedback-panel {
+  --mdc-snackbar-container-color: transparent;
+  --mdc-snackbar-supporting-text-color: var(--primary-text);
+  margin: 0 12px 16px !important;
+}
+
+.soundrate-feedback-panel .mdc-snackbar__surface {
+  min-width: 0 !important;
+  max-width: none !important;
+  padding: 0 !important;
+  overflow: hidden;
+  border: 1px solid var(--accent-color);
+  border-radius: 15px !important;
+  background: var(--surface-dark) !important;
+  box-shadow: 0 18px 46px rgba(0, 0, 0, 0.52) !important;
+}
+
+.soundrate-feedback-panel .mat-mdc-snack-bar-label {
+  padding: 0 !important;
+}
+
+@media (max-width: 520px) {
+  .soundrate-feedback-panel {
+    margin: 0 0 10px !important;
+  }
 }
 
 .image-dialog-panel .mat-mdc-dialog-container .mdc-dialog__surface {
@@ -226,7 +258,9 @@ app-album-details-page .track-deezer-button {
   background-position: center;
   background-repeat: no-repeat;
   background-size: contain;
-  transition: border-color 0.18s ease, background-color 0.18s ease;
+  transition:
+    border-color 0.18s ease,
+    background-color 0.18s ease;
 }
 
 app-album-details-page .track-deezer-button:hover,

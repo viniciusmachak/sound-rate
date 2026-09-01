@@ -2,12 +2,12 @@ import { provideNoopAnimations } from '@angular/platform-browser/animations';
 import { provideRouter } from '@angular/router';
 import { fakeAsync, TestBed, tick } from '@angular/core/testing';
 import { MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { of, throwError } from 'rxjs';
 import { Page } from '../../models/page.model';
 import { SocialUser } from '../../models/social-user.model';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { FeedbackService } from '../../services/feedback.service';
 import { UserListComponent, UserListDialogData } from './user-list.component';
 
 describe('UserListComponent', () => {
@@ -68,7 +68,10 @@ describe('UserListComponent', () => {
           provide: AuthService,
           useValue: { isAuthenticated: () => false, currentUserValue: null }
         },
-        { provide: MatSnackBar, useValue: jasmine.createSpyObj<MatSnackBar>('MatSnackBar', ['open']) }
+        {
+          provide: FeedbackService,
+          useValue: jasmine.createSpyObj<FeedbackService>('FeedbackService', ['success', 'error'])
+        }
       ]
     });
   });

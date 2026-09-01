@@ -11,9 +11,9 @@ import { ArtistPage } from '../../models/artist-page.model';
 import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skeleton-loader.component';
 import { DeezerButtonComponent } from '../../components/deezer-button/deezer-button.component';
 import { MatButtonModule } from '@angular/material/button';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../services/auth.service';
 import { AudioService } from '../../services/audio.service';
+import { FeedbackService } from '../../services/feedback.service';
 import { DeezerTrack } from '../../models/deezer.model';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { StarRatingComponent } from '../../components/star-rating/star-rating.component';
@@ -41,7 +41,6 @@ type DiscographyDirection = 'asc' | 'desc';
     MatIconModule,
     MatPaginatorModule,
     MatButtonModule,
-    MatSnackBarModule,
     SkeletonLoaderComponent,
     DeezerButtonComponent
   ],
@@ -71,7 +70,7 @@ export class ArtistDetailsPageComponent implements OnInit {
     private apiService: ApiService,
     public authService: AuthService,
     public audioService: AudioService,
-    private snackBar: MatSnackBar,
+    private feedback: FeedbackService,
     private destroyRef: DestroyRef,
     private changeDetectorRef: ChangeDetectorRef
   ) { }
@@ -171,9 +170,12 @@ export class ArtistDetailsPageComponent implements OnInit {
     return tracks.some(track => track.readable !== false && Boolean(track.preview));
   }
 
-  toggleFollow(artistId: number): void {
+  toggleFollow(artistId: number, artistName: string): void {
     if (!this.authService.isAuthenticated()) {
-      this.snackBar.open('Sign in to follow artists.', 'Close', { duration: 3000 });
+      this.feedback.warning(
+        'Sign in to follow artists',
+        `Create your listener profile to keep up with ${artistName}.`
+      );
       return;
     }
     if (this.followRequestPending) return;
@@ -190,13 +192,21 @@ export class ArtistDetailsPageComponent implements OnInit {
     request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.followRequestPending = false;
-        this.snackBar.open(previousState ? 'Artist unfollowed.' : 'Artist followed.', 'Close', { duration: 2200 });
+        this.feedback.success(
+          previousState ? `Unfollowed ${artistName}` : `Following ${artistName}`,
+          previousState
+            ? 'This artist was removed from your following list.'
+            : 'This artist now appears in your following list.'
+        );
       },
       error: () => {
         this.isFollowed = previousState;
         this.followersCount = Math.max(0, this.followersCount + (previousState ? 1 : -1));
         this.followRequestPending = false;
-        this.snackBar.open('Could not update the artist follow status.', 'Close', { duration: 3000 });
+        this.feedback.error(
+          `Couldn’t ${previousState ? 'unfollow' : 'follow'} ${artistName}`,
+          'Your previous follow status was restored. Please try again.'
+        );
       }
     });
   }
@@ -211,14 +221,15 @@ export class ArtistDetailsPageComponent implements OnInit {
     try {
       if (navigator.share) {
         await navigator.share(shareData);
+        this.feedback.success(`Shared ${name}`, 'The artist profile was sent successfully.');
         return;
       }
 
       await navigator.clipboard.writeText(shareData.url);
-      this.snackBar.open('Artist link copied.', 'Close', { duration: 2200 });
+      this.feedback.success('Artist link copied', `${name} is ready to share from your clipboard.`);
     } catch (error) {
       if ((error as DOMException)?.name !== 'AbortError') {
-        this.snackBar.open('Could not share this artist.', 'Close', { duration: 3000 });
+        this.feedback.error(`Couldn’t share ${name}`, 'The artist link is still available in your address bar.');
       }
     }
   }

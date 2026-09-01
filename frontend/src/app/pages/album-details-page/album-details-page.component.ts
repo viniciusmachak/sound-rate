@@ -11,7 +11,6 @@ import { CommonModule, DecimalPipe, SlicePipe } from '@angular/common';
 import { MatCardModule } from '@angular/material/card';
 import { MatTabsModule } from '@angular/material/tabs';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { StarRatingComponent } from '../../components/star-rating/star-rating.component';
@@ -24,6 +23,7 @@ import { AlbumCoverDialogComponent } from '../../components/album-cover-dialog/a
 import { DeezerButtonComponent } from '../../components/deezer-button/deezer-button.component';
 import { DeezerAlbum, DeezerContributor, DeezerTrack } from '../../models/deezer.model';
 import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
+import { FeedbackService } from '../../services/feedback.service';
 
 interface AlbumParticipant {
   id: number | null;
@@ -38,7 +38,7 @@ interface AlbumParticipant {
   standalone: true,
   imports: [
     CommonModule, RouterLink, MatCardModule, MatTabsModule, MatIconModule,
-    StarRatingComponent, MatSnackBarModule, MatButtonModule, MatDialogModule,
+    StarRatingComponent, MatButtonModule, MatDialogModule,
     ReviewListComponent, FormatDurationPipe,
     DecimalPipe, SlicePipe, SkeletonLoaderComponent, DeezerButtonComponent
   ],
@@ -60,7 +60,7 @@ export class AlbumDetailsPageComponent implements OnInit {
   constructor(
     private route: ActivatedRoute,
     private apiService: ApiService,
-    private snackBar: MatSnackBar,
+    private feedback: FeedbackService,
     public authService: AuthService,
     public audioService: AudioService,
     private dialog: MatDialog,
@@ -102,9 +102,16 @@ export class AlbumDetailsPageComponent implements OnInit {
       : this.apiService.likeAlbum(this.albumId);
 
     apiCall.subscribe({
+      next: () => this.feedback.success(
+        isCurrentlyLiked ? 'Removed from your likes' : 'Added to your likes',
+        `${currentDetails.deezerDetails.title} ${isCurrentlyLiked ? 'is no longer' : 'is now'} in your liked albums.`
+      ),
       error: () => {
         this.albumDetailsSubject.next(currentDetails);
-        this.snackBar.open('Error updating like status.', 'Close', { duration: 3000 });
+        this.feedback.error(
+          'Couldn’t update your likes',
+          `${currentDetails.deezerDetails.title} kept its previous like status.`
+        );
       }
     });
   }
@@ -122,9 +129,16 @@ export class AlbumDetailsPageComponent implements OnInit {
     });
 
     apiCall.subscribe({
+      next: () => this.feedback.success(
+        isOnList ? 'Removed from Listen Later' : 'Saved for later',
+        `${currentDetails.deezerDetails.title} ${isOnList ? 'was removed from' : 'was added to'} your listening queue.`
+      ),
       error: () => {
         this.albumDetailsSubject.next(currentDetails);
-        this.snackBar.open('Error updating your Listen Later list.', 'Close', { duration: 3000 });
+        this.feedback.error(
+          'Couldn’t update Listen Later',
+          `${currentDetails.deezerDetails.title} kept its previous list status.`
+        );
       }
     });
   }
@@ -143,24 +157,36 @@ export class AlbumDetailsPageComponent implements OnInit {
     if (newRating === null) {
       this.apiService.deleteRating(this.albumId).subscribe({
         next: () => {
-          this.snackBar.open('Rating removed successfully!', 'Close', { duration: 3000 });
+          this.feedback.success(
+            'Rating removed',
+            `Your rating for ${currentDetails.deezerDetails.title} was cleared.`
+          );
           this.loadAlbumDetails();
         },
         error: (err) => {
           this.albumDetailsSubject.next({ ...currentDetails, currentUserRating: oldRating });
-          this.snackBar.open('Error removing your rating.', 'Close', { duration: 3000 });
+          this.feedback.error(
+            'Couldn’t remove your rating',
+            `Your previous rating for ${currentDetails.deezerDetails.title} was restored.`
+          );
         }
       });
     } else {
       const ratingDto: RatingRequest = { albumId: this.albumId, rating: newRating };
       this.apiService.rateAlbumOrTrack(ratingDto).subscribe({
         next: () => {
-          this.snackBar.open('Your rating has been saved!', 'Close', { duration: 3000 });
+          this.feedback.success(
+            'Rating saved',
+            `You gave ${currentDetails.deezerDetails.title} ${newRating} out of 5 stars.`
+          );
           this.loadAlbumDetails();
         },
         error: (err) => {
           this.albumDetailsSubject.next({ ...currentDetails, currentUserRating: oldRating });
-          this.snackBar.open('Error saving your rating.', 'Close', { duration: 3000 });
+          this.feedback.error(
+            'Couldn’t save your rating',
+            `Your previous rating for ${currentDetails.deezerDetails.title} was restored.`
+          );
         }
       });
     }
@@ -169,24 +195,26 @@ export class AlbumDetailsPageComponent implements OnInit {
   onTrackRatingChanged(newRating: number | null, trackId: string): void {
     const currentDetails = this.albumDetailsSubject.getValue();
     if (!currentDetails) return;
+    const trackTitle = currentDetails.deezerDetails.tracks.data.find(track => track.id.toString() === trackId)?.title
+      ?? 'this track';
 
     if (newRating === null) {
       this.apiService.deleteRating(undefined, trackId).subscribe({
         next: () => {
-          this.snackBar.open('Track rating removed!', 'Close', { duration: 2000 });
+          this.feedback.success('Track rating removed', `Your rating for ${trackTitle} was cleared.`);
           this.loadAlbumDetails();
         },
         error: (err) => {
-          this.snackBar.open('Error removing track rating.', 'Close', { duration: 3000 });
+          this.feedback.error('Couldn’t remove the track rating', `${trackTitle} kept its previous rating.`);
         }
       });
     } else {
       this.apiService.rateAlbumOrTrack({ albumId: this.albumId, trackId: trackId, rating: newRating }).subscribe({
         next: () => {
-          this.snackBar.open('Track rating saved!', 'Close', { duration: 2000 });
+          this.feedback.success('Track rating saved', `You gave ${trackTitle} ${newRating} out of 5 stars.`);
           this.loadAlbumDetails();
         },
-        error: (err) => this.snackBar.open('Error saving track rating.', 'Close', { duration: 3000 })
+        error: () => this.feedback.error('Couldn’t save the track rating', `Please try rating ${trackTitle} again.`)
       });
     }
   }
@@ -196,7 +224,10 @@ export class AlbumDetailsPageComponent implements OnInit {
     if (!currentDetails || this.isSavingReview) return;
 
     if (!currentDetails.currentUserRating || currentDetails.currentUserRating === 0) {
-      this.snackBar.open('You must rate the album before writing a review.', 'Close', { duration: 3000 });
+      this.feedback.warning(
+        'Rate the album first',
+        `Add a star rating for ${currentDetails.deezerDetails.title} before writing your review.`
+      );
       return;
     }
 
@@ -224,8 +255,9 @@ export class AlbumDetailsPageComponent implements OnInit {
 
         this.isSavingReview = true;
         this.changeDetectorRef.markForCheck();
-        const savingFeedback = this.snackBar.open(
-          reviewToEdit ? 'Saving review changes…' : 'Publishing review…'
+        const savingFeedback = this.feedback.loading(
+          reviewToEdit ? 'Updating your review' : 'Publishing your review',
+          `Saving your thoughts on ${currentDetails.deezerDetails.title}…`
         );
 
         apiCall.pipe(
@@ -237,10 +269,16 @@ export class AlbumDetailsPageComponent implements OnInit {
           takeUntilDestroyed(this.destroyRef)
         ).subscribe({
           next: () => {
-            this.snackBar.open('Review saved successfully!', 'Close', { duration: 3000 });
+            this.feedback.success(
+              reviewToEdit ? 'Review updated' : 'Review published',
+              `Your review of ${currentDetails.deezerDetails.title} is now part of the community.`
+            );
             this.loadAlbumDetails();
           },
-          error: () => this.snackBar.open('Error saving the review.', 'Close', { duration: 3000 })
+          error: () => this.feedback.error(
+            reviewToEdit ? 'Couldn’t update your review' : 'Couldn’t publish your review',
+            'Your text is safe in the editor. Please try again.'
+          )
         });
       }
     });
@@ -266,7 +304,10 @@ export class AlbumDetailsPageComponent implements OnInit {
       if (!confirmed) return;
 
       this.deletingReviewIds = new Set([...this.deletingReviewIds, reviewId]);
-      const deletingFeedback = this.snackBar.open('Deleting review…');
+      const deletingFeedback = this.feedback.loading(
+        'Deleting your review',
+        'Removing it from the Soundrate community…'
+      );
 
       this.apiService.deleteReview(reviewId).pipe(
         finalize(() => {
@@ -279,10 +320,13 @@ export class AlbumDetailsPageComponent implements OnInit {
         takeUntilDestroyed(this.destroyRef)
       ).subscribe({
         next: () => {
-          this.snackBar.open('Review deleted successfully!', 'Close', { duration: 3000 });
+          this.feedback.success('Review deleted', 'Your review was permanently removed.');
           this.loadAlbumDetails();
         },
-        error: () => this.snackBar.open('Error deleting the review.', 'Close', { duration: 3000 })
+        error: () => this.feedback.error(
+          'Couldn’t delete your review',
+          'The review is still visible and no content was removed.'
+        )
       });
     });
   }

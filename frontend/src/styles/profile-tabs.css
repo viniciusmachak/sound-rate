@@ -177,7 +177,7 @@
 .activity-score mat-icon {
   width: 16px;
   height: 16px;
-  color: #ffc107;
+  color: var(--accent-color);
   font-size: 16px;
 }
 
@@ -240,17 +240,21 @@
 .reviews-list {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 0;
 }
 
 .profile-review-card {
   display: grid;
   grid-template-columns: 138px minmax(0, 1fr);
   gap: 22px;
-  padding: 16px;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 16px;
-  background: #17191d;
+  padding: 20px 16px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.profile-review-card:not(:last-child) {
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-color) 38%, transparent);
 }
 
 .review-album-cover,

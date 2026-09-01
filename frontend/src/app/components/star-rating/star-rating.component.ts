@@ -1,12 +1,11 @@
 import { ChangeDetectionStrategy, Component, EventEmitter, Input, Output } from '@angular/core';
 
 import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 
 @Component({
   selector: 'app-star-rating',
   standalone: true,
-  imports: [MatIconModule, MatButtonModule],
+  imports: [MatIconModule],
   templateUrl: './star-rating.component.html',
   styleUrl: './star-rating.component.css',
   changeDetection: ChangeDetectionStrategy.OnPush
@@ -48,6 +47,34 @@ export class StarRatingComponent {
     } else {
       this.ratingChange.emit(newRating);
     }
+  }
+
+  handleKeydown(event: KeyboardEvent): void {
+    if (this.readonly) return;
+
+    let newRating = this.rating;
+
+    switch (event.key) {
+      case 'ArrowRight':
+      case 'ArrowUp':
+        newRating = Math.min(5, this.rating + 0.5);
+        break;
+      case 'ArrowLeft':
+      case 'ArrowDown':
+        newRating = Math.max(0, this.rating - 0.5);
+        break;
+      case 'Home':
+        newRating = 0;
+        break;
+      case 'End':
+        newRating = 5;
+        break;
+      default:
+        return;
+    }
+
+    event.preventDefault();
+    this.ratingChange.emit(newRating === 0 ? null : newRating);
   }
 
   setHoverRating(star: number, event: MouseEvent): void {

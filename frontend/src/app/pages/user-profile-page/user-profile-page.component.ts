@@ -14,7 +14,6 @@ import { MatCardModule } from '@angular/material/card';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabChangeEvent, MatTabsModule } from '@angular/material/tabs';
 import { AlbumCardComponent } from '../../components/album-card/album-card.component';
 import { SkeletonLoaderComponent } from '../../components/skeleton-loader/skeleton-loader.component';
@@ -27,6 +26,7 @@ import { UserRating } from '../../models/user-rating.model';
 import { UserReview } from '../../models/user-review.model';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { FeedbackService } from '../../services/feedback.service';
 
 type ContentState = 'idle' | 'loading' | 'loaded' | 'empty' | 'error';
 
@@ -114,7 +114,7 @@ export class UserProfilePageComponent implements OnInit {
     private readonly apiService: ApiService,
     public readonly authService: AuthService,
     private readonly dialog: MatDialog,
-    private readonly snackBar: MatSnackBar,
+    private readonly feedback: FeedbackService,
     private readonly destroyRef: DestroyRef
   ) {}
 
@@ -156,7 +156,10 @@ export class UserProfilePageComponent implements OnInit {
         error: () => {
           if (requestedUsername !== this.username) return;
           this.profileState = 'error';
-          this.snackBar.open('Error loading this profile.', 'Close', { duration: 3000 });
+          this.feedback.error(
+            `Couldn’t load @${requestedUsername}`,
+            'The profile is temporarily unavailable. Please try again.'
+          );
         }
       });
   }
@@ -290,14 +293,20 @@ export class UserProfilePageComponent implements OnInit {
     apiCall.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: () => {
         this.followRequestPending = false;
-        this.snackBar.open(isCurrentlyFollowed ? 'User unfollowed.' : 'User followed.', 'Close', {
-          duration: 2200
-        });
+        this.feedback.success(
+          isCurrentlyFollowed ? `Unfollowed @${this.username}` : `Following @${this.username}`,
+          isCurrentlyFollowed
+            ? 'Their updates were removed from your following feed.'
+            : 'Their music activity will now appear in your community.'
+        );
       },
       error: () => {
         this.followRequestPending = false;
         this.profileSubject.next(currentProfile);
-        this.snackBar.open('Could not update follow status.', 'Close', { duration: 3000 });
+        this.feedback.error(
+          `Couldn’t ${isCurrentlyFollowed ? 'unfollow' : 'follow'} @${this.username}`,
+          'Your previous follow status was restored. Please try again.'
+        );
       }
     });
   }
@@ -312,14 +321,15 @@ export class UserProfilePageComponent implements OnInit {
     try {
       if (navigator.share) {
         await navigator.share(shareData);
+        this.feedback.success(`Shared @${username}`, 'The listener profile was sent successfully.');
         return;
       }
 
       await navigator.clipboard.writeText(shareData.url);
-      this.snackBar.open('Profile link copied.', 'Close', { duration: 2200 });
+      this.feedback.success('Profile link copied', `@${username} is ready to share from your clipboard.`);
     } catch (error) {
       if ((error as DOMException)?.name !== 'AbortError') {
-        this.snackBar.open('Could not share this profile.', 'Close', { duration: 3000 });
+        this.feedback.error(`Couldn’t share @${username}`, 'The profile link is still available in your address bar.');
       }
     }
   }
@@ -331,6 +341,7 @@ export class UserProfilePageComponent implements OnInit {
 
     const currentLikedAlbums = this.likedAlbumsSubject.getValue();
     const currentActivity = this.activitySubject.getValue();
+    const albumTitle = currentLikedAlbums.find(album => album.id === albumId)?.title ?? 'This album';
     this.removingLikedAlbumIds.add(albumId);
     this.likedAlbumsSubject.next(currentLikedAlbums.filter(album => album.id !== albumId));
     if (currentActivity) {
@@ -348,7 +359,7 @@ export class UserProfilePageComponent implements OnInit {
       .subscribe({
         next: () => {
           this.removingLikedAlbumIds.delete(albumId);
-          this.snackBar.open('Album removed from likes.', 'Close', { duration: 2000 });
+          this.feedback.success('Removed from your likes', `${albumTitle} is no longer in your liked albums.`);
           this.reloadLikedAlbumsAfterRemoval();
         },
         error: () => {
@@ -357,7 +368,7 @@ export class UserProfilePageComponent implements OnInit {
           if (currentActivity) this.activitySubject.next(currentActivity);
           this.totalLikedAlbums++;
           this.totalActivity++;
-          this.snackBar.open('Error removing like. Please try again.', 'Close', { duration: 3000 });
+          this.feedback.error('Couldn’t remove the like', `${albumTitle} was restored to your liked albums.`);
         }
       });
   }
@@ -368,6 +379,7 @@ export class UserProfilePageComponent implements OnInit {
     if (this.removingListenLaterAlbumIds.has(albumId)) return;
 
     const currentList = this.listenLaterSubject.getValue();
+    const albumTitle = currentList.find(album => album.id === albumId)?.title ?? 'This album';
     this.removingListenLaterAlbumIds.add(albumId);
     this.listenLaterSubject.next(currentList.filter(album => album.id !== albumId));
     this.totalListenLater = Math.max(0, this.totalListenLater - 1);
@@ -378,14 +390,14 @@ export class UserProfilePageComponent implements OnInit {
       .subscribe({
         next: () => {
           this.removingListenLaterAlbumIds.delete(albumId);
-          this.snackBar.open('Album removed from Listen Later list.', 'Close', { duration: 2000 });
+          this.feedback.success('Removed from Listen Later', `${albumTitle} was removed from your listening queue.`);
           this.reloadListenLaterAfterRemoval();
         },
         error: () => {
           this.removingListenLaterAlbumIds.delete(albumId);
           this.listenLaterSubject.next(currentList);
           this.totalListenLater++;
-          this.snackBar.open('Error removing album. Please try again.', 'Close', { duration: 3000 });
+          this.feedback.error('Couldn’t update Listen Later', `${albumTitle} was restored to your listening queue.`);
         }
       });
   }
@@ -643,8 +655,8 @@ export class UserProfilePageComponent implements OnInit {
   }
 
   private showPaginationError(contentName: string, retry: () => void): void {
-    this.snackBar
-      .open(`Couldn't load the next page of ${contentName}.`, 'Try again', { duration: 5000 })
+    this.feedback
+      .retry('Couldn’t load more', `The next page of ${contentName} is temporarily unavailable.`)
       .onAction()
       .pipe(take(1), takeUntilDestroyed(this.destroyRef))
       .subscribe(retry);

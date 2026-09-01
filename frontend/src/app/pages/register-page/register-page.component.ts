@@ -10,6 +10,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIcon } from '@angular/material/icon';
 import { finalize } from 'rxjs/operators';
+import { FeedbackService } from '../../services/feedback.service';
 @Component({
   selector: 'app-register-page',
   standalone: true,
@@ -36,7 +37,8 @@ export class RegisterPageComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private feedback: FeedbackService
   ) {
     this.registerForm = this.fb.group({
       username: ['', [Validators.required, Validators.minLength(3)]],
@@ -57,11 +59,11 @@ export class RegisterPageComponent {
       finalize(() => this.isLoading = false)
     ).subscribe({
       next: () => {
-        console.log('Registration successful!');
+        const username = this.authService.currentUserValue?.username ?? this.registerForm.value.username;
+        this.feedback.success('Your Soundrate profile is ready', `Welcome, @${username}. Start rating what you hear.`);
       },
       error: (err) => {
         this.errorMessage = err.error?.message || 'An error occurred while registering. Please try again.';
-        console.error(err);
       }
     });
   }

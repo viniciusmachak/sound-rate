@@ -1,7 +1,8 @@
 <mat-toolbar class="navbar">
   <div class="nav-container">
     <button mat-icon-button class="menu-button" (click)="toggleSidebar()"
-      aria-label="Open navigation menu" [attr.aria-expanded]="isSidebarOpen">
+      [attr.aria-label]="isSidebarOpen ? 'Close navigation menu' : 'Open navigation menu'"
+      [attr.aria-expanded]="isSidebarOpen" aria-controls="mobile-navigation">
       <mat-icon>menu</mat-icon>
     </button>
 
@@ -13,31 +14,41 @@
       </button>
       <input class="search-input" type="search" placeholder="Search Soundrate"
         aria-label="Search albums, artists or users" autocomplete="off"
+        role="combobox" aria-autocomplete="list" aria-controls="search-suggestions"
+        [attr.aria-expanded]="isSearchPopupOpen"
+        [attr.aria-activedescendant]="isSearchPopupOpen && activeSearchIndex >= 0 ? 'search-result-' + activeSearchIndex : null"
         [formControl]="searchControl" (focus)="isSearchFocused = true" (blur)="closeSearch()"
-        (keydown.escape)="isSearchFocused = false">
+        (keydown)="handleSearchKeydown($event)">
 
       @if (isSearchFocused) {
         @if (searchState$ | async; as state) {
           @if (state.query.length >= 3) {
-            <div class="search-results">
+            <div id="search-suggestions" class="search-results" role="listbox"
+              aria-label="Search suggestions">
               @if (state.isLoading) {
-                <div class="search-feedback">
+                <div class="search-feedback" role="status">
                   <mat-spinner diameter="24"></mat-spinner>
                   <span>Searching...</span>
                 </div>
               } @else if (state.results.length > 0) {
-                @for (result of state.results; track resultKey(result)) {
-                  <button type="button" class="search-result" (click)="selectResult(result)">
-                    <img [src]="resultImage(result)" [alt]="resultTitle(result)">
+                <span class="visually-hidden" role="status">
+                  {{ state.results.length }} suggestions available. Use the up and down arrow keys to navigate.
+                </span>
+                @for (result of state.results; track resultKey(result); let index = $index) {
+                  <div class="search-result" role="option" id="search-result-{{ index }}"
+                    [class.active]="activeSearchIndex === index"
+                    [attr.aria-selected]="activeSearchIndex === index"
+                    (mousedown)="$event.preventDefault()" (click)="selectResult(result)">
+                    <img [src]="resultImage(result)" alt="">
                     <span class="result-copy">
                       <strong>{{ resultTitle(result) }}</strong>
                       <small>{{ resultSubtitle(result) }}</small>
                     </span>
                     <span class="result-type">{{ result.type }}</span>
-                  </button>
+                  </div>
                 }
               } @else {
-                <div class="search-feedback">
+                <div class="search-feedback" role="status">
                   <mat-icon>{{ state.error ? 'error_outline' : 'search_off' }}</mat-icon>
                   <span>{{ state.error ? 'Search unavailable' : 'No results found' }}</span>
                 </div>
@@ -73,7 +84,8 @@
   <button type="button" class="sidebar-backdrop" aria-label="Close navigation menu"
     (click)="closeSidebar()"></button>
 
-  <aside class="sidebar" aria-label="Main navigation">
+  <aside id="mobile-navigation" class="sidebar" role="dialog" aria-modal="true"
+    aria-label="Main navigation" cdkTrapFocus [cdkTrapFocusAutoCapture]="true">
     <div class="sidebar-header">
       <a routerLink="/" class="sidebar-brand" (click)="closeSidebar()">Soundrate</a>
       <button mat-icon-button type="button" aria-label="Close navigation menu" (click)="closeSidebar()">

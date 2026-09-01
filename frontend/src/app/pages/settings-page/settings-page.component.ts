@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { AbstractControl, FormBuilder, FormGroup, ReactiveFormsModule, ValidationErrors, ValidatorFn, Validators } from '@angular/forms';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
 import { User } from '../../models/user.model';
 
@@ -14,6 +13,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { ConfirmationDialogComponent } from '../../components/confirmation-dialog/confirmation-dialog.component';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { finalize } from 'rxjs/operators';
+import { FeedbackService } from '../../services/feedback.service';
 
 export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): ValidationErrors | null => {
   const password = control.get('newPassword');
@@ -30,7 +30,6 @@ export const passwordMatchValidator: ValidatorFn = (control: AbstractControl): V
     MatInputModule,
     MatButtonModule,
     MatIconModule,
-    MatSnackBarModule,
     MatProgressSpinnerModule
 ],
   templateUrl: './settings-page.component.html',
@@ -62,7 +61,7 @@ export class SettingsPageComponent implements OnInit {
     private fb: FormBuilder,
     private apiService: ApiService,
     private authService: AuthService,
-    private snackBar: MatSnackBar,
+    private feedback: FeedbackService,
     private dialog: MatDialog
   ) { }
 
@@ -97,9 +96,15 @@ export class SettingsPageComponent implements OnInit {
         this.currentUser = updatedUser;
         this.authService.updateCurrentUser(updatedUser);
         this.profileForm.markAsPristine();
-        this.snackBar.open('Profile updated successfully!', 'Close', { duration: 3000 });
+        this.feedback.success(
+          'Profile updated',
+          `@${updatedUser.username}, your email and bio are up to date.`
+        );
       },
-      error: (err) => this.snackBar.open('Error updating profile. Email may already be in use.', 'Close', { duration: 3000 })
+      error: () => this.feedback.error(
+        'Couldn’t update your profile',
+        'That email may already be in use. Review it and try again.'
+      )
     });
   }
 
@@ -112,10 +117,13 @@ export class SettingsPageComponent implements OnInit {
       finalize(() => this.isUpdatingPassword = false)
     ).subscribe({
       next: () => {
-        this.snackBar.open('Password changed successfully!', 'Close', { duration: 3000 });
+        this.feedback.success('Password changed', 'Your account now uses the new password.');
         this.passwordForm.reset();
       },
-      error: (err) => this.snackBar.open('Error changing password. Check your current password.', 'Close', { duration: 3000 })
+      error: () => this.feedback.error(
+        'Couldn’t change your password',
+        'Check your current password and try again.'
+      )
     });
   }
 
@@ -135,10 +143,18 @@ export class SettingsPageComponent implements OnInit {
           finalize(() => this.isDeletingAccount = false)
         ).subscribe({
           next: () => {
-            this.snackBar.open('Account deleted successfully. We will miss you!', 'Close', { duration: 5000 });
+            this.feedback.success(
+              'Account deleted',
+              `Your Soundrate data was removed${this.currentUser?.username ? `, @${this.currentUser.username}` : ''}. We’ll miss you.`,
+              5200
+            );
             this.authService.logout();
           },
-          error: (err) => this.snackBar.open('An error occurred while deleting your account.', 'Close', { duration: 5000 })
+          error: () => this.feedback.error(
+            'Couldn’t delete your account',
+            'Nothing was removed. Please wait a moment and try again.',
+            5200
+          )
         });
       }
     });
@@ -166,13 +182,16 @@ export class SettingsPageComponent implements OnInit {
       finalize(() => this.isUploadingAvatar = false)
     ).subscribe({
       next: (updatedUser) => {
-        this.snackBar.open('Profile picture updated successfully!', 'Close', { duration: 3000 });
+        this.feedback.success('Profile photo updated', 'Your new image is now visible across Soundrate.');
         this.currentUser = updatedUser;
         this.authService.updateCurrentUser(updatedUser);
         this.imagePreview = updatedUser.avatarUrl;
         this.selectedFile = null;
       },
-      error: (err) => this.snackBar.open('Error uploading image.', 'Close', { duration: 3000 })
+      error: () => this.feedback.error(
+        'Couldn’t upload your photo',
+        'Choose a valid image and try again.'
+      )
     });
   }
 
@@ -182,13 +201,16 @@ export class SettingsPageComponent implements OnInit {
       finalize(() => this.isResettingAvatar = false)
     ).subscribe({
       next: (updatedUser) => {
-        this.snackBar.open('Profile picture reset to default.', 'Close', { duration: 3000 });
+        this.feedback.success('Default photo restored', 'Your profile is using the Soundrate default image.');
         this.currentUser = updatedUser;
         this.authService.updateCurrentUser(updatedUser);
         this.imagePreview = updatedUser.avatarUrl;
         this.selectedFile = null;
       },
-      error: (err) => this.snackBar.open('Error resetting photo.', 'Close', { duration: 3000 })
+      error: () => this.feedback.error(
+        'Couldn’t reset your photo',
+        'Your current profile image was kept. Please try again.'
+      )
     });
   }
 }

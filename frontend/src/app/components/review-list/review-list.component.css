@@ -54,7 +54,7 @@
 }
 
 .review-item:not(:last-of-type) {
-  border-bottom: 1px solid rgba(94, 28, 124, 0.55);
+  border-bottom: 1px solid color-mix(in srgb, var(--accent-color) 38%, transparent);
 }
 
 .review-info {

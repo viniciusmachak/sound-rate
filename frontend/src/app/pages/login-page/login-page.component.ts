@@ -11,6 +11,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatIcon } from '@angular/material/icon';
 import { finalize } from 'rxjs/operators';
+import { FeedbackService } from '../../services/feedback.service';
 
 @Component({
   selector: 'app-login-page',
@@ -37,7 +38,8 @@ export class LoginPageComponent {
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
-    private router: Router
+    private router: Router,
+    private feedback: FeedbackService
   ) {
 
     this.loginForm = this.fb.group({
@@ -57,11 +59,11 @@ export class LoginPageComponent {
       finalize(() => this.isLoading = false)
     ).subscribe({
       next: () => {
-        console.log('Successful login!');
+        const username = this.authService.currentUserValue?.username ?? this.loginForm.value.username;
+        this.feedback.success('Welcome back', `Signed in as @${username}. Your music is waiting.`);
       },
-      error: (err) => {
+      error: () => {
         this.errorMessage = 'Invalid login or password. Please try again.';
-        console.error(err);
       }
     });
   }

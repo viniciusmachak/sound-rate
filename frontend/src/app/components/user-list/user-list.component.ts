@@ -8,7 +8,6 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
 import { MatListModule } from '@angular/material/list';
-import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatTabsModule } from '@angular/material/tabs';
 import { RouterLink } from '@angular/router';
 import { BehaviorSubject, debounceTime, distinctUntilChanged, finalize, map, Subscription } from 'rxjs';
@@ -16,6 +15,7 @@ import { FollowedArtist } from '../../models/followed-artist.model';
 import { SocialUser } from '../../models/social-user.model';
 import { ApiService } from '../../services/api.service';
 import { AuthService } from '../../services/auth.service';
+import { FeedbackService } from '../../services/feedback.service';
 import { SkeletonLoaderComponent } from '../skeleton-loader/skeleton-loader.component';
 
 export interface UserListDialogData {
@@ -79,7 +79,7 @@ export class UserListComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: UserListDialogData,
     private readonly apiService: ApiService,
     private readonly authService: AuthService,
-    private readonly snackBar: MatSnackBar,
+    private readonly feedback: FeedbackService,
     private readonly destroyRef: DestroyRef
   ) {}
 
@@ -209,13 +209,22 @@ export class UserListComponent implements OnInit {
       : this.apiService.followUser(user.username);
 
     request.pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
-      next: () => this.updatingUserIds.delete(user.id),
+      next: () => {
+        this.updatingUserIds.delete(user.id);
+        this.feedback.success(
+          wasFollowed ? `Unfollowed @${user.username}` : `Following @${user.username}`,
+          wasFollowed
+            ? 'Their updates were removed from your following feed.'
+            : 'Their music activity will now appear in your community.'
+        );
+      },
       error: () => {
         this.updatingUserIds.delete(user.id);
         this.updateUserFollowState(user.id, wasFollowed);
-        this.snackBar.open('Could not update follow status. Please try again.', 'Close', {
-          duration: 3000
-        });
+        this.feedback.error(
+          `Couldn’t ${wasFollowed ? 'unfollow' : 'follow'} @${user.username}`,
+          'Your previous follow status was restored. Please try again.'
+        );
       }
     });
   }
