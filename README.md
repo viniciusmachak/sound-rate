@@ -84,9 +84,9 @@ Notes:
 
 ## Running With Docker
 
-The Compose file exposes three services:
+The Compose file runs three services:
 
-- `db`: PostgreSQL on host port `5433`
+- `db`: PostgreSQL available only to the other containers at `db:5432`
 - `backend`: API on `http://localhost:8080`
 - `frontend`: UI on `http://localhost:4200`
 
@@ -94,12 +94,6 @@ Start the full stack:
 
 ```bash
 docker compose up --build
-```
-
-Start only the database:
-
-```bash
-docker compose up db
 ```
 
 ## Running Locally
@@ -117,6 +111,13 @@ Expected local ports:
 
 - PostgreSQL: `localhost:5433`
 - API: `localhost:8080`
+
+The Compose database is not published to the host. To use PostgreSQL from Compose
+with the backend running locally, publish the port explicitly:
+
+```bash
+docker compose run --rm -p 5433:5432 db
+```
 
 ### Frontend
 

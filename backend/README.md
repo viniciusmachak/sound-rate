@@ -64,16 +64,13 @@ SENDGRID_API_KEY=SG.xxxxx
 
 ### 1. Start PostgreSQL
 
-From the repository root:
+The local backend profile expects PostgreSQL on `localhost:5433`. The Compose
+database is internal-only by default, so publish its port explicitly when running
+the backend outside Docker:
 
 ```bash
-docker compose up db
+docker compose run --rm -p 5433:5432 db
 ```
-
-The local backend profile expects PostgreSQL on:
-
-- host: `localhost`
-- port: `5433`
 
 ### 2. Run the API
 

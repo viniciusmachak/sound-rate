@@ -1,22 +1,24 @@
-FROM maven:3.9-eclipse-temurin-21 AS build
+FROM maven:3.9.16-eclipse-temurin-21-alpine AS build
 
 WORKDIR /app
 
 COPY pom.xml .
-COPY mvnw .
-COPY .mvn/ .mvn/
 
-RUN chmod +x mvnw && ./mvnw -B dependency:go-offline
+RUN mvn -B dependency:go-offline
 
 COPY src/ ./src/
 
-RUN ./mvnw -B package -DskipTests
+RUN mvn -B package -DskipTests
 
-FROM eclipse-temurin:21-jre-alpine
+FROM eclipse-temurin:21.0.12_8-jre-alpine AS runtime
 
 WORKDIR /app
 
-COPY --from=build /app/target/*.jar app.jar
+RUN addgroup -S soundrate && adduser -S soundrate -G soundrate
+
+COPY --from=build --chown=soundrate:soundrate /app/target/*.jar app.jar
+
+USER soundrate
 
 EXPOSE 8080
 
