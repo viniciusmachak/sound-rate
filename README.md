@@ -1,5 +1,9 @@
 # Soundrate
 
+---
+
+![Soundrate](frontend/public/readme-image.png)
+
 Soundrate is a full-stack music discovery and review application. Users can register, manage a profile, rate albums and tracks, write reviews, follow other users, and maintain personal lists such as liked albums and listen-later items.
 
 This repository is a monorepo with two application folders:

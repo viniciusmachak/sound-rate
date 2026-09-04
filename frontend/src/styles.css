@@ -38,6 +38,11 @@ body {
   text-rendering: optimizeLegibility;
 }
 
+mat-spinner,
+mat-progress-spinner {
+  --mat-progress-spinner-active-indicator-color: var(--accent-color);
+}
+
 :where(a, button, input, select, textarea, [tabindex]):focus-visible {
   outline: 3px solid var(--accent-color);
   outline-offset: 3px;

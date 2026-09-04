@@ -26,6 +26,10 @@
 }
 
 .auth-card {
+  --mat-form-field-focus-select-arrow-color: var(--accent-color);
+  --mat-form-field-outlined-caret-color: var(--accent-color);
+  --mat-form-field-outlined-focus-label-text-color: var(--accent-color);
+  --mat-form-field-outlined-focus-outline-color: var(--accent-color);
   display: block;
   width: 100%;
   padding: clamp(28px, 4vw, 42px);
@@ -100,6 +104,10 @@
 }
 
 .auth-submit {
+  --mat-button-protected-container-color: var(--accent-color);
+  --mat-button-protected-label-text-color: var(--background-dark);
+  --mat-button-protected-ripple-color: color-mix(in srgb, var(--background-dark) 16%, transparent);
+  --mat-button-protected-state-layer-color: var(--background-dark);
   height: 50px;
   margin-top: 4px;
   border-radius: 12px;
@@ -109,7 +117,15 @@
 }
 
 .auth-submit mat-spinner {
+  --mat-progress-spinner-active-indicator-color: var(--background-dark);
   margin: 0 auto;
+}
+
+.auth-state-card [mat-stroked-button] {
+  --mat-button-outlined-label-text-color: var(--accent-color);
+  --mat-button-outlined-outline-color: var(--accent-color);
+  --mat-button-outlined-ripple-color: color-mix(in srgb, var(--accent-color) 18%, transparent);
+  --mat-button-outlined-state-layer-color: var(--accent-color);
 }
 
 .auth-links {
